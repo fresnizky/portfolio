@@ -1,0 +1,85 @@
+# generated: 2026-01-06
+# project: Portfolio Tracker
+# project_key: portfolio
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-01-06
+project: Portfolio Tracker
+project_key: portfolio
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation & Authentication
+  epic-1: in-progress
+  1-1-project-scaffolding-docker-setup: in-progress
+  1-2-database-schema-prisma-setup: backlog
+  1-3-user-authentication-api: backlog
+  1-4-frontend-auth-flow-protected-routes: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Portfolio Configuration
+  epic-2: backlog
+  2-1-asset-crud-api-database-model: backlog
+  2-2-target-percentage-assignment-validation: backlog
+  2-3-portfolio-configuration-ui: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Holdings & Price Management
+  epic-3: backlog
+  3-1-holdings-management-api: backlog
+  3-2-price-update-portfolio-valuation: backlog
+  3-3-holdings-prices-ui-staleness-indicator: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Transaction Recording
+  epic-4: backlog
+  4-1-transaction-recording-api: backlog
+  4-2-automatic-holdings-update-transaction: backlog
+  4-3-transaction-history-ui: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Dashboard & Alerts
+  epic-5: backlog
+  5-1-dashboard-summary-api: backlog
+  5-2-dashboard-ui-distribution-visualization: backlog
+  5-3-alerts-panel-attention-required-view: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Historical Evolution & Onboarding
+  epic-6: backlog
+  6-1-portfolio-snapshots-api: backlog
+  6-2-evolution-chart-historical-view: backlog
+  6-3-onboarding-wizard: backlog
+  6-4-settings-preferences-management: backlog
+  epic-6-retrospective: optional

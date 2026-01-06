@@ -1,0 +1,249 @@
+---
+project_name: 'portfolio'
+user_name: 'Fede'
+date: '2026-01-06'
+status: 'complete'
+architecture_doc: '_bmad-output/planning-artifacts/architecture.md'
+---
+
+# Project Context for AI Agents
+
+_Critical rules and patterns for implementing code in Portfolio Tracker. Focus on unobvious details._
+
+---
+
+## Technology Stack & Versions
+
+| Technology | Version | Notes |
+|------------|---------|-------|
+| Node.js | 24.12.0 | Runtime |
+| React | 19.x | Via Vite template |
+| Vite | 7.2.7 | Build tool |
+| TypeScript | 5.x | Strict mode enabled |
+| Express | 5.x | Backend API |
+| Prisma | 7+ | ORM (no Rust engine) |
+| PostgreSQL | 18 | Database |
+| Tailwind CSS | 4.x | Styling |
+| Shadcn/ui | latest | UI components |
+| Zustand | latest | Client state |
+| TanStack Query | 5.x | Server state |
+| React Hook Form | latest | Forms |
+| Zod | latest | Validation |
+| Recharts | latest | Charts |
+
+---
+
+## Critical Implementation Rules
+
+### TypeScript Rules
+
+- **Strict mode**: Siempre habilitado, no usar `any`
+- **Imports**: Usar path aliases (`@/components`, `@/lib`)
+- **Types**: Preferir `interface` para objetos, `type` para unions/intersections
+- **Nulls**: Usar optional chaining (`?.`) y nullish coalescing (`??`)
+- **Exports**: Named exports para utilidades, default export solo para componentes de página
+
+### Naming Conventions
+
+```typescript
+// Files
+PascalCase.tsx      // Componentes React
+camelCase.ts        // Utils, hooks, services
+*.test.ts(x)        // Tests (co-located)
+
+// Code
+const userId = ''           // Variables: camelCase
+const MAX_RETRIES = 3       // Constants: UPPER_SNAKE
+function getUser() {}       // Functions: camelCase
+interface User {}           // Types: PascalCase
+const userSchema = z.object // Zod: camelCase + Schema suffix
+```
+
+### API Patterns
+
+```typescript
+// Endpoints: plural, kebab-case
+GET    /api/assets
+POST   /api/assets
+GET    /api/assets/:id
+PUT    /api/assets/:id
+DELETE /api/assets/:id
+
+// Response format - ALWAYS use this structure
+// Success:
+{ "data": T, "message"?: string }
+
+// Error:
+{ "error": "ERROR_CODE", "message": "Human readable", "details"?: {} }
+
+// List:
+{ "data": T[], "meta"?: { "total": number } }
+```
+
+### Database (Prisma)
+
+```prisma
+// Models: PascalCase singular
+model Asset {
+  id        String   @id @default(cuid())
+  ticker    String   @unique
+  createdAt DateTime @default(now())  // camelCase fields
+  updatedAt DateTime @updatedAt
+  assetId   String   // FK: camelCase + Id
+}
+```
+
+### Frontend Patterns
+
+**Components:**
+```typescript
+// Feature-based organization
+src/features/{feature}/components/  // Feature-specific
+src/components/ui/                  // Shared (Shadcn)
+src/components/common/              // App-wide shared
+```
+
+**State Management:**
+```typescript
+// Zustand: use[Feature]Store
+export const usePortfolioStore = create<PortfolioState>((set) => ({...}))
+
+// TanStack Query keys: [feature, action, params?]
+queryKey: ['assets', 'list']
+queryKey: ['assets', 'detail', id]
+```
+
+**Data Fetching:**
+```typescript
+// NEVER use fetch directly - always through lib/api.ts
+import { api } from '@/lib/api'
+const { data } = useQuery({
+  queryKey: queryKeys.assets.list(),
+  queryFn: () => api.assets.list(),
+})
+```
+
+### Backend Patterns
+
+**Error Handling:**
+```typescript
+// ALWAYS use AppError, never throw new Error()
+import { Errors } from '@/lib/errors'
+
+throw Errors.validation('Message', { details })
+throw Errors.notFound('Asset')
+throw Errors.unauthorized()
+```
+
+**Route Structure:**
+```typescript
+// Routes: only parse request/response
+// Services: contain business logic
+// Routes NEVER access Prisma directly
+
+// Route
+router.get('/:id', async (req, res) => {
+  const asset = await assetService.getById(req.params.id)
+  res.json({ data: asset })
+})
+```
+
+### Date/Time Handling
+
+```typescript
+// API: ALWAYS ISO 8601 UTC strings
+{ "createdAt": "2026-01-06T15:30:00.000Z" }
+
+// Database: timestamp with time zone (Prisma handles)
+
+// Frontend display: locale-aware
+import { format } from 'date-fns'
+format(new Date(createdAt), 'dd/MM/yyyy')
+```
+
+---
+
+## Testing Rules
+
+- **Location**: Co-located (`Component.test.tsx` next to `Component.tsx`)
+- **Naming**: `*.test.ts` or `*.test.tsx`
+- **Framework**: Vitest (recommended for Vite)
+- **Mocks**: `__mocks__/` folder in same directory if needed
+
+---
+
+## Infrastructure Rules
+
+### Docker Compose
+
+```yaml
+# Use environment variables for ports - NEVER hardcode
+ports:
+  - "${PORT_API:-10002}:3000"
+```
+
+### dev-tunnel Workflow
+
+```bash
+# IMPORTANT: Services must be running BEFORE registering
+# 1. Create and start services first
+docker compose up
+
+# 2. Then register with dev-tunnel
+dev-tunnel register portfolio --path $(pwd)
+dev-tunnel env portfolio > .env.ports
+
+# 3. Restart with assigned ports
+docker compose --env-file .env.ports up
+```
+
+### Environment Variables
+
+- `.env` - Application config (secrets, URLs)
+- `.env.ports` - Generated by dev-tunnel (gitignored)
+- `.env.example` - Template for required vars
+
+---
+
+## Anti-Patterns to Avoid
+
+```typescript
+// ❌ NEVER
+const user_id = ''              // snake_case in JS
+throw new Error('Not found')    // Raw errors
+fetch('/api/...')               // Direct fetch
+/api/asset                      // Singular endpoints
+{ asset_id: '1' }               // snake_case in JSON
+any                             // TypeScript any
+
+// ✅ ALWAYS
+const userId = ''               // camelCase
+throw Errors.notFound('User')   // AppError
+api.users.get(id)               // API client
+/api/assets                     // Plural endpoints
+{ assetId: '1' }                // camelCase in JSON
+proper types                    // Full type safety
+```
+
+---
+
+## Security Rules
+
+- **JWT**: Access token en memory, refresh en httpOnly cookie
+- **Passwords**: bcrypt, NEVER store plaintext
+- **CORS**: Solo dominio del frontend
+- **Rate Limit**: 5/min login, 100/min API general
+- **Secrets**: NEVER commit `.env`, solo `.env.example`
+
+---
+
+## Quick Reference
+
+| Pregunta | Respuesta |
+|----------|-----------|
+| ¿Dónde van los componentes? | `src/features/{feature}/components/` o `src/components/` |
+| ¿Dónde van los tests? | Junto al archivo (`*.test.tsx`) |
+| ¿Cómo formateo fechas? | ISO en API, `date-fns` en UI |
+| ¿Cómo manejo errores? | `Errors.validation()`, `Errors.notFound()` |
+| ¿Cómo hago fetch? | `api.{resource}.{method}()` via TanStack Query |
+| ¿Qué puertos uso? | Los de `.env.ports` generados por dev-tunnel |
