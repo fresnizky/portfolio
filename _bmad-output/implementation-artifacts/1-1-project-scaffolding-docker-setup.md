@@ -35,12 +35,12 @@ Status: ready-for-dev
   - [x] Create `.env.example` with required environment variables template
   - [x] Create `README.md` with project overview and setup instructions
 
-- [ ] Task 2: Initialize Frontend with Vite (AC: 1, 2)
-  - [ ] Run `npm create vite@latest frontend -- --template react-ts`
-  - [ ] Create `frontend/Dockerfile` for production build
-  - [ ] Create `frontend/Dockerfile.dev` for development with HMR
-  - [ ] Configure `vite.config.ts` for Docker networking (host: true)
-  - [ ] Add basic `frontend/.env.example`
+- [x] Task 2: Initialize Frontend with Vite (AC: 1, 2)
+  - [x] Run `npm create vite@latest frontend -- --template react-ts`
+  - [x] Create `frontend/Dockerfile` for production build
+  - [x] Create `frontend/Dockerfile.dev` for development with HMR
+  - [x] Configure `vite.config.ts` for Docker networking (host: true)
+  - [x] Add basic `frontend/.env.example`
 
 - [ ] Task 3: Initialize Backend with Express + TypeScript (AC: 1, 3)
   - [ ] Create `backend/` directory structure
@@ -310,9 +310,23 @@ _None - Task 1 files already existed from initial commit_
 ### Completion Notes List
 
 - **Task 1 (2026-01-06):** Root project structure verified. Files `.gitignore`, `.env.example`, and `README.md` already existed with correct content from initial project setup.
+- **Task 2 (2026-01-06):** Frontend initialized with Vite + React 19 + TypeScript. Created Dockerfile (prod with nginx), Dockerfile.dev (dev with HMR), configured vite.config.ts with host:true for Docker networking. Build verified passing.
 
 ### File List
 
 - `.gitignore` - Git ignore rules (node_modules, .env, .env.ports, dist, build)
 - `.env.example` - Environment variables template
 - `README.md` - Project documentation with setup instructions
+- `frontend/package.json` - Frontend dependencies (React 19, Vite 7.3)
+- `frontend/pnpm-lock.yaml` - Lock file
+- `frontend/tsconfig.json` - TypeScript config with strict mode and path aliases
+- `frontend/vite.config.ts` - Vite config with React plugin and Docker host settings
+- `frontend/index.html` - Entry HTML
+- `frontend/Dockerfile` - Production build (multi-stage with nginx)
+- `frontend/Dockerfile.dev` - Development with HMR
+- `frontend/nginx.conf` - Nginx config for SPA routing
+- `frontend/.env.example` - Frontend env template
+- `frontend/src/main.tsx` - React entry point
+- `frontend/src/App.tsx` - Root component
+- `frontend/src/index.css` - Base styles
+- `frontend/src/vite-env.d.ts` - Vite type declarations
