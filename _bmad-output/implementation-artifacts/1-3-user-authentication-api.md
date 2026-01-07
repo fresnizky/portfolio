@@ -80,13 +80,13 @@ Status: ready-for-dev
   - [x] Configure general API rate limiter: 100 requests per minute per IP
   - [x] Return 429 Too Many Requests with retry-after header
 
-- [ ] Task 8: Create auth routes (AC: 1, 2, 3)
-  - [ ] Create `backend/src/routes/auth.ts`
-  - [ ] POST `/api/auth/register` - register new user
-  - [ ] POST `/api/auth/login` - authenticate user
-  - [ ] Apply login rate limiter to login route
-  - [ ] Use Zod validation middleware for request body
-  - [ ] Add integration tests in `backend/src/routes/auth.test.ts`
+- [x] Task 8: Create auth routes (AC: 1, 2, 3)
+  - [x] Create `backend/src/routes/auth.ts`
+  - [x] POST `/api/auth/register` - register new user
+  - [x] POST `/api/auth/login` - authenticate user
+  - [x] Apply auth rate limiter to both routes
+  - [x] Use Zod validation middleware for request body
+  - [x] Add integration tests in `backend/src/routes/auth.test.ts`
 
 - [ ] Task 9: Update environment configuration (AC: 1, 2, 4)
   - [ ] Add JWT_SECRET to .env.example (required, no default)
@@ -457,7 +457,8 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Task 4: Created Zod validation schemas using z.email() (Zod 4 API) and z.string().min(). Added 10 unit tests.
 - Task 5: Created auth service with register/login methods, AppError class, and Errors factory. Configured test separation (unit vs integration). Added 7 unit tests.
 - Task 6: Created auth middleware for JWT verification with Express Request type extension. Added 5 unit tests.
-- Task 7: Created rate limiter middleware (loginRateLimiter: 5/min, apiRateLimiter: 100/min). Added 4 unit tests.
+- Task 7: Created rate limiter middleware (authRateLimiter: 5/min, apiRateLimiter: 100/min). Added 4 unit tests.
+- Task 8: Created auth routes with Zod validation middleware. Installed supertest. Added 8 tests.
 
 ### File List
 
@@ -480,6 +481,9 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - backend/src/types/express.d.ts (created)
 - backend/src/middleware/rateLimiter.ts (created)
 - backend/src/middleware/rateLimiter.test.ts (created)
+- backend/src/middleware/validate.ts (created)
+- backend/src/routes/auth.ts (created)
+- backend/src/routes/auth.test.ts (created)
 
 ## Change Log
 
@@ -492,4 +496,5 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Task 4 completed: Created Zod validation schemas (registerSchema, loginSchema) using Zod 4 API with unit tests |
 | 2026-01-07 | Task 5 completed: Created auth service, AppError/Errors utilities, separated unit/integration tests |
 | 2026-01-07 | Task 6 completed: Created auth middleware with JWT verification and Express type extension |
-| 2026-01-07 | Task 7 completed: Created rate limiter middleware for login (5/min) and API (100/min) |
+| 2026-01-07 | Task 7 completed: Created rate limiter middleware for auth (5/min) and API (100/min) |
+| 2026-01-07 | Task 8 completed: Created auth routes (/register, /login) with Zod validation and rate limiting |

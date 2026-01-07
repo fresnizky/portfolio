@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { loginRateLimiter, apiRateLimiter } from './rateLimiter'
+import { authRateLimiter, apiRateLimiter } from './rateLimiter'
 
 describe('rateLimiter', () => {
-  describe('loginRateLimiter', () => {
+  describe('authRateLimiter', () => {
     it('should be defined', () => {
-      expect(loginRateLimiter).toBeDefined()
+      expect(authRateLimiter).toBeDefined()
     })
 
     it('should be a function (middleware)', () => {
-      expect(typeof loginRateLimiter).toBe('function')
+      expect(typeof authRateLimiter).toBe('function')
     })
   })
 
