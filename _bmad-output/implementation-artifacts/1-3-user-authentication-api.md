@@ -41,10 +41,10 @@ Status: ready-for-dev
   - [x] Install jsonwebtoken types: `pnpm add -D @types/jsonwebtoken`
   - [x] Install express-rate-limit: `pnpm add express-rate-limit`
 
-- [ ] Task 2: Create password utilities (AC: 1, 2)
-  - [ ] Create `backend/src/lib/password.ts` with hashPassword and verifyPassword functions
-  - [ ] Use bcrypt with salt rounds 10-12
-  - [ ] Add tests in `backend/src/lib/password.test.ts`
+- [x] Task 2: Create password utilities (AC: 1, 2)
+  - [x] Create `backend/src/lib/password.ts` with hashPassword and verifyPassword functions
+  - [x] Use bcrypt with salt rounds 10-12
+  - [x] Add tests in `backend/src/lib/password.test.ts`
 
 - [ ] Task 3: Create JWT utilities (AC: 2, 4)
   - [ ] Create `backend/src/lib/jwt.ts` with generateToken and verifyToken functions
@@ -452,11 +452,14 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 ### Completion Notes List
 
 - Task 1: Installed authentication dependencies (bcrypt ^6.0.0, jsonwebtoken ^9.0.3, express-rate-limit ^8.2.1) and type definitions (@types/bcrypt ^6.0.0, @types/jsonwebtoken ^9.0.10)
+- Task 2: Created password utilities with hashPassword and verifyPassword functions using bcrypt (salt rounds 10). Added 5 unit tests.
 
 ### File List
 
 - backend/package.json (modified)
 - backend/pnpm-lock.yaml (modified)
+- backend/src/lib/password.ts (created)
+- backend/src/lib/password.test.ts (created)
 
 ## Change Log
 
@@ -464,3 +467,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 |------|--------|
 | 2026-01-07 | Story created by SM agent with comprehensive context from epics, architecture, and previous story learnings |
 | 2026-01-07 | Task 1 completed: Installed auth dependencies (bcrypt, jsonwebtoken, express-rate-limit) and type definitions |
+| 2026-01-07 | Task 2 completed: Created password utilities (hashPassword, verifyPassword) with bcrypt and unit tests |
