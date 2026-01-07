@@ -66,13 +66,13 @@ Status: ready-for-dev
   - [x] Handle invalid credentials error
   - [x] Add tests in `backend/src/services/authService.test.ts`
 
-- [ ] Task 6: Create auth middleware (AC: 4)
-  - [ ] Create `backend/src/middleware/auth.ts` with JWT verification middleware
-  - [ ] Extract token from `Authorization: Bearer <token>` header
-  - [ ] Verify token and attach user to request object
-  - [ ] Return 401 Unauthorized if token is missing or invalid
-  - [ ] Add TypeScript type extension for Request with user
-  - [ ] Add tests in `backend/src/middleware/auth.test.ts`
+- [x] Task 6: Create auth middleware (AC: 4)
+  - [x] Create `backend/src/middleware/auth.ts` with JWT verification middleware
+  - [x] Extract token from `Authorization: Bearer <token>` header
+  - [x] Verify token and attach user to request object
+  - [x] Return 401 Unauthorized if token is missing or invalid
+  - [x] Add TypeScript type extension for Request with user
+  - [x] Add tests in `backend/src/middleware/auth.test.ts`
 
 - [ ] Task 7: Create rate limiter middleware (AC: 3)
   - [ ] Create `backend/src/middleware/rateLimiter.ts`
@@ -456,6 +456,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Task 3: Created JWT utilities with generateToken and verifyToken functions. Uses StringValue type from ms for proper typing. Added 7 unit tests.
 - Task 4: Created Zod validation schemas using z.email() (Zod 4 API) and z.string().min(). Added 10 unit tests.
 - Task 5: Created auth service with register/login methods, AppError class, and Errors factory. Configured test separation (unit vs integration). Added 7 unit tests.
+- Task 6: Created auth middleware for JWT verification with Express Request type extension. Added 5 unit tests.
 
 ### File List
 
@@ -473,6 +474,9 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - backend/src/services/authService.ts (created)
 - backend/src/services/authService.test.ts (created)
 - backend/src/config/database.integration.ts (renamed from database.test.ts)
+- backend/src/middleware/auth.ts (created)
+- backend/src/middleware/auth.test.ts (created)
+- backend/src/types/express.d.ts (created)
 
 ## Change Log
 
@@ -484,3 +488,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Task 3 completed: Created JWT utilities (generateToken, verifyToken) with proper StringValue typing and unit tests |
 | 2026-01-07 | Task 4 completed: Created Zod validation schemas (registerSchema, loginSchema) using Zod 4 API with unit tests |
 | 2026-01-07 | Task 5 completed: Created auth service, AppError/Errors utilities, separated unit/integration tests |
+| 2026-01-07 | Task 6 completed: Created auth middleware with JWT verification and Express type extension |
