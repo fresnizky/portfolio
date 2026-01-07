@@ -30,11 +30,11 @@ so that **I can define which investments I'm tracking**.
   - [x] Run `pnpm prisma migrate dev --name add-asset-model`
   - [x] Run `pnpm prisma generate`
 
-- [ ] Task 2: Zod Validation Schemas (AC: #1, #3, #5)
-  - [ ] Create `backend/src/validations/asset.ts`
-  - [ ] Define `createAssetSchema` with ticker, name, category validation
-  - [ ] Define `updateAssetSchema` for partial updates
-  - [ ] Export schemas for route middleware
+- [x] Task 2: Zod Validation Schemas (AC: #1, #3, #5)
+  - [x] Create `backend/src/validations/asset.ts`
+  - [x] Define `createAssetSchema` with ticker, name, category validation
+  - [x] Define `updateAssetSchema` for partial updates
+  - [x] Export schemas for route middleware
 
 - [ ] Task 3: Asset Service Layer (AC: #1, #2, #3, #4, #5)
   - [ ] Create `backend/src/services/assetService.ts`
@@ -301,9 +301,12 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 ### Completion Notes List
 
 - ✅ Task 1: Prisma Schema Update - Added Asset model with AssetCategory enum, relation to User, unique constraint on (userId, ticker), and index on userId. Migration `20260107183904_add_asset_model` applied successfully.
+- ✅ Task 2: Zod Validation Schemas - Created assetCategorySchema, createAssetSchema, updateAssetSchema with proper validations (ticker uppercase transform, length limits). 17 unit tests added.
 
 ### File List
 
 - `backend/prisma/schema.prisma` (modified)
 - `backend/prisma/migrations/20260107183904_add_asset_model/migration.sql` (new)
+- `backend/src/validations/asset.ts` (new)
+- `backend/src/validations/asset.test.ts` (new)
 
