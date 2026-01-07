@@ -1,6 +1,6 @@
 # Story 1.4: Frontend Auth Flow & Protected Routes
 
-Status: in-progress
+Status: review
 
 ## Story
 
