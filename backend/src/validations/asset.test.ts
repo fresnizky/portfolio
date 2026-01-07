@@ -258,9 +258,21 @@ describe('targetPercentageSchema', () => {
     expect(() => targetPercentageSchema.parse(-0.01)).toThrow()
   })
 
+  it('rejects negative string values after coercion', () => {
+    expect(() => targetPercentageSchema.parse('-1')).toThrow()
+    expect(() => targetPercentageSchema.parse('-0.5')).toThrow()
+    expect(() => targetPercentageSchema.parse('-100')).toThrow()
+  })
+
   it('rejects values over 100', () => {
     expect(() => targetPercentageSchema.parse(101)).toThrow()
     expect(() => targetPercentageSchema.parse(100.01)).toThrow()
+  })
+
+  it('rejects string values over 100 after coercion', () => {
+    expect(() => targetPercentageSchema.parse('101')).toThrow()
+    expect(() => targetPercentageSchema.parse('100.01')).toThrow()
+    expect(() => targetPercentageSchema.parse('150')).toThrow()
   })
 })
 

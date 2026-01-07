@@ -1,6 +1,6 @@
 # Story 2.2: Target Percentage Assignment with Validation
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -62,6 +62,17 @@ so that **I can define my investment strategy**.
   - [x] Test batch update with invalid sum (all fail, atomic)
   - [x] Test batch update with invalid assetId (ownership failure)
   - [x] Test edge cases: 0%, 100% single asset, decimal precision
+
+### Review Follow-ups (AI)
+
+- [x] [AI-Review][CRITICAL] Fix Decimal handling redundancy in `validateTargetsSum()` - Remove defensive typeof check and handle null/undefined explicitly [assetService.ts:35-38, 125-151]
+- [x] [AI-Review][CRITICAL] Review test mocks for `targetPercentage` - Ensure mocks match Prisma Decimal behavior consistently [assetService.test.ts:22-32, 304-400]
+- [x] [AI-Review][MEDIUM] Add missing test: Single asset invalid batch update - Update 1 of 3 assets where resulting sum < 100 [assetService.test.ts:500-698]
+- [x] [AI-Review][MEDIUM] Add validation test for negative string values - Test `"-1"` is rejected after coercion [asset.test.ts:256-264]
+- [x] [AI-Review][MEDIUM] Complete JSDoc @returns type for new methods - Add explicit return types to `validateTargetsSum()` and `batchUpdateTargets()` [assetService.ts:125-128, 161-203]
+- [x] [AI-Review][MEDIUM] Improve error message clarity - Change "would be" to "is" for better user understanding [assetService.ts:94, 186]
+- [x] [AI-Review][LOW] Add edge case test - Validate all assets can be 0% except one (cash-only portfolio) [assetService.test.ts:635-654]
+- [x] [AI-Review][LOW] Extract magic number to constant - Define `const TARGET_SUM_REQUIRED = 100` for consistency [assetService.ts:43-45, 147]
 
 ## Dev Notes
 
@@ -409,6 +420,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - **Task 5 (2026-01-07):** Implemented `batchUpdateTargets()` for atomic multi-asset target updates. Verifies ownership, validates sum=100%, uses `prisma.$transaction()`. Added 6 new tests.
 - **Task 6 (2026-01-07):** Created `PUT /api/assets/targets` route. Placed before `/:id` routes to avoid conflicts. Uses batchUpdateTargetsSchema validation and returns updated assets with success message.
 - **Task 7 (2026-01-07):** Added edge case tests: single asset 100%, batch 0%+100%, decimal precision (33.33+33.33+33.34=100), reject all 0%. Total: 141 tests passing.
+- **Code Review (2026-01-07):** Adversarial code review completed. Found 9 issues: 2 CRITICAL (Decimal handling redundancy, test mocks inconsistency), 4 MEDIUM (missing tests, incomplete JSDoc, error message clarity), 3 LOW (edge case tests, magic numbers). Created 8 action items for follow-up. All ACs verified as implemented.
 
 ### File List
 

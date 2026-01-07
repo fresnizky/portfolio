@@ -2,6 +2,9 @@ import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
 import type { CreateAssetInput, UpdateAssetInput } from '@/validations/asset'
 
+/** Target percentages must sum to this value (100%) */
+const TARGET_SUM_REQUIRED = 100
+
 export const assetService = {
   /**
    * Create a new asset for a user
@@ -92,7 +95,7 @@ export const assetService = {
       const validation = await this.validateTargetsSum(userId, pendingUpdates)
       if (!validation.valid) {
         throw Errors.validation(
-          `Targets must sum to 100%. Current sum would be: ${validation.sum}%`,
+          `Targets must sum to 100%. Current sum: ${validation.sum}%`,
           { sum: validation.sum, difference: validation.difference }
         )
       }
@@ -120,7 +123,10 @@ export const assetService = {
    * Validate that targets sum to 100%
    * @param userId - The user's ID
    * @param pendingUpdates - Optional map of assetId -> new targetPercentage to apply
-   * @returns Validation result with current sum and difference from 100%
+   * @returns Promise<{valid: boolean, sum: number, difference: number}> - Validation result
+   *   - valid: true if sum equals 100%
+   *   - sum: calculated sum of all targets (rounded to 2 decimals)
+   *   - difference: how far from 100% (positive = over, negative = under)
    */
   async validateTargetsSum(
     userId: string,
@@ -131,20 +137,18 @@ export const assetService = {
     let sum = 0
     for (const asset of assets) {
       const newTarget = pendingUpdates?.get(asset.id)
-      // Prisma Decimal has toNumber() method, but also works with Number()
-      const currentTarget = typeof asset.targetPercentage.toNumber === 'function'
-        ? asset.targetPercentage.toNumber()
-        : Number(asset.targetPercentage)
+      // Prisma Decimal works with Number() conversion
+      const currentTarget = Number(asset.targetPercentage)
       const targetValue = newTarget !== undefined ? newTarget : currentTarget
       sum += targetValue
     }
 
     // Round to avoid floating point issues
     sum = Math.round(sum * 100) / 100
-    const difference = Math.round((sum - 100) * 100) / 100
+    const difference = Math.round((sum - TARGET_SUM_REQUIRED) * 100) / 100
 
     return {
-      valid: sum === 100,
+      valid: sum === TARGET_SUM_REQUIRED,
       sum,
       difference,
     }
@@ -153,10 +157,10 @@ export const assetService = {
   /**
    * Update targets for multiple assets atomically
    * @param userId - The user's ID
-   * @param updates - Array of { assetId, targetPercentage }
-   * @returns Array of updated assets
-   * @throws NotFoundError if any assetId doesn't belong to user
-   * @throws ValidationError if sum doesn't equal 100%
+   * @param updates - Array of { assetId, targetPercentage } updates to apply
+   * @returns Promise<Asset[]> - Array of updated assets in same order as input
+   * @throws {AppError} NotFoundError (404) if any assetId doesn't belong to user
+   * @throws {AppError} ValidationError (400) if sum of all targets doesn't equal 100%
    */
   async batchUpdateTargets(
     userId: string,
@@ -184,7 +188,7 @@ export const assetService = {
     const validation = await this.validateTargetsSum(userId, pendingUpdates)
     if (!validation.valid) {
       throw Errors.validation(
-        `Targets must sum to 100%. Current sum would be: ${validation.sum}%`,
+        `Targets must sum to 100%. Current sum: ${validation.sum}%`,
         { sum: validation.sum, difference: validation.difference }
       )
     }
