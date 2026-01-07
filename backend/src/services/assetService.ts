@@ -2,6 +2,9 @@ import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
 import type { CreateAssetInput, UpdateAssetInput } from '@/validations/asset'
 
+/** Target percentages must sum to this value (100%) */
+const TARGET_SUM_REQUIRED = 100
+
 export const assetService = {
   /**
    * Create a new asset for a user
@@ -71,6 +74,7 @@ export const assetService = {
    * @returns The updated asset
    * @throws NotFoundError if asset doesn't exist or belongs to another user
    * @throws ValidationError if updating ticker to one that already exists
+   * @throws ValidationError if updating targetPercentage and sum would not equal 100%
    */
   async update(userId: string, id: string, data: UpdateAssetInput) {
     await this.getById(userId, id) // Verify ownership
@@ -82,6 +86,18 @@ export const assetService = {
       })
       if (existing) {
         throw Errors.validation('Asset with this ticker already exists', { ticker: data.ticker })
+      }
+    }
+
+    // If updating targetPercentage, validate sum would equal 100%
+    if (data.targetPercentage !== undefined) {
+      const pendingUpdates = new Map([[id, data.targetPercentage]])
+      const validation = await this.validateTargetsSum(userId, pendingUpdates)
+      if (!validation.valid) {
+        throw Errors.validation(
+          `Targets must sum to 100%. Current sum: ${validation.sum}%`,
+          { sum: validation.sum, difference: validation.difference }
+        )
       }
     }
 
@@ -101,5 +117,92 @@ export const assetService = {
   async delete(userId: string, id: string) {
     await this.getById(userId, id) // Verify ownership
     return prisma.asset.delete({ where: { id } })
+  },
+
+  /**
+   * Validate that targets sum to 100%
+   * @param userId - The user's ID
+   * @param pendingUpdates - Optional map of assetId -> new targetPercentage to apply
+   * @returns Promise<{valid: boolean, sum: number, difference: number}> - Validation result
+   *   - valid: true if sum equals 100%
+   *   - sum: calculated sum of all targets (rounded to 2 decimals)
+   *   - difference: how far from 100% (positive = over, negative = under)
+   */
+  async validateTargetsSum(
+    userId: string,
+    pendingUpdates?: Map<string, number>
+  ): Promise<{ valid: boolean; sum: number; difference: number }> {
+    const { assets } = await this.list(userId)
+
+    let sum = 0
+    for (const asset of assets) {
+      const newTarget = pendingUpdates?.get(asset.id)
+      // Prisma Decimal works with Number() conversion
+      const currentTarget = Number(asset.targetPercentage)
+      const targetValue = newTarget !== undefined ? newTarget : currentTarget
+      sum += targetValue
+    }
+
+    // Round to avoid floating point issues
+    sum = Math.round(sum * 100) / 100
+    const difference = Math.round((sum - TARGET_SUM_REQUIRED) * 100) / 100
+
+    return {
+      valid: sum === TARGET_SUM_REQUIRED,
+      sum,
+      difference,
+    }
+  },
+
+  /**
+   * Update targets for multiple assets atomically
+   * @param userId - The user's ID
+   * @param updates - Array of { assetId, targetPercentage } updates to apply
+   * @returns Promise<Asset[]> - Array of updated assets in same order as input
+   * @throws {AppError} NotFoundError (404) if any assetId doesn't belong to user
+   * @throws {AppError} ValidationError (400) if sum of all targets doesn't equal 100%
+   */
+  async batchUpdateTargets(
+    userId: string,
+    updates: Array<{ assetId: string; targetPercentage: number }>
+  ) {
+    // 1. Verify all assets belong to user
+    const assetIds = updates.map(u => u.assetId)
+    const userAssets = await prisma.asset.findMany({
+      where: { userId, id: { in: assetIds } },
+      select: { id: true },
+    })
+
+    if (userAssets.length !== assetIds.length) {
+      const foundIds = new Set(userAssets.map(a => a.id))
+      const missingIds = assetIds.filter(id => !foundIds.has(id))
+      throw Errors.notFound(`Assets not found: ${missingIds.join(', ')}`)
+    }
+
+    // 2. Build pending updates map
+    const pendingUpdates = new Map(
+      updates.map(u => [u.assetId, u.targetPercentage])
+    )
+
+    // 3. Validate sum would equal 100%
+    const validation = await this.validateTargetsSum(userId, pendingUpdates)
+    if (!validation.valid) {
+      throw Errors.validation(
+        `Targets must sum to 100%. Current sum: ${validation.sum}%`,
+        { sum: validation.sum, difference: validation.difference }
+      )
+    }
+
+    // 4. Atomic update using transaction
+    const updatedAssets = await prisma.$transaction(
+      updates.map(({ assetId, targetPercentage }) =>
+        prisma.asset.update({
+          where: { id: assetId },
+          data: { targetPercentage },
+        })
+      )
+    )
+
+    return updatedAssets
   },
 }
