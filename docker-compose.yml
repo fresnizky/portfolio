@@ -14,7 +14,7 @@ services:
       - "${PORT_API:-10002}:3000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-portfolio_user}:${POSTGRES_PASSWORD:-portfolio_pass}@db:5432/${POSTGRES_DB:-portfolio}
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-me}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - PORT=3000
     depends_on:
       db:

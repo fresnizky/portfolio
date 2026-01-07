@@ -15,4 +15,9 @@ export default defineConfig({
       'portfolio.resnizky.ar',
     ],
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+  },
 })

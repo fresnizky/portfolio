@@ -75,6 +75,17 @@ Status: review
   - [x] Test frontend HMR by modifying a component
   - [x] Test backend hot reload by modifying a route
 
+### Review Follow-ups (AI)
+
+- [x] [AI-Review][MEDIUM] Setup test framework baseline (Vitest) - architecture.md:358-374
+- [x] [AI-Review][MEDIUM] Add lint and typecheck scripts to frontend/package.json
+- [x] [AI-Review][MEDIUM] Remove weak JWT_SECRET default or enforce env var in docker-compose.yml
+- [x] [AI-Review][LOW] Add packageManager field to frontend/package.json
+- [x] [AI-Review][LOW] Remove vite.config.ts volume mount from docker-compose.dev.yml
+- [x] [AI-Review][LOW] Add centralized error handler middleware to backend
+- [x] [AI-Review][LOW] Justify or remove redundant backend/.gitignore
+- [x] [AI-Review][LOW] Add .env.ports validation step to README
+
 ## Dev Notes
 
 ### Technology Stack (from Architecture)
@@ -319,6 +330,15 @@ _None - Task 1 files already existed from initial commit_
   - Prod mode: localhost + subdomain ✅
   - Frontend HMR ✅, Backend hot reload ✅
   - Database connectivity ✅
+- **Review Follow-ups (2026-01-07):** Addressed 8 code review findings:
+  - Added Vitest test framework to frontend and backend with baseline tests
+  - Added lint/typecheck scripts to package.json files
+  - Enforced JWT_SECRET as required env var (no weak default)
+  - Added packageManager field to frontend/package.json
+  - Removed vite.config.ts volume mount from docker-compose.dev.yml
+  - Added centralized error handler middleware to backend
+  - Removed redundant backend/.gitignore (covered by root)
+  - Added .env.ports validation step to README
 
 ### File List
 
@@ -345,8 +365,12 @@ _None - Task 1 files already existed from initial commit_
 - `backend/Dockerfile` - Production build (multi-stage)
 - `backend/Dockerfile.dev` - Development with nodemon
 - `backend/.env.example` - Backend env template
-- `backend/.gitignore` - Backend git ignore
 - `backend/src/index.ts` - Express app with /api/health endpoint
+- `backend/src/middleware/errorHandler.ts` - Centralized error handler
+- `backend/src/index.test.ts` - Backend baseline test
+- `backend/vitest.config.ts` - Vitest configuration
+- `frontend/src/App.test.tsx` - Frontend baseline test
+- `frontend/src/test/setup.ts` - Test setup with jest-dom
 - `docker-compose.yml` - Base Docker Compose config (no ports for frontend/backend)
 - `docker-compose.dev.yml` - Development override (Dockerfile.dev, port 5173)
 - `docker-compose.prod.yml` - Production override (Dockerfile, port 80)
