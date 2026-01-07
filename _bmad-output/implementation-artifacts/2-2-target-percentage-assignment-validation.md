@@ -49,11 +49,11 @@ so that **I can define my investment strategy**.
   - [x] Use Prisma transaction for atomic update
   - [x] Return updated assets array
 
-- [ ] Task 6: Batch Update Targets Route (AC: #4)
-  - [ ] Create `PUT /api/assets/targets` route in `backend/src/routes/assets.ts`
-  - [ ] Apply `validate(batchUpdateTargetsSchema)` middleware
-  - [ ] Call `assetService.batchUpdateTargets()`
-  - [ ] Return `{ data: Asset[], message: "Targets updated successfully" }`
+- [x] Task 6: Batch Update Targets Route (AC: #4)
+  - [x] Create `PUT /api/assets/targets` route in `backend/src/routes/assets.ts`
+  - [x] Apply `validate(batchUpdateTargetsSchema)` middleware
+  - [x] Call `assetService.batchUpdateTargets()`
+  - [x] Return `{ data: Asset[], message: "Targets updated successfully" }`
 
 - [ ] Task 7: Tests for Target Validation (AC: #1, #2, #3, #4)
   - [ ] Test single asset target update with valid sum
@@ -407,6 +407,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - **Task 3 (2026-01-07):** Implemented `validateTargetsSum()` function in assetService. Queries all user assets, calculates sum with optional pending updates for pre-validation. Returns `{valid, sum, difference}` with 2-decimal rounding. Added 7 new tests.
 - **Task 4 (2026-01-07):** Modified `assetService.update()` to validate target sum when updating `targetPercentage`. Rejects with ValidationError including sum/difference details if sum ≠ 100%. Non-targetPercentage updates bypass validation. Added 5 new tests.
 - **Task 5 (2026-01-07):** Implemented `batchUpdateTargets()` for atomic multi-asset target updates. Verifies ownership, validates sum=100%, uses `prisma.$transaction()`. Added 6 new tests.
+- **Task 6 (2026-01-07):** Created `PUT /api/assets/targets` route. Placed before `/:id` routes to avoid conflicts. Uses batchUpdateTargetsSchema validation and returns updated assets with success message.
 
 ### File List
 
@@ -414,4 +415,5 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - `backend/src/validations/asset.test.ts` (modified)
 - `backend/src/services/assetService.ts` (modified)
 - `backend/src/services/assetService.test.ts` (modified)
+- `backend/src/routes/assets.ts` (modified)
 

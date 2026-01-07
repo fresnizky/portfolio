@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { assetService } from '@/services/assetService'
-import { createAssetSchema, updateAssetSchema, listAssetsQuerySchema, assetIdParamSchema } from '@/validations/asset'
+import { createAssetSchema, updateAssetSchema, listAssetsQuerySchema, assetIdParamSchema, batchUpdateTargetsSchema, type BatchUpdateTargetsInput } from '@/validations/asset'
 import { validate, validateParams } from '@/middleware/validate'
 
 const router: Router = Router()
@@ -36,6 +36,29 @@ router.get(
       
       const { assets, total } = await assetService.list(req.user!.id, query)
       res.json({ data: assets, meta: { total } })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+/**
+ * PUT /api/assets/targets
+ * Batch update target percentages for multiple assets
+ * All targets must sum to exactly 100%
+ * NOTE: This route must be defined BEFORE /:id routes to avoid matching 'targets' as an ID
+ */
+router.put(
+  '/targets',
+  validate(batchUpdateTargetsSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { targets } = req.body as BatchUpdateTargetsInput
+      const updatedAssets = await assetService.batchUpdateTargets(req.user!.id, targets)
+      res.json({
+        data: updatedAssets,
+        message: 'Targets updated successfully',
+      })
     } catch (error) {
       next(error)
     }
