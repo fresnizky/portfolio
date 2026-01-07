@@ -54,12 +54,12 @@ Status: ready-for-dev
   - [x] Create basic Express app with `/api/health` endpoint
   - [x] Add `backend/.env.example`
 
-- [ ] Task 4: Create Docker Compose configuration (AC: 1, 2, 3)
-  - [ ] Create `docker-compose.yml` with all three services
-  - [ ] Create `docker-compose.dev.yml` override with volume mounts for hot reload
-  - [ ] Configure environment variables with PORT_* placeholders
-  - [ ] Configure postgres_data volume for persistence
-  - [ ] Set up service dependencies (frontend → backend → db)
+- [x] Task 4: Create Docker Compose configuration (AC: 1, 2, 3)
+  - [x] Create `docker-compose.yml` with all three services
+  - [x] Create `docker-compose.dev.yml` override with volume mounts for hot reload
+  - [x] Configure environment variables with PORT_* placeholders
+  - [x] Configure postgres_data volume for persistence
+  - [x] Set up service dependencies (frontend → backend → db)
 
 - [ ] Task 5: Integrate with dev-tunnel (AC: 1)
   - [ ] Run `dev-tunnel register portfolio --path $(pwd)`
@@ -312,6 +312,7 @@ _None - Task 1 files already existed from initial commit_
 - **Task 1 (2026-01-06):** Root project structure verified. Files `.gitignore`, `.env.example`, and `README.md` already existed with correct content from initial project setup.
 - **Task 2 (2026-01-06):** Frontend initialized with Vite + React 19 + TypeScript. Created Dockerfile (prod with nginx), Dockerfile.dev (dev with HMR), configured vite.config.ts with host:true for Docker networking. Build verified passing.
 - **Task 3 (2026-01-06):** Backend initialized with Express 5 + TypeScript. Created Dockerfile (multi-stage prod), Dockerfile.dev (nodemon hot reload), /api/health endpoint. Build and typecheck verified passing.
+- **Task 4 (2026-01-06):** Docker Compose configuration created. Production and dev overrides with volume mounts for hot reload. DB healthcheck configured. Syntax validated OK.
 
 ### File List
 
@@ -340,3 +341,5 @@ _None - Task 1 files already existed from initial commit_
 - `backend/.env.example` - Backend env template
 - `backend/.gitignore` - Backend git ignore
 - `backend/src/index.ts` - Express app with /api/health endpoint
+- `docker-compose.yml` - Production Docker Compose config
+- `docker-compose.dev.yml` - Development override with volume mounts
