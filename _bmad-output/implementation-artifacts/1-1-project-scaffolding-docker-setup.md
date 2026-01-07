@@ -42,17 +42,17 @@ Status: ready-for-dev
   - [x] Configure `vite.config.ts` for Docker networking (host: true)
   - [x] Add basic `frontend/.env.example`
 
-- [ ] Task 3: Initialize Backend with Express + TypeScript (AC: 1, 3)
-  - [ ] Create `backend/` directory structure
-  - [ ] Initialize with `npm init -y`
-  - [ ] Install dependencies: express, cors, dotenv
-  - [ ] Install dev dependencies: typescript, @types/express, @types/node, @types/cors, ts-node, nodemon
-  - [ ] Create `tsconfig.json` with strict TypeScript config
-  - [ ] Create `nodemon.json` for development hot reload
-  - [ ] Create `backend/Dockerfile` for production
-  - [ ] Create `backend/Dockerfile.dev` for development with nodemon
-  - [ ] Create basic Express app with `/api/health` endpoint
-  - [ ] Add `backend/.env.example`
+- [x] Task 3: Initialize Backend with Express + TypeScript (AC: 1, 3)
+  - [x] Create `backend/` directory structure
+  - [x] Initialize with `npm init -y`
+  - [x] Install dependencies: express, cors, dotenv
+  - [x] Install dev dependencies: typescript, @types/express, @types/node, @types/cors, ts-node, nodemon
+  - [x] Create `tsconfig.json` with strict TypeScript config
+  - [x] Create `nodemon.json` for development hot reload
+  - [x] Create `backend/Dockerfile` for production
+  - [x] Create `backend/Dockerfile.dev` for development with nodemon
+  - [x] Create basic Express app with `/api/health` endpoint
+  - [x] Add `backend/.env.example`
 
 - [ ] Task 4: Create Docker Compose configuration (AC: 1, 2, 3)
   - [ ] Create `docker-compose.yml` with all three services
@@ -311,6 +311,7 @@ _None - Task 1 files already existed from initial commit_
 
 - **Task 1 (2026-01-06):** Root project structure verified. Files `.gitignore`, `.env.example`, and `README.md` already existed with correct content from initial project setup.
 - **Task 2 (2026-01-06):** Frontend initialized with Vite + React 19 + TypeScript. Created Dockerfile (prod with nginx), Dockerfile.dev (dev with HMR), configured vite.config.ts with host:true for Docker networking. Build verified passing.
+- **Task 3 (2026-01-06):** Backend initialized with Express 5 + TypeScript. Created Dockerfile (multi-stage prod), Dockerfile.dev (nodemon hot reload), /api/health endpoint. Build and typecheck verified passing.
 
 ### File List
 
@@ -330,3 +331,12 @@ _None - Task 1 files already existed from initial commit_
 - `frontend/src/App.tsx` - Root component
 - `frontend/src/index.css` - Base styles
 - `frontend/src/vite-env.d.ts` - Vite type declarations
+- `backend/package.json` - Backend dependencies (Express 5, TypeScript)
+- `backend/pnpm-lock.yaml` - Lock file
+- `backend/tsconfig.json` - TypeScript config with strict mode
+- `backend/nodemon.json` - Nodemon config for hot reload
+- `backend/Dockerfile` - Production build (multi-stage)
+- `backend/Dockerfile.dev` - Development with nodemon
+- `backend/.env.example` - Backend env template
+- `backend/.gitignore` - Backend git ignore
+- `backend/src/index.ts` - Express app with /api/health endpoint
