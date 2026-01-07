@@ -1,7 +1,9 @@
+import './types/express'
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { errorHandler } from './middleware/errorHandler'
+import authRouter from './routes/auth'
 
 dotenv.config()
 
@@ -19,6 +21,9 @@ app.get('/api/health', (_req, res) => {
     uptime: process.uptime(),
   })
 })
+
+// Routes
+app.use('/api/auth', authRouter)
 
 // Centralized error handler (must be last)
 app.use(errorHandler)
