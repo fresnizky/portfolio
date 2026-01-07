@@ -52,11 +52,11 @@ Status: ready-for-dev
   - [x] Set token expiration to 1 hour (configurable via JWT_EXPIRES_IN env var)
   - [x] Add tests in `backend/src/lib/jwt.test.ts`
 
-- [ ] Task 4: Create Zod validation schemas (AC: 1, 2)
-  - [ ] Create `backend/src/validations/auth.ts` with registerSchema and loginSchema
-  - [ ] Email validation: valid email format
-  - [ ] Password validation: minimum 8 characters
-  - [ ] Add tests for validation schemas
+- [x] Task 4: Create Zod validation schemas (AC: 1, 2)
+  - [x] Create `backend/src/validations/auth.ts` with registerSchema and loginSchema
+  - [x] Email validation: valid email format
+  - [x] Password validation: minimum 8 characters
+  - [x] Add tests for validation schemas
 
 - [ ] Task 5: Create auth service (AC: 1, 2, 3)
   - [ ] Create `backend/src/services/authService.ts`
@@ -454,6 +454,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Task 1: Installed authentication dependencies (bcrypt ^6.0.0, jsonwebtoken ^9.0.3, express-rate-limit ^8.2.1) and type definitions (@types/bcrypt ^6.0.0, @types/jsonwebtoken ^9.0.10)
 - Task 2: Created password utilities with hashPassword and verifyPassword functions using bcrypt (salt rounds 10). Added 5 unit tests.
 - Task 3: Created JWT utilities with generateToken and verifyToken functions. Uses StringValue type from ms for proper typing. Added 7 unit tests.
+- Task 4: Created Zod validation schemas using z.email() (Zod 4 API) and z.string().min(). Added 10 unit tests.
 
 ### File List
 
@@ -463,6 +464,8 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - backend/src/lib/password.test.ts (created)
 - backend/src/lib/jwt.ts (created)
 - backend/src/lib/jwt.test.ts (created)
+- backend/src/validations/auth.ts (created)
+- backend/src/validations/auth.test.ts (created)
 
 ## Change Log
 
@@ -472,3 +475,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Task 1 completed: Installed auth dependencies (bcrypt, jsonwebtoken, express-rate-limit) and type definitions |
 | 2026-01-07 | Task 2 completed: Created password utilities (hashPassword, verifyPassword) with bcrypt and unit tests |
 | 2026-01-07 | Task 3 completed: Created JWT utilities (generateToken, verifyToken) with proper StringValue typing and unit tests |
+| 2026-01-07 | Task 4 completed: Created Zod validation schemas (registerSchema, loginSchema) using Zod 4 API with unit tests |
