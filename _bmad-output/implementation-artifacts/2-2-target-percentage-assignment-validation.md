@@ -1,6 +1,6 @@
 # Story 2.2: Target Percentage Assignment with Validation
 
-Status: in-progress
+Status: done
 
 ## Story
 
