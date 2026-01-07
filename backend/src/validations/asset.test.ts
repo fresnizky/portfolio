@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createAssetSchema, updateAssetSchema, assetCategorySchema, listAssetsQuerySchema, assetIdParamSchema } from './asset'
+import { createAssetSchema, updateAssetSchema, assetCategorySchema, listAssetsQuerySchema, assetIdParamSchema, targetPercentageSchema, batchUpdateTargetsSchema } from './asset'
 
 describe('assetCategorySchema', () => {
   it('accepts valid categories', () => {
@@ -223,5 +223,162 @@ describe('assetIdParamSchema', () => {
 
   it('rejects empty ID', () => {
     expect(() => assetIdParamSchema.parse({ id: '' })).toThrow()
+  })
+})
+
+describe('targetPercentageSchema', () => {
+  it('accepts 0%', () => {
+    expect(targetPercentageSchema.parse(0)).toBe(0)
+  })
+
+  it('accepts 50%', () => {
+    expect(targetPercentageSchema.parse(50)).toBe(50)
+  })
+
+  it('accepts 100%', () => {
+    expect(targetPercentageSchema.parse(100)).toBe(100)
+  })
+
+  it('accepts decimal values like 33.33', () => {
+    expect(targetPercentageSchema.parse(33.33)).toBe(33.33)
+  })
+
+  it('rounds to 2 decimal places', () => {
+    expect(targetPercentageSchema.parse(33.333)).toBe(33.33)
+    expect(targetPercentageSchema.parse(33.335)).toBe(33.34)
+  })
+
+  it('coerces string numbers', () => {
+    expect(targetPercentageSchema.parse('50')).toBe(50)
+    expect(targetPercentageSchema.parse('33.33')).toBe(33.33)
+  })
+
+  it('rejects negative values', () => {
+    expect(() => targetPercentageSchema.parse(-1)).toThrow()
+    expect(() => targetPercentageSchema.parse(-0.01)).toThrow()
+  })
+
+  it('rejects negative string values after coercion', () => {
+    expect(() => targetPercentageSchema.parse('-1')).toThrow()
+    expect(() => targetPercentageSchema.parse('-0.5')).toThrow()
+    expect(() => targetPercentageSchema.parse('-100')).toThrow()
+  })
+
+  it('rejects values over 100', () => {
+    expect(() => targetPercentageSchema.parse(101)).toThrow()
+    expect(() => targetPercentageSchema.parse(100.01)).toThrow()
+  })
+
+  it('rejects string values over 100 after coercion', () => {
+    expect(() => targetPercentageSchema.parse('101')).toThrow()
+    expect(() => targetPercentageSchema.parse('100.01')).toThrow()
+    expect(() => targetPercentageSchema.parse('150')).toThrow()
+  })
+})
+
+describe('updateAssetSchema with targetPercentage', () => {
+  it('allows targetPercentage as optional field', () => {
+    const result = updateAssetSchema.parse({ targetPercentage: 50 })
+    expect(result.targetPercentage).toBe(50)
+  })
+
+  it('rounds targetPercentage to 2 decimals', () => {
+    const result = updateAssetSchema.parse({ targetPercentage: 33.333 })
+    expect(result.targetPercentage).toBe(33.33)
+  })
+
+  it('allows update without targetPercentage', () => {
+    const result = updateAssetSchema.parse({ name: 'New Name' })
+    expect(result).toEqual({ name: 'New Name' })
+    expect(result.targetPercentage).toBeUndefined()
+  })
+
+  it('rejects invalid targetPercentage in update', () => {
+    expect(() => updateAssetSchema.parse({ targetPercentage: 101 })).toThrow()
+    expect(() => updateAssetSchema.parse({ targetPercentage: -5 })).toThrow()
+  })
+})
+
+describe('batchUpdateTargetsSchema', () => {
+  it('accepts valid targets array', () => {
+    const result = batchUpdateTargetsSchema.parse({
+      targets: [
+        { assetId: 'clx1234567890abcdefghijkl', targetPercentage: 60 },
+        { assetId: 'clx0987654321zyxwvutsrqpo', targetPercentage: 40 },
+      ],
+    })
+
+    expect(result.targets).toHaveLength(2)
+    expect(result.targets[0].assetId).toBe('clx1234567890abcdefghijkl')
+    expect(result.targets[0].targetPercentage).toBe(60)
+    expect(result.targets[1].targetPercentage).toBe(40)
+  })
+
+  it('accepts single item array', () => {
+    const result = batchUpdateTargetsSchema.parse({
+      targets: [{ assetId: 'clx1234567890abcdefghijkl', targetPercentage: 100 }],
+    })
+
+    expect(result.targets).toHaveLength(1)
+  })
+
+  it('rounds targetPercentage to 2 decimals', () => {
+    const result = batchUpdateTargetsSchema.parse({
+      targets: [{ assetId: 'clx1234567890abcdefghijkl', targetPercentage: 33.333 }],
+    })
+
+    expect(result.targets[0].targetPercentage).toBe(33.33)
+  })
+
+  it('rejects empty targets array', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({ targets: [] })
+    ).toThrow()
+  })
+
+  it('rejects missing targets field', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({})
+    ).toThrow()
+  })
+
+  it('rejects invalid assetId format', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({
+        targets: [{ assetId: 'invalid-id', targetPercentage: 50 }],
+      })
+    ).toThrow()
+  })
+
+  it('rejects invalid targetPercentage', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({
+        targets: [{ assetId: 'clx1234567890abcdefghijkl', targetPercentage: 101 }],
+      })
+    ).toThrow()
+  })
+
+  it('rejects negative targetPercentage', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({
+        targets: [{ assetId: 'clx1234567890abcdefghijkl', targetPercentage: -5 }],
+      })
+    ).toThrow()
+  })
+
+  it('rejects missing assetId in target', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({
+        targets: [{ targetPercentage: 50 }],
+      })
+    ).toThrow()
+  })
+
+  it('rejects missing targetPercentage in target', () => {
+    expect(() =>
+      batchUpdateTargetsSchema.parse({
+        targets: [{ assetId: 'clx1234567890abcdefghijkl' }],
+      })
+    ).toThrow()
   })
 })

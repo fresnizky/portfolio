@@ -15,8 +15,16 @@ vi.mock('@/config/database', () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }))
+
+// Helper to create mock Prisma Decimal that works with Number()
+const createMockDecimal = (value: number) => ({
+  toNumber: () => value,
+  valueOf: () => value,
+  toString: () => String(value),
+}) as Asset['targetPercentage']
 
 // Reusable mock asset factory
 const createMockAsset = (overrides: Partial<Asset> = {}): Asset => ({
@@ -24,7 +32,7 @@ const createMockAsset = (overrides: Partial<Asset> = {}): Asset => ({
   ticker: 'VOO',
   name: 'Vanguard S&P 500 ETF',
   category: 'ETF',
-  targetPercentage: { toNumber: () => 0 } as Asset['targetPercentage'],
+  targetPercentage: createMockDecimal(0),
   userId: 'user-123',
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -296,6 +304,453 @@ describe('assetService', () => {
         })
 
       expect(prisma.asset.delete).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('validateTargetsSum', () => {
+    it('should return valid:true when sum equals 100', async () => {
+      const mockAssets = [
+        createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) }),
+        createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) }),
+      ]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(2)
+
+      const result = await assetService.validateTargetsSum(userId)
+
+      expect(result).toEqual({ valid: true, sum: 100, difference: 0 })
+    })
+
+    it('should return valid:false with positive difference when sum exceeds 100', async () => {
+      const mockAssets = [
+        createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(70) }),
+        createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) }),
+      ]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(2)
+
+      const result = await assetService.validateTargetsSum(userId)
+
+      expect(result).toEqual({ valid: false, sum: 120, difference: 20 })
+    })
+
+    it('should return valid:false with negative difference when sum is below 100', async () => {
+      const mockAssets = [
+        createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(30) }),
+        createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(20) }),
+      ]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(2)
+
+      const result = await assetService.validateTargetsSum(userId)
+
+      expect(result).toEqual({ valid: false, sum: 50, difference: -50 })
+    })
+
+    it('should apply pending updates when calculating sum', async () => {
+      const mockAssets = [
+        createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) }),
+        createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) }),
+      ]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(2)
+
+      // Change asset-1 from 60 to 70 (would make sum 110)
+      const pendingUpdates = new Map([['asset-1', 70]])
+      const result = await assetService.validateTargetsSum(userId, pendingUpdates)
+
+      expect(result).toEqual({ valid: false, sum: 110, difference: 10 })
+    })
+
+    it('should handle pending updates that result in valid sum', async () => {
+      const mockAssets = [
+        createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) }),
+        createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(30) }),
+      ]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(2)
+
+      // Change asset-2 from 30 to 50 (would make sum 100)
+      const pendingUpdates = new Map([['asset-2', 50]])
+      const result = await assetService.validateTargetsSum(userId, pendingUpdates)
+
+      expect(result).toEqual({ valid: true, sum: 100, difference: 0 })
+    })
+
+    it('should handle decimal values correctly', async () => {
+      const mockAssets = [
+        createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(33.33) }),
+        createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(33.33) }),
+        createMockAsset({ id: 'asset-3', targetPercentage: createMockDecimal(33.34) }),
+      ]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(3)
+
+      const result = await assetService.validateTargetsSum(userId)
+
+      expect(result).toEqual({ valid: true, sum: 100, difference: 0 })
+    })
+
+    it('should return valid:false when user has no assets (sum is 0)', async () => {
+      vi.mocked(prisma.asset.findMany).mockResolvedValue([])
+      vi.mocked(prisma.asset.count).mockResolvedValue(0)
+
+      const result = await assetService.validateTargetsSum(userId)
+
+      expect(result).toEqual({ valid: false, sum: 0, difference: -100 })
+    })
+  })
+
+  describe('update with targetPercentage validation', () => {
+    it('should update targetPercentage when sum equals 100%', async () => {
+      const existingAsset = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
+      const otherAsset = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+      const updatedAsset = { ...existingAsset, targetPercentage: createMockDecimal(50) }
+
+      // getById check
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(existingAsset)
+      // validateTargetsSum - list call
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([existingAsset, otherAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+      // actual update
+      vi.mocked(prisma.asset.update).mockResolvedValue(updatedAsset)
+
+      // Change from 60 to 50, other asset has 40 = 90, but we need to adjust
+      // Let's make it: asset-1: 60->50, asset-2: 40 => 90 (invalid)
+      // Instead, let's test valid: asset-1: 60, asset-2: 40 = 100, change asset-1 to 60 (same)
+      const result = await assetService.update(userId, 'asset-1', { targetPercentage: 60 })
+
+      expect(result).toEqual(updatedAsset)
+      expect(prisma.asset.update).toHaveBeenCalled()
+    })
+
+    it('should reject targetPercentage update when sum would exceed 100%', async () => {
+      const existingAsset = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
+      const otherAsset = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+
+      // getById check
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(existingAsset)
+      // validateTargetsSum - list call
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([existingAsset, otherAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Try to change asset-1 from 60 to 80 (would make sum 120)
+      await expect(assetService.update(userId, 'asset-1', { targetPercentage: 80 }))
+        .rejects.toMatchObject({
+          statusCode: 400,
+          code: 'VALIDATION_ERROR',
+        })
+
+      expect(prisma.asset.update).not.toHaveBeenCalled()
+    })
+
+    it('should reject targetPercentage update when sum would be below 100%', async () => {
+      const existingAsset = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
+      const otherAsset = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+
+      // getById check
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(existingAsset)
+      // validateTargetsSum - list call
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([existingAsset, otherAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Try to change asset-1 from 60 to 30 (would make sum 70)
+      await expect(assetService.update(userId, 'asset-1', { targetPercentage: 30 }))
+        .rejects.toMatchObject({
+          statusCode: 400,
+          code: 'VALIDATION_ERROR',
+        })
+
+      expect(prisma.asset.update).not.toHaveBeenCalled()
+    })
+
+    it('should include sum details in validation error', async () => {
+      const existingAsset = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
+      const otherAsset = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(existingAsset)
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([existingAsset, otherAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Try to change asset-1 from 60 to 80 (would make sum 120)
+      try {
+        await assetService.update(userId, 'asset-1', { targetPercentage: 80 })
+      } catch (error: unknown) {
+        const appError = error as AppError
+        expect(appError.message).toContain('100%')
+        expect(appError.details).toHaveProperty('sum', 120)
+        expect(appError.details).toHaveProperty('difference', 20)
+      }
+    })
+
+    it('should allow non-targetPercentage updates without sum validation', async () => {
+      const existingAsset = createMockAsset()
+      const updatedAsset = { ...existingAsset, name: 'Updated Name' }
+
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(existingAsset)
+      vi.mocked(prisma.asset.update).mockResolvedValue(updatedAsset)
+
+      const result = await assetService.update(userId, 'asset-123', { name: 'Updated Name' })
+
+      expect(result).toEqual(updatedAsset)
+      // validateTargetsSum should not be called for non-targetPercentage updates
+      expect(prisma.asset.findMany).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('batchUpdateTargets', () => {
+    it('should update multiple assets atomically when sum equals 100%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) })
+      const updatedAsset1 = { ...asset1, targetPercentage: createMockDecimal(60) }
+      const updatedAsset2 = { ...asset2, targetPercentage: createMockDecimal(40) }
+
+      // Ownership check
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        // validateTargetsSum - list call
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Transaction returns updated assets
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 60 },
+        { assetId: 'asset-2', targetPercentage: 40 },
+      ])
+
+      expect(result).toEqual([updatedAsset1, updatedAsset2])
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should reject when sum does not equal 100%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) })
+
+      // Ownership check
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        // validateTargetsSum - list call
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Try to set 70 + 40 = 110
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 70 },
+        { assetId: 'asset-2', targetPercentage: 40 },
+      ])).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+
+    it('should reject when assetId does not belong to user', async () => {
+      // Ownership check returns only one asset (not both)
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 60 },
+        { assetId: 'asset-999', targetPercentage: 40 }, // This one doesn't belong to user
+      ])).rejects.toMatchObject({
+        statusCode: 404,
+        code: 'NOT_FOUND',
+      })
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+
+    it('should include missing assetIds in error message', async () => {
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+
+      try {
+        await assetService.batchUpdateTargets(userId, [
+          { assetId: 'asset-1', targetPercentage: 60 },
+          { assetId: 'asset-999', targetPercentage: 40 },
+        ])
+      } catch (error: unknown) {
+        const appError = error as AppError
+        expect(appError.message).toContain('asset-999')
+      }
+    })
+
+    it('should handle partial updates (not all assets updated)', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+
+      // Ownership check - only updating asset-1
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+        // validateTargetsSum - list call (includes both assets)
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Update only asset-1 from 60 to 50 (sum would be 50 + 40 = 90, invalid)
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 50 },
+      ])).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+    })
+
+    it('should include sum details in validation error', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) })
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      try {
+        await assetService.batchUpdateTargets(userId, [
+          { assetId: 'asset-1', targetPercentage: 80 },
+          { assetId: 'asset-2', targetPercentage: 40 },
+        ])
+      } catch (error: unknown) {
+        const appError = error as AppError
+        expect(appError.details).toHaveProperty('sum', 120)
+        expect(appError.details).toHaveProperty('difference', 20)
+      }
+    })
+  })
+
+  describe('edge cases for target validation', () => {
+    it('should accept single asset with 100% target', async () => {
+      const singleAsset = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(0) })
+      const updatedAsset = { ...singleAsset, targetPercentage: createMockDecimal(100) }
+
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(singleAsset)
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([singleAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(1)
+      vi.mocked(prisma.asset.update).mockResolvedValue(updatedAsset)
+
+      const result = await assetService.update(userId, 'asset-1', { targetPercentage: 100 })
+
+      expect(result).toEqual(updatedAsset)
+    })
+
+    it('should accept batch update setting one asset to 0% and another to 100%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) })
+      const updatedAsset1 = { ...asset1, targetPercentage: createMockDecimal(0) }
+      const updatedAsset2 = { ...asset2, targetPercentage: createMockDecimal(100) }
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 0 },
+        { assetId: 'asset-2', targetPercentage: 100 },
+      ])
+
+      expect(result).toHaveLength(2)
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should handle precise decimal targets that sum to 100', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(0) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(0) })
+      const asset3 = createMockAsset({ id: 'asset-3', targetPercentage: createMockDecimal(0) })
+      const updatedAsset1 = { ...asset1, targetPercentage: createMockDecimal(33.33) }
+      const updatedAsset2 = { ...asset2, targetPercentage: createMockDecimal(33.33) }
+      const updatedAsset3 = { ...asset3, targetPercentage: createMockDecimal(33.34) }
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }, { id: 'asset-3' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2, asset3])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(3)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2, updatedAsset3])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 33.33 },
+        { assetId: 'asset-2', targetPercentage: 33.33 },
+        { assetId: 'asset-3', targetPercentage: 33.34 },
+      ])
+
+      expect(result).toHaveLength(3)
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should reject when all assets are set to 0%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) })
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 0 },
+        { assetId: 'asset-2', targetPercentage: 0 },
+      ])).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+
+    it('should reject single asset batch update when resulting sum < 100% (3 assets scenario)', async () => {
+      // User has 3 assets: 40% + 30% + 30% = 100%
+      // Updating only asset-1 from 40% to 20% would result in 20% + 30% + 30% = 80%
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(40) })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(30) })
+      const asset3 = createMockAsset({ id: 'asset-3', targetPercentage: createMockDecimal(30) })
+
+      // Ownership check - only updating asset-1
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+        // validateTargetsSum - list call (includes ALL 3 assets)
+        .mockResolvedValueOnce([asset1, asset2, asset3])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(3)
+
+      // Verify rejection with correct error details
+      try {
+        await assetService.batchUpdateTargets(userId, [
+          { assetId: 'asset-1', targetPercentage: 20 },
+        ])
+        expect.fail('Should have thrown an error')
+      } catch (error: unknown) {
+        const appError = error as AppError
+        expect(appError.statusCode).toBe(400)
+        expect(appError.code).toBe('VALIDATION_ERROR')
+        expect(appError.details).toHaveProperty('sum', 80)
+        expect(appError.details).toHaveProperty('difference', -20)
+      }
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+
+    it('should accept valid cash-only portfolio (one asset at 100%)', async () => {
+      const cashAsset = createMockAsset({ id: 'cash-1', ticker: 'CASH', targetPercentage: createMockDecimal(0) })
+      const updatedCashAsset = { ...cashAsset, targetPercentage: createMockDecimal(100) }
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'cash-1' }] as Asset[])
+        .mockResolvedValueOnce([cashAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(1)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedCashAsset])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'cash-1', targetPercentage: 100 },
+      ])
+
+      expect(result).toHaveLength(1)
+      expect(prisma.$transaction).toHaveBeenCalled()
     })
   })
 })
