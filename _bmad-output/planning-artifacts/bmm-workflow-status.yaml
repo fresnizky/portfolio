@@ -85,14 +85,14 @@ workflow_status:
   - id: "test-design"
     phase: 3
     name: "Test Design"
-    status: "optional"
+    status: "skipped"
     agent: "tea"
     command: "/bmad:bmm:workflows:test-design"
 
   - id: "implementation-readiness"
     phase: 3
     name: "Implementation Readiness Check"
-    status: "required"
+    status: "skipped"
     agent: "architect"
     command: "/bmad:bmm:workflows:implementation-readiness"
 
