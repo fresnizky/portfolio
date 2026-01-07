@@ -1,6 +1,6 @@
 # Story 1.2: Database Schema & Prisma Setup
 
-Status: review
+Status: done
 
 ## Story
 
@@ -90,18 +90,19 @@ Status: review
 
 ### Technology Stack (from Architecture)
 
-| Component | Technology | Version |
-|-----------|------------|---------|
-| ORM | Prisma | 7+ (no Rust engine) |
-| Database | PostgreSQL | 18 |
-| Runtime | Node.js | 24.12.0 |
-| Language | TypeScript | 5.x (strict mode) |
+| Component | Technology | Version             |
+| --------- | ---------- | ------------------- |
+| ORM       | Prisma     | 7+ (no Rust engine) |
+| Database  | PostgreSQL | 18                  |
+| Runtime   | Node.js    | 24.12.0             |
+| Language  | TypeScript | 5.x (strict mode)   |
 
 ### Critical Architecture Patterns
 
 **Prisma Schema Location:** `backend/prisma/schema.prisma`
 
 **User Model Schema (Prisma 7):**
+
 ```prisma
 // backend/prisma/schema.prisma
 generator client {
@@ -123,50 +124,52 @@ model User {
 ```
 
 **Prisma Configuration (Prisma 7 - NEW):**
+
 ```typescript
 // backend/prisma.config.ts
-import { defineConfig } from 'prisma/config'
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   earlyAccess: true,
-  schema: 'prisma/schema.prisma',
+  schema: "prisma/schema.prisma",
   migrate: {
-    migrations: 'prisma/migrations',
+    migrations: "prisma/migrations",
   },
   datasource: {
     url: process.env.DATABASE_URL!,
   },
-})
+});
 ```
 
 **Database Client Singleton Pattern (Prisma 7 with pg adapter):**
+
 ```typescript
 // backend/src/config/database.ts
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@prisma/client'
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+  prisma: PrismaClient | undefined;
+};
 
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL
+  const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error('DATABASE_URL environment variable is not set')
+    throw new Error("DATABASE_URL environment variable is not set");
   }
-  const pool = new Pool({ connectionString })
-  const adapter = new PrismaPg(pool)
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
-  })
+    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+  });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
 }
 ```
 
@@ -181,6 +184,7 @@ if (process.env.NODE_ENV !== 'production') {
 ### Environment Configuration
 
 **DATABASE_URL Format:**
+
 ```
 postgresql://portfolio_user:portfolio_pass@db:5432/portfolio
 ```
@@ -188,6 +192,7 @@ postgresql://portfolio_user:portfolio_pass@db:5432/portfolio
 **NOTE:** The service name is `db` (not `localhost`) when running inside Docker network.
 
 For local development outside Docker:
+
 ```
 postgresql://portfolio_user:portfolio_pass@localhost:10003/portfolio
 ```
@@ -210,16 +215,18 @@ postgresql://portfolio_user:portfolio_pass@localhost:10003/portfolio
 
 **Volume Mount for Prisma:**
 The `prisma/` folder needs to be mounted in docker-compose.dev.yml to persist migrations:
+
 ```yaml
 services:
   backend:
     volumes:
       - ./backend/src:/app/src
-      - ./backend/prisma:/app/prisma  # ADD THIS
+      - ./backend/prisma:/app/prisma # ADD THIS
 ```
 
 **Dockerfile.dev Update:**
 Add prisma generate after npm install:
+
 ```dockerfile
 RUN npm install
 RUN npx prisma generate  # ADD THIS LINE
@@ -228,6 +235,7 @@ RUN npx prisma generate  # ADD THIS LINE
 ### Project Structure Notes
 
 **Files to Create:**
+
 ```
 backend/
 ├── prisma/
@@ -241,6 +249,7 @@ backend/
 ```
 
 **This story creates ONLY the database foundation. Do NOT create:**
+
 - Authentication logic (Story 1.3)
 - Auth routes or middleware (Story 1.3)
 - Frontend auth flow (Story 1.4)
@@ -249,6 +258,7 @@ backend/
 ### Previous Story Learnings (Story 1.1)
 
 From the completed scaffolding story:
+
 - Docker Compose is fully functional with `docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up`
 - Backend uses `pnpm` as package manager (not npm)
 - Hot reload works via nodemon
@@ -258,6 +268,7 @@ From the completed scaffolding story:
 - TypeScript strict mode is enabled
 
 **Port Configuration (from .env.ports):**
+
 - PORT_FRONTEND: 10001
 - PORT_API: 10002
 - PORT_DB: 10003
@@ -265,31 +276,33 @@ From the completed scaffolding story:
 ### Testing Approach
 
 Tests should be co-located:
+
 - `backend/src/config/database.test.ts` - Test Prisma client connection
 
 **Vitest Configuration:** Already exists at `backend/vitest.config.ts`
 
 **Test Pattern:**
+
 ```typescript
-import { describe, it, expect } from 'vitest'
-import { prisma } from './database'
+import { describe, it, expect } from "vitest";
+import { prisma } from "./database";
 
-describe('Database', () => {
-  it('should connect to PostgreSQL', async () => {
+describe("Database", () => {
+  it("should connect to PostgreSQL", async () => {
     // Test connection
-    await expect(prisma.$connect()).resolves.not.toThrow()
-  })
+    await expect(prisma.$connect()).resolves.not.toThrow();
+  });
 
-  it('should have User model with correct fields', () => {
+  it("should have User model with correct fields", () => {
     // Type check - this compiles = types are correct
-    const userFields = prisma.user.fields
-    expect(userFields).toHaveProperty('id')
-    expect(userFields).toHaveProperty('email')
-    expect(userFields).toHaveProperty('passwordHash')
-    expect(userFields).toHaveProperty('createdAt')
-    expect(userFields).toHaveProperty('updatedAt')
-  })
-})
+    const userFields = prisma.user.fields;
+    expect(userFields).toHaveProperty("id");
+    expect(userFields).toHaveProperty("email");
+    expect(userFields).toHaveProperty("passwordHash");
+    expect(userFields).toHaveProperty("createdAt");
+    expect(userFields).toHaveProperty("updatedAt");
+  });
+});
 ```
 
 ### Verification Commands
@@ -349,6 +362,7 @@ Claude 3.5 Sonnet (claude-sonnet-4-20250514)
 ### File List
 
 **New Files:**
+
 - backend/prisma/schema.prisma
 - backend/prisma/migrations/20260107034108_init_user_model/migration.sql
 - backend/prisma/migrations/migration_lock.toml
@@ -357,16 +371,17 @@ Claude 3.5 Sonnet (claude-sonnet-4-20250514)
 - backend/src/config/database.test.ts
 
 **Modified Files:**
+
 - backend/package.json (added prisma scripts and dependencies)
 - backend/pnpm-lock.yaml (updated dependencies)
 - backend/Dockerfile.dev (added prisma copy and generate steps)
 - docker-compose.dev.yml (added prisma volume mounts)
-- _bmad-output/implementation-artifacts/sprint-status.yaml (status: in-progress → review)
+- \_bmad-output/implementation-artifacts/sprint-status.yaml (status: in-progress → review)
 
 ## Change Log
 
-| Date | Change |
-|------|--------|
-| 2026-01-07 | Initial implementation of Prisma 7 with User model, migrations, and Docker configuration |
-| 2026-01-07 | Code review completed - 11 issues found (4 HIGH, 4 MEDIUM, 2 LOW), security vulnerability in docker-compose.yml exposed to GitHub |
+| Date       | Change                                                                                                                                 |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-01-07 | Initial implementation of Prisma 7 with User model, migrations, and Docker configuration                                               |
+| 2026-01-07 | Code review completed - 11 issues found (4 HIGH, 4 MEDIUM, 2 LOW), security vulnerability in docker-compose.yml exposed to GitHub      |
 | 2026-01-07 | Addressed security findings - removed hardcoded password defaults from docker-compose.yml and .env.example, added 11 review follow-ups |
