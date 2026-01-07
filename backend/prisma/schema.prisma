@@ -15,4 +15,32 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Relations
+  assets Asset[]
+}
+
+enum AssetCategory {
+  ETF
+  FCI
+  CRYPTO
+  CASH
+}
+
+model Asset {
+  id               String        @id @default(cuid())
+  ticker           String
+  name             String
+  category         AssetCategory
+  targetPercentage Decimal       @default(0)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@unique([userId, ticker])
+  @@index([userId])
 }
