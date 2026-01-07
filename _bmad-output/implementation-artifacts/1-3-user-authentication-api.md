@@ -58,13 +58,13 @@ Status: ready-for-dev
   - [x] Password validation: minimum 8 characters
   - [x] Add tests for validation schemas
 
-- [ ] Task 5: Create auth service (AC: 1, 2, 3)
-  - [ ] Create `backend/src/services/authService.ts`
-  - [ ] Implement `register(email, password)` - hash password, create user, generate token
-  - [ ] Implement `login(email, password)` - verify credentials, generate token
-  - [ ] Handle duplicate email error (Prisma unique constraint)
-  - [ ] Handle invalid credentials error
-  - [ ] Add tests in `backend/src/services/authService.test.ts`
+- [x] Task 5: Create auth service (AC: 1, 2, 3)
+  - [x] Create `backend/src/services/authService.ts`
+  - [x] Implement `register(email, password)` - hash password, create user, generate token
+  - [x] Implement `login(email, password)` - verify credentials, generate token
+  - [x] Handle duplicate email error (Prisma unique constraint)
+  - [x] Handle invalid credentials error
+  - [x] Add tests in `backend/src/services/authService.test.ts`
 
 - [ ] Task 6: Create auth middleware (AC: 4)
   - [ ] Create `backend/src/middleware/auth.ts` with JWT verification middleware
@@ -455,17 +455,24 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Task 2: Created password utilities with hashPassword and verifyPassword functions using bcrypt (salt rounds 10). Added 5 unit tests.
 - Task 3: Created JWT utilities with generateToken and verifyToken functions. Uses StringValue type from ms for proper typing. Added 7 unit tests.
 - Task 4: Created Zod validation schemas using z.email() (Zod 4 API) and z.string().min(). Added 10 unit tests.
+- Task 5: Created auth service with register/login methods, AppError class, and Errors factory. Configured test separation (unit vs integration). Added 7 unit tests.
 
 ### File List
 
 - backend/package.json (modified)
 - backend/pnpm-lock.yaml (modified)
+- backend/vitest.config.ts (modified)
+- backend/vitest.integration.config.ts (created)
 - backend/src/lib/password.ts (created)
 - backend/src/lib/password.test.ts (created)
 - backend/src/lib/jwt.ts (created)
 - backend/src/lib/jwt.test.ts (created)
+- backend/src/lib/errors.ts (created)
 - backend/src/validations/auth.ts (created)
 - backend/src/validations/auth.test.ts (created)
+- backend/src/services/authService.ts (created)
+- backend/src/services/authService.test.ts (created)
+- backend/src/config/database.integration.ts (renamed from database.test.ts)
 
 ## Change Log
 
@@ -476,3 +483,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Task 2 completed: Created password utilities (hashPassword, verifyPassword) with bcrypt and unit tests |
 | 2026-01-07 | Task 3 completed: Created JWT utilities (generateToken, verifyToken) with proper StringValue typing and unit tests |
 | 2026-01-07 | Task 4 completed: Created Zod validation schemas (registerSchema, loginSchema) using Zod 4 API with unit tests |
+| 2026-01-07 | Task 5 completed: Created auth service, AppError/Errors utilities, separated unit/integration tests |
