@@ -15,6 +15,7 @@ vi.mock('@/config/database', () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }))
 
@@ -493,6 +494,127 @@ describe('assetService', () => {
       expect(result).toEqual(updatedAsset)
       // validateTargetsSum should not be called for non-targetPercentage updates
       expect(prisma.asset.findMany).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('batchUpdateTargets', () => {
+    it('should update multiple assets atomically when sum equals 100%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const updatedAsset1 = { ...asset1, targetPercentage: { toNumber: () => 60 } as Asset['targetPercentage'] }
+      const updatedAsset2 = { ...asset2, targetPercentage: { toNumber: () => 40 } as Asset['targetPercentage'] }
+
+      // Ownership check
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        // validateTargetsSum - list call
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Transaction returns updated assets
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 60 },
+        { assetId: 'asset-2', targetPercentage: 40 },
+      ])
+
+      expect(result).toEqual([updatedAsset1, updatedAsset2])
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should reject when sum does not equal 100%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+
+      // Ownership check
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        // validateTargetsSum - list call
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Try to set 70 + 40 = 110
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 70 },
+        { assetId: 'asset-2', targetPercentage: 40 },
+      ])).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+
+    it('should reject when assetId does not belong to user', async () => {
+      // Ownership check returns only one asset (not both)
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 60 },
+        { assetId: 'asset-999', targetPercentage: 40 }, // This one doesn't belong to user
+      ])).rejects.toMatchObject({
+        statusCode: 404,
+        code: 'NOT_FOUND',
+      })
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+
+    it('should include missing assetIds in error message', async () => {
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+
+      try {
+        await assetService.batchUpdateTargets(userId, [
+          { assetId: 'asset-1', targetPercentage: 60 },
+          { assetId: 'asset-999', targetPercentage: 40 },
+        ])
+      } catch (error: unknown) {
+        const appError = error as AppError
+        expect(appError.message).toContain('asset-999')
+      }
+    })
+
+    it('should handle partial updates (not all assets updated)', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 60 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 40 } as Asset['targetPercentage'] })
+      const updatedAsset1 = { ...asset1, targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] }
+
+      // Ownership check - only updating asset-1
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }] as Asset[])
+        // validateTargetsSum - list call (includes both assets)
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      // Update only asset-1 from 60 to 50 (sum would be 50 + 40 = 90, invalid)
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 50 },
+      ])).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+    })
+
+    it('should include sum details in validation error', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      try {
+        await assetService.batchUpdateTargets(userId, [
+          { assetId: 'asset-1', targetPercentage: 80 },
+          { assetId: 'asset-2', targetPercentage: 40 },
+        ])
+      } catch (error: unknown) {
+        const appError = error as AppError
+        expect(appError.details).toHaveProperty('sum', 120)
+        expect(appError.details).toHaveProperty('difference', 20)
+      }
     })
   })
 })
