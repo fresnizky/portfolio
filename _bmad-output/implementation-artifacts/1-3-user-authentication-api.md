@@ -1,6 +1,6 @@
 # Story 1.3: User Authentication API
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
