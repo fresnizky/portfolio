@@ -1,6 +1,6 @@
 # Story 1.2: Database Schema & Prisma Setup
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -71,6 +71,20 @@ Status: review
   - [x] Test Prisma client can connect to database
   - [x] Test basic CRUD operations compile correctly (type checking)
   - [x] Verify tests pass with `pnpm test`
+
+## Review Follow-ups (AI)
+
+- [ ] [AI-Review][HIGH][SECURITY] Remove hardcoded password defaults from docker-compose.yml (commit d6e6195) - GitHub Secret Scanning detected `portfolio_pass` and `dev-secret-change-me` defaults [docker-compose.yml:16-17,31-32]
+- [ ] [AI-Review][HIGH] Add actual verification test that `node_modules/.prisma/client/index.d.ts` exists after `prisma generate` [backend/src/config/database.test.ts]
+- [ ] [AI-Review][HIGH] Add integration test running `docker exec -it portfolio-db-1 psql` to verify User table exists in actual database [backend/src/config/database.test.ts]
+- [ ] [AI-Review][HIGH] Fix datasource config duplication - remove redundant configuration from schema.prisma or prisma.config.ts, clarify which file Prisma 7 actually uses [backend/prisma/schema.prisma:8-10, backend/prisma.config.ts:10-12]
+- [ ] [AI-Review][HIGH] Add `prisma migrate dev` step to Dockerfile.dev after `pnpm install` so migrations apply on container start [backend/Dockerfile.dev:17]
+- [ ] [AI-Review][MEDIUM] Update Dev Notes documentation to match actual Prisma 7 implementation - remove datasource URL from schema.prisma example, clarify prisma.config.ts usage [Story file lines 88-109]
+- [ ] [AI-Review][MEDIUM] Verify `.prisma` file extension is correct for Prisma 7 or rename to standard extension [backend/prisma/schema.prisma]
+- [ ] [AI-Review][MEDIUM] Remove unused `import 'dotenv/config'` from prisma.config.ts as it's not needed there [backend/prisma.config.ts:1]
+- [ ] [AI-Review][MEDIUM] Add test that performs actual User model query to verify table structure matches schema (not just type checking) [backend/src/config/database.test.ts]
+- [ ] [AI-Review][LOW] Update misleading Debug Log comment about deprecated datasourceUrl since schema.prisma doesn't actually have that property [Story file line 283-284]
+- [ ] [AI-Review][LOW] Fix `prisma:migrate` script to include required `--name` parameter or remove it since Task 3 specified `--name init-user-model` [backend/package.json:16]
 
 ## Dev Notes
 
@@ -319,3 +333,4 @@ Claude 3.5 Sonnet (claude-sonnet-4-20250514)
 | Date | Change |
 |------|--------|
 | 2026-01-07 | Initial implementation of Prisma 7 with User model, migrations, and Docker configuration |
+| 2026-01-07 | Code review completed - 11 issues found (4 HIGH, 4 MEDIUM, 2 LOW), security vulnerability in docker-compose.yml exposed to GitHub |
