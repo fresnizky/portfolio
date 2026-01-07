@@ -10,6 +10,7 @@ vi.mock('@/config/database', () => ({
     asset: {
       findFirst: vi.fn(),
       findMany: vi.fn(),
+      count: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -88,35 +89,56 @@ describe('assetService', () => {
   })
 
   describe('list', () => {
-    it('should return all assets for a user', async () => {
+    it('should return all assets for a user with total count', async () => {
       const mockAssets = [
         createMockAsset({ id: 'asset-1', ticker: 'VOO' }),
         createMockAsset({ id: 'asset-2', ticker: 'SPY' }),
       ]
 
       vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(2)
 
       const result = await assetService.list(userId)
 
-      expect(result).toEqual(mockAssets)
+      expect(result).toEqual({ assets: mockAssets, total: 2 })
       expect(prisma.asset.findMany).toHaveBeenCalledWith({
         where: { userId },
         orderBy: { createdAt: 'asc' },
       })
+      expect(prisma.asset.count).toHaveBeenCalledWith({ where: { userId } })
     })
 
     it('should return empty array when user has no assets', async () => {
       vi.mocked(prisma.asset.findMany).mockResolvedValue([])
+      vi.mocked(prisma.asset.count).mockResolvedValue(0)
 
       const result = await assetService.list(userId)
 
-      expect(result).toEqual([])
+      expect(result).toEqual({ assets: [], total: 0 })
+    })
+
+    it('should apply pagination when limit and offset provided', async () => {
+      const mockAssets = [createMockAsset({ userId })]
+
+      vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(10)
+
+      const result = await assetService.list(userId, { limit: 5, offset: 5 })
+
+      expect(result).toEqual({ assets: mockAssets, total: 10 })
+      expect(prisma.asset.findMany).toHaveBeenCalledWith({
+        where: { userId },
+        orderBy: { createdAt: 'asc' },
+        take: 5,
+        skip: 5,
+      })
     })
 
     it('should only return assets for the specified user', async () => {
       const userAssets = [createMockAsset({ userId })]
 
       vi.mocked(prisma.asset.findMany).mockResolvedValue(userAssets)
+      vi.mocked(prisma.asset.count).mockResolvedValue(1)
 
       await assetService.list(userId)
 

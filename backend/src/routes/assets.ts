@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { assetService } from '@/services/assetService'
-import { createAssetSchema, updateAssetSchema } from '@/validations/asset'
-import { validate } from '@/middleware/validate'
+import { createAssetSchema, updateAssetSchema, listAssetsQuerySchema, assetIdParamSchema } from '@/validations/asset'
+import { validate, validateParams } from '@/middleware/validate'
 
 const router: Router = Router()
 
@@ -25,13 +25,17 @@ router.post(
 /**
  * GET /api/assets
  * List all assets for the authenticated user
+ * Query params: limit (1-100), offset (0+)
  */
 router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const assets = await assetService.list(req.user!.id)
-      res.json({ data: assets })
+      const queryResult = listAssetsQuerySchema.safeParse(req.query)
+      const query = queryResult.success ? queryResult.data : {}
+      
+      const { assets, total } = await assetService.list(req.user!.id, query)
+      res.json({ data: assets, meta: { total } })
     } catch (error) {
       next(error)
     }
@@ -44,6 +48,7 @@ router.get(
  */
 router.get(
   '/:id',
+  validateParams(assetIdParamSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const asset = await assetService.getById(req.user!.id, req.params.id)
@@ -60,6 +65,7 @@ router.get(
  */
 router.put(
   '/:id',
+  validateParams(assetIdParamSchema),
   validate(updateAssetSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -77,6 +83,7 @@ router.put(
  */
 router.delete(
   '/:id',
+  validateParams(assetIdParamSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await assetService.delete(req.user!.id, req.params.id)

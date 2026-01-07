@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createAssetSchema, updateAssetSchema, assetCategorySchema } from './asset'
+import { createAssetSchema, updateAssetSchema, assetCategorySchema, listAssetsQuerySchema, assetIdParamSchema } from './asset'
 
 describe('assetCategorySchema', () => {
   it('accepts valid categories', () => {
@@ -39,6 +39,37 @@ describe('createAssetSchema', () => {
     })
 
     expect(result.ticker).toBe('SPY')
+  })
+
+  it('trims whitespace from ticker and name', () => {
+    const result = createAssetSchema.parse({
+      ticker: '  voo  ',
+      name: '  Vanguard S&P 500 ETF  ',
+      category: 'ETF',
+    })
+
+    expect(result.ticker).toBe('VOO')
+    expect(result.name).toBe('Vanguard S&P 500 ETF')
+  })
+
+  it('rejects whitespace-only ticker', () => {
+    expect(() =>
+      createAssetSchema.parse({
+        ticker: '   ',
+        name: 'Test Asset',
+        category: 'ETF',
+      })
+    ).toThrow()
+  })
+
+  it('rejects whitespace-only name', () => {
+    expect(() =>
+      createAssetSchema.parse({
+        ticker: 'VOO',
+        name: '   ',
+        category: 'ETF',
+      })
+    ).toThrow()
   })
 
   it('rejects missing ticker', () => {
@@ -148,5 +179,49 @@ describe('updateAssetSchema', () => {
     expect(() =>
       updateAssetSchema.parse({ category: 'INVALID' })
     ).toThrow()
+  })
+})
+
+describe('listAssetsQuerySchema', () => {
+  it('accepts valid limit and offset', () => {
+    const result = listAssetsQuerySchema.parse({ limit: '10', offset: '5' })
+    expect(result).toEqual({ limit: 10, offset: 5 })
+  })
+
+  it('allows empty query', () => {
+    const result = listAssetsQuerySchema.parse({})
+    expect(result).toEqual({})
+  })
+
+  it('coerces string numbers', () => {
+    const result = listAssetsQuerySchema.parse({ limit: '50' })
+    expect(result.limit).toBe(50)
+  })
+
+  it('rejects limit less than 1', () => {
+    expect(() => listAssetsQuerySchema.parse({ limit: '0' })).toThrow()
+  })
+
+  it('rejects limit greater than 100', () => {
+    expect(() => listAssetsQuerySchema.parse({ limit: '101' })).toThrow()
+  })
+
+  it('rejects negative offset', () => {
+    expect(() => listAssetsQuerySchema.parse({ offset: '-1' })).toThrow()
+  })
+})
+
+describe('assetIdParamSchema', () => {
+  it('accepts valid CUID', () => {
+    const result = assetIdParamSchema.parse({ id: 'clx1234567890abcdefghijkl' })
+    expect(result.id).toBe('clx1234567890abcdefghijkl')
+  })
+
+  it('rejects invalid ID format', () => {
+    expect(() => assetIdParamSchema.parse({ id: 'invalid-id' })).toThrow()
+  })
+
+  it('rejects empty ID', () => {
+    expect(() => assetIdParamSchema.parse({ id: '' })).toThrow()
   })
 })

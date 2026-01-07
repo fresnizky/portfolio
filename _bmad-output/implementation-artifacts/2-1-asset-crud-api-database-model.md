@@ -1,6 +1,6 @@
 # Story 2.1: Asset CRUD API & Database Model
 
-Status: review
+Status: done
 
 ## Story
 
@@ -60,7 +60,14 @@ so that **I can define which investments I'm tracking**.
   - [x] Test list returns only user's assets
   - [x] Test update with valid data
   - [x] Test delete removes asset
-  - [x] Test ownership validation (can't access other user's assets)
+   - [x] Test ownership validation (can't access other user's assets)
+
+## Review Follow-ups (AI)
+
+- [x] [AI-Review][MEDIUM] Agregar trim() a validación de ticker antes de toUpperCase() para manejar espacios [backend/src/validations/asset.ts:6]
+- [x] [AI-Review][MEDIUM] Implementar paginación en endpoint GET /api/assets (limit/offset) [backend/src/routes/assets.ts:29]
+- [x] [AI-Review][LOW] Agregar comentarios JSDoc a métodos del assetService [backend/src/services/assetService.ts]
+- [x] [AI-Review][LOW] Agregar validación de formato CUID para parámetros :id en rutas [backend/src/routes/assets.ts]
 
 ## Dev Notes
 
@@ -305,6 +312,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - ✅ Task 3: Asset Service Layer - Implemented assetService with create, list, getById, update, delete methods. All include ownership verification and duplicate ticker validation.
 - ✅ Task 4: Asset Routes - Created CRUD routes (POST, GET, GET/:id, PUT/:id, DELETE/:id) with validation middleware. Routes protected with authMiddleware.
 - ✅ Task 5: Tests - Created 17 unit tests for assetService covering all CRUD operations, duplicate ticker validation, and ownership checks. Total: 84 tests passing.
+- ✅ Review Follow-ups (AI): Addressed 4 code review findings - Added trim() to validation, implemented pagination with meta.total, added JSDoc comments, and added CUID validation for :id params. Total: 97 tests passing.
 
 ### File List
 
@@ -315,5 +323,6 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - `backend/src/services/assetService.ts` (new)
 - `backend/src/services/assetService.test.ts` (new)
 - `backend/src/routes/assets.ts` (new)
+- `backend/src/middleware/validate.ts` (modified)
 - `backend/src/index.ts` (modified)
 
