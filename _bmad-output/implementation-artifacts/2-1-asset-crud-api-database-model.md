@@ -1,6 +1,6 @@
 # Story 2.1: Asset CRUD API & Database Model
 
-Status: in-progress
+Status: review
 
 ## Story
 
