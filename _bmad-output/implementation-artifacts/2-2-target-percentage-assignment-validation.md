@@ -25,11 +25,11 @@ so that **I can define my investment strategy**.
   - [x] Create `targetPercentageSchema` (Decimal 0-100, precision 2)
   - [x] Add tests for new validation rules
 
-- [ ] Task 2: Batch Targets Validation Schema (AC: #4)
-  - [ ] Create `batchUpdateTargetsSchema` in `backend/src/validations/asset.ts`
-  - [ ] Schema: array of `{assetId: cuid, targetPercentage: decimal}`
-  - [ ] Add validation that array is not empty
-  - [ ] Add tests for batch schema
+- [x] Task 2: Batch Targets Validation Schema (AC: #4)
+  - [x] Create `batchUpdateTargetsSchema` in `backend/src/validations/asset.ts`
+  - [x] Schema: array of `{assetId: cuid2, targetPercentage: decimal}`
+  - [x] Add validation that array is not empty
+  - [x] Add tests for batch schema
 
 - [ ] Task 3: Target Sum Validation Logic (AC: #2, #3)
   - [ ] Create `validateTargetsSum` function in `backend/src/services/assetService.ts`
@@ -403,6 +403,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 ### Completion Notes List
 
 - **Task 1 (2026-01-07):** Implemented `targetPercentageSchema` with 0-100 range validation and 2-decimal rounding. Extended `updateAssetSchema` to include optional `targetPercentage`. Added 12 new tests covering validation, coercion, rounding, and edge cases.
+- **Task 2 (2026-01-07):** Created `batchUpdateTargetsSchema` with array of `{assetId, targetPercentage}` using `z.cuid2()` (Zod v4 top-level validator). Added `BatchUpdateTargetsInput` type export. Added 10 new tests for batch schema validation.
 
 ### File List
 
