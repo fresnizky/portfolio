@@ -31,11 +31,11 @@ so that **I can define my investment strategy**.
   - [x] Add validation that array is not empty
   - [x] Add tests for batch schema
 
-- [ ] Task 3: Target Sum Validation Logic (AC: #2, #3)
-  - [ ] Create `validateTargetsSum` function in `backend/src/services/assetService.ts`
-  - [ ] Query all user's assets and calculate total target percentage
-  - [ ] Accept new values to be applied (for pre-validation)
-  - [ ] Return `{ valid: boolean, currentSum: number, difference: number }`
+- [x] Task 3: Target Sum Validation Logic (AC: #2, #3)
+  - [x] Create `validateTargetsSum` function in `backend/src/services/assetService.ts`
+  - [x] Query all user's assets and calculate total target percentage
+  - [x] Accept new values to be applied (for pre-validation)
+  - [x] Return `{ valid: boolean, currentSum: number, difference: number }`
 
 - [ ] Task 4: Update Asset Service for Target Updates (AC: #1, #2, #3)
   - [ ] Modify `assetService.update()` to validate target sum after update
@@ -404,9 +404,12 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 
 - **Task 1 (2026-01-07):** Implemented `targetPercentageSchema` with 0-100 range validation and 2-decimal rounding. Extended `updateAssetSchema` to include optional `targetPercentage`. Added 12 new tests covering validation, coercion, rounding, and edge cases.
 - **Task 2 (2026-01-07):** Created `batchUpdateTargetsSchema` with array of `{assetId, targetPercentage}` using `z.cuid2()` (Zod v4 top-level validator). Added `BatchUpdateTargetsInput` type export. Added 10 new tests for batch schema validation.
+- **Task 3 (2026-01-07):** Implemented `validateTargetsSum()` function in assetService. Queries all user assets, calculates sum with optional pending updates for pre-validation. Returns `{valid, sum, difference}` with 2-decimal rounding. Added 7 new tests.
 
 ### File List
 
 - `backend/src/validations/asset.ts` (modified)
 - `backend/src/validations/asset.test.ts` (modified)
+- `backend/src/services/assetService.ts` (modified)
+- `backend/src/services/assetService.test.ts` (modified)
 

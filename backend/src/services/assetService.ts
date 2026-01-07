@@ -102,4 +102,38 @@ export const assetService = {
     await this.getById(userId, id) // Verify ownership
     return prisma.asset.delete({ where: { id } })
   },
+
+  /**
+   * Validate that targets sum to 100%
+   * @param userId - The user's ID
+   * @param pendingUpdates - Optional map of assetId -> new targetPercentage to apply
+   * @returns Validation result with current sum and difference from 100%
+   */
+  async validateTargetsSum(
+    userId: string,
+    pendingUpdates?: Map<string, number>
+  ): Promise<{ valid: boolean; sum: number; difference: number }> {
+    const { assets } = await this.list(userId)
+
+    let sum = 0
+    for (const asset of assets) {
+      const newTarget = pendingUpdates?.get(asset.id)
+      // Prisma Decimal has toNumber() method, but also works with Number()
+      const currentTarget = typeof asset.targetPercentage.toNumber === 'function'
+        ? asset.targetPercentage.toNumber()
+        : Number(asset.targetPercentage)
+      const targetValue = newTarget !== undefined ? newTarget : currentTarget
+      sum += targetValue
+    }
+
+    // Round to avoid floating point issues
+    sum = Math.round(sum * 100) / 100
+    const difference = Math.round((sum - 100) * 100) / 100
+
+    return {
+      valid: sum === 100,
+      sum,
+      difference,
+    }
+  },
 }
