@@ -44,14 +44,14 @@ so that **I can define which investments I'm tracking**.
   - [x] Implement `update(userId, assetId, data)` - with ownership check
   - [x] Implement `delete(userId, assetId)` - with ownership check
 
-- [ ] Task 4: Asset Routes (AC: #1, #2, #3, #4, #5)
-  - [ ] Create `backend/src/routes/assets.ts`
-  - [ ] POST `/api/assets` - create asset
-  - [ ] GET `/api/assets` - list assets
-  - [ ] GET `/api/assets/:id` - get single asset
-  - [ ] PUT `/api/assets/:id` - update asset
-  - [ ] DELETE `/api/assets/:id` - delete asset
-  - [ ] Register routes in `backend/src/routes/index.ts`
+- [x] Task 4: Asset Routes (AC: #1, #2, #3, #4, #5)
+  - [x] Create `backend/src/routes/assets.ts`
+  - [x] POST `/api/assets` - create asset
+  - [x] GET `/api/assets` - list assets
+  - [x] GET `/api/assets/:id` - get single asset
+  - [x] PUT `/api/assets/:id` - update asset
+  - [x] DELETE `/api/assets/:id` - delete asset
+  - [x] Register routes in `backend/src/index.ts` (with authMiddleware)
 
 - [ ] Task 5: Tests (AC: #1, #2, #3, #4, #5)
   - [ ] Create `backend/src/services/assetService.test.ts`
@@ -303,6 +303,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - ✅ Task 1: Prisma Schema Update - Added Asset model with AssetCategory enum, relation to User, unique constraint on (userId, ticker), and index on userId. Migration `20260107183904_add_asset_model` applied successfully.
 - ✅ Task 2: Zod Validation Schemas - Created assetCategorySchema, createAssetSchema, updateAssetSchema with proper validations (ticker uppercase transform, length limits). 17 unit tests added.
 - ✅ Task 3: Asset Service Layer - Implemented assetService with create, list, getById, update, delete methods. All include ownership verification and duplicate ticker validation.
+- ✅ Task 4: Asset Routes - Created CRUD routes (POST, GET, GET/:id, PUT/:id, DELETE/:id) with validation middleware. Routes protected with authMiddleware.
 
 ### File List
 
@@ -311,4 +312,6 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - `backend/src/validations/asset.ts` (new)
 - `backend/src/validations/asset.test.ts` (new)
 - `backend/src/services/assetService.ts` (new)
+- `backend/src/routes/assets.ts` (new)
+- `backend/src/index.ts` (modified)
 
