@@ -71,6 +71,7 @@ export const assetService = {
    * @returns The updated asset
    * @throws NotFoundError if asset doesn't exist or belongs to another user
    * @throws ValidationError if updating ticker to one that already exists
+   * @throws ValidationError if updating targetPercentage and sum would not equal 100%
    */
   async update(userId: string, id: string, data: UpdateAssetInput) {
     await this.getById(userId, id) // Verify ownership
@@ -82,6 +83,18 @@ export const assetService = {
       })
       if (existing) {
         throw Errors.validation('Asset with this ticker already exists', { ticker: data.ticker })
+      }
+    }
+
+    // If updating targetPercentage, validate sum would equal 100%
+    if (data.targetPercentage !== undefined) {
+      const pendingUpdates = new Map([[id, data.targetPercentage]])
+      const validation = await this.validateTargetsSum(userId, pendingUpdates)
+      if (!validation.valid) {
+        throw Errors.validation(
+          `Targets must sum to 100%. Current sum would be: ${validation.sum}%`,
+          { sum: validation.sum, difference: validation.difference }
+        )
       }
     }
 
