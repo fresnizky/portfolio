@@ -55,13 +55,13 @@ so that **I can define my investment strategy**.
   - [x] Call `assetService.batchUpdateTargets()`
   - [x] Return `{ data: Asset[], message: "Targets updated successfully" }`
 
-- [ ] Task 7: Tests for Target Validation (AC: #1, #2, #3, #4)
-  - [ ] Test single asset target update with valid sum
-  - [ ] Test single asset target update with invalid sum (error case)
-  - [ ] Test batch update with valid sum (all succeed)
-  - [ ] Test batch update with invalid sum (all fail, atomic)
-  - [ ] Test batch update with invalid assetId (ownership failure)
-  - [ ] Test edge cases: 0%, 100% single asset, decimal precision
+- [x] Task 7: Tests for Target Validation (AC: #1, #2, #3, #4)
+  - [x] Test single asset target update with valid sum
+  - [x] Test single asset target update with invalid sum (error case)
+  - [x] Test batch update with valid sum (all succeed)
+  - [x] Test batch update with invalid sum (all fail, atomic)
+  - [x] Test batch update with invalid assetId (ownership failure)
+  - [x] Test edge cases: 0%, 100% single asset, decimal precision
 
 ## Dev Notes
 
@@ -408,6 +408,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - **Task 4 (2026-01-07):** Modified `assetService.update()` to validate target sum when updating `targetPercentage`. Rejects with ValidationError including sum/difference details if sum ≠ 100%. Non-targetPercentage updates bypass validation. Added 5 new tests.
 - **Task 5 (2026-01-07):** Implemented `batchUpdateTargets()` for atomic multi-asset target updates. Verifies ownership, validates sum=100%, uses `prisma.$transaction()`. Added 6 new tests.
 - **Task 6 (2026-01-07):** Created `PUT /api/assets/targets` route. Placed before `/:id` routes to avoid conflicts. Uses batchUpdateTargetsSchema validation and returns updated assets with success message.
+- **Task 7 (2026-01-07):** Added edge case tests: single asset 100%, batch 0%+100%, decimal precision (33.33+33.33+33.34=100), reject all 0%. Total: 141 tests passing.
 
 ### File List
 

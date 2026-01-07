@@ -616,4 +616,85 @@ describe('assetService', () => {
       }
     })
   })
+
+  describe('edge cases for target validation', () => {
+    it('should accept single asset with 100% target', async () => {
+      const singleAsset = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 0 } as Asset['targetPercentage'] })
+      const updatedAsset = { ...singleAsset, targetPercentage: { toNumber: () => 100 } as Asset['targetPercentage'] }
+
+      vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(singleAsset)
+      vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([singleAsset])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(1)
+      vi.mocked(prisma.asset.update).mockResolvedValue(updatedAsset)
+
+      const result = await assetService.update(userId, 'asset-1', { targetPercentage: 100 })
+
+      expect(result).toEqual(updatedAsset)
+    })
+
+    it('should accept batch update setting one asset to 0% and another to 100%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const updatedAsset1 = { ...asset1, targetPercentage: { toNumber: () => 0 } as Asset['targetPercentage'] }
+      const updatedAsset2 = { ...asset2, targetPercentage: { toNumber: () => 100 } as Asset['targetPercentage'] }
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 0 },
+        { assetId: 'asset-2', targetPercentage: 100 },
+      ])
+
+      expect(result).toHaveLength(2)
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should handle precise decimal targets that sum to 100', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 0 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 0 } as Asset['targetPercentage'] })
+      const asset3 = createMockAsset({ id: 'asset-3', targetPercentage: { toNumber: () => 0 } as Asset['targetPercentage'] })
+      const updatedAsset1 = { ...asset1, targetPercentage: { toNumber: () => 33.33 } as Asset['targetPercentage'] }
+      const updatedAsset2 = { ...asset2, targetPercentage: { toNumber: () => 33.33 } as Asset['targetPercentage'] }
+      const updatedAsset3 = { ...asset3, targetPercentage: { toNumber: () => 33.34 } as Asset['targetPercentage'] }
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }, { id: 'asset-3' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2, asset3])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(3)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2, updatedAsset3])
+
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 33.33 },
+        { assetId: 'asset-2', targetPercentage: 33.33 },
+        { assetId: 'asset-3', targetPercentage: 33.34 },
+      ])
+
+      expect(result).toHaveLength(3)
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should reject when all assets are set to 0%', async () => {
+      const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+      const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] })
+
+      vi.mocked(prisma.asset.findMany)
+        .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
+        .mockResolvedValueOnce([asset1, asset2])
+      vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+
+      await expect(assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 0 },
+        { assetId: 'asset-2', targetPercentage: 0 },
+      ])).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+
+      expect(prisma.$transaction).not.toHaveBeenCalled()
+    })
+  })
 })
