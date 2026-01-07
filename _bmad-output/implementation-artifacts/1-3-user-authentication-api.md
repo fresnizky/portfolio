@@ -74,11 +74,11 @@ Status: ready-for-dev
   - [x] Add TypeScript type extension for Request with user
   - [x] Add tests in `backend/src/middleware/auth.test.ts`
 
-- [ ] Task 7: Create rate limiter middleware (AC: 3)
-  - [ ] Create `backend/src/middleware/rateLimiter.ts`
-  - [ ] Configure login rate limiter: 5 attempts per minute per IP
-  - [ ] Configure general API rate limiter: 100 requests per minute per IP
-  - [ ] Return 429 Too Many Requests with retry-after header
+- [x] Task 7: Create rate limiter middleware (AC: 3)
+  - [x] Create `backend/src/middleware/rateLimiter.ts`
+  - [x] Configure login rate limiter: 5 attempts per minute per IP
+  - [x] Configure general API rate limiter: 100 requests per minute per IP
+  - [x] Return 429 Too Many Requests with retry-after header
 
 - [ ] Task 8: Create auth routes (AC: 1, 2, 3)
   - [ ] Create `backend/src/routes/auth.ts`
@@ -457,6 +457,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Task 4: Created Zod validation schemas using z.email() (Zod 4 API) and z.string().min(). Added 10 unit tests.
 - Task 5: Created auth service with register/login methods, AppError class, and Errors factory. Configured test separation (unit vs integration). Added 7 unit tests.
 - Task 6: Created auth middleware for JWT verification with Express Request type extension. Added 5 unit tests.
+- Task 7: Created rate limiter middleware (loginRateLimiter: 5/min, apiRateLimiter: 100/min). Added 4 unit tests.
 
 ### File List
 
@@ -477,6 +478,8 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - backend/src/middleware/auth.ts (created)
 - backend/src/middleware/auth.test.ts (created)
 - backend/src/types/express.d.ts (created)
+- backend/src/middleware/rateLimiter.ts (created)
+- backend/src/middleware/rateLimiter.test.ts (created)
 
 ## Change Log
 
@@ -489,3 +492,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Task 4 completed: Created Zod validation schemas (registerSchema, loginSchema) using Zod 4 API with unit tests |
 | 2026-01-07 | Task 5 completed: Created auth service, AppError/Errors utilities, separated unit/integration tests |
 | 2026-01-07 | Task 6 completed: Created auth middleware with JWT verification and Express type extension |
+| 2026-01-07 | Task 7 completed: Created rate limiter middleware for login (5/min) and API (100/min) |
