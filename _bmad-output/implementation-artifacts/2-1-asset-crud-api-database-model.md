@@ -1,6 +1,6 @@
 # Story 2.1: Asset CRUD API & Database Model
 
-Status: ready-for-dev
+Status: in-progress
 
 ## Story
 
@@ -22,13 +22,13 @@ so that **I can define which investments I'm tracking**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Prisma Schema Update (AC: #1, #2, #3, #4)
-  - [ ] Add Asset model to `backend/prisma/schema.prisma`
-  - [ ] Add AssetCategory enum (ETF, FCI, CRYPTO, CASH)
-  - [ ] Add relation to User model (userId foreign key)
-  - [ ] Add unique constraint on (userId, ticker) combination
-  - [ ] Run `pnpm prisma migrate dev --name add-asset-model`
-  - [ ] Run `pnpm prisma generate`
+- [x] Task 1: Prisma Schema Update (AC: #1, #2, #3, #4)
+  - [x] Add Asset model to `backend/prisma/schema.prisma`
+  - [x] Add AssetCategory enum (ETF, FCI, CRYPTO, CASH)
+  - [x] Add relation to User model (userId foreign key)
+  - [x] Add unique constraint on (userId, ticker) combination
+  - [x] Run `pnpm prisma migrate dev --name add-asset-model`
+  - [x] Run `pnpm prisma generate`
 
 - [ ] Task 2: Zod Validation Schemas (AC: #1, #3, #5)
   - [ ] Create `backend/src/validations/asset.ts`
@@ -294,11 +294,16 @@ import { assetService } from './assetService'
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Sonnet 4 (claude-sonnet-4-20250514)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- ✅ Task 1: Prisma Schema Update - Added Asset model with AssetCategory enum, relation to User, unique constraint on (userId, ticker), and index on userId. Migration `20260107183904_add_asset_model` applied successfully.
+
 ### File List
+
+- `backend/prisma/schema.prisma` (modified)
+- `backend/prisma/migrations/20260107183904_add_asset_model/migration.sql` (new)
 
