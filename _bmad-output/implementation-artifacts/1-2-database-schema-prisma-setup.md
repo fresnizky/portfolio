@@ -1,6 +1,6 @@
 # Story 1.2: Database Schema & Prisma Setup
 
-Status: in-progress
+Status: review
 
 ## Story
 
