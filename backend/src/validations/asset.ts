@@ -25,10 +25,19 @@ export const listAssetsQuerySchema = z.object({
 })
 
 export const assetIdParamSchema = z.object({
-  id: z.string().cuid('Invalid asset ID format'),
+  id: z.cuid2({ message: 'Invalid asset ID format' }),
+})
+
+// Batch update targets schema for atomic multi-asset target updates
+export const batchUpdateTargetsSchema = z.object({
+  targets: z.array(z.object({
+    assetId: z.cuid2({ message: 'Invalid asset ID format' }),
+    targetPercentage: targetPercentageSchema,
+  })).min(1, 'At least one target update required'),
 })
 
 export type AssetCategory = z.infer<typeof assetCategorySchema>
 export type CreateAssetInput = z.infer<typeof createAssetSchema>
 export type UpdateAssetInput = z.infer<typeof updateAssetSchema>
 export type ListAssetsQuery = z.infer<typeof listAssetsQuerySchema>
+export type BatchUpdateTargetsInput = z.infer<typeof batchUpdateTargetsSchema>
