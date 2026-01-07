@@ -1,6 +1,6 @@
 # Story 1.1: Project Scaffolding & Docker Setup
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -30,50 +30,50 @@ Status: ready-for-dev
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create root project structure (AC: 1)
-  - [ ] Create `.gitignore` with node_modules, .env, .env.ports, dist, build
-  - [ ] Create `.env.example` with required environment variables template
-  - [ ] Create `README.md` with project overview and setup instructions
+- [x] Task 1: Create root project structure (AC: 1)
+  - [x] Create `.gitignore` with node_modules, .env, .env.ports, dist, build
+  - [x] Create `.env.example` with required environment variables template
+  - [x] Create `README.md` with project overview and setup instructions
 
-- [ ] Task 2: Initialize Frontend with Vite (AC: 1, 2)
-  - [ ] Run `npm create vite@latest frontend -- --template react-ts`
-  - [ ] Create `frontend/Dockerfile` for production build
-  - [ ] Create `frontend/Dockerfile.dev` for development with HMR
-  - [ ] Configure `vite.config.ts` for Docker networking (host: true)
-  - [ ] Add basic `frontend/.env.example`
+- [x] Task 2: Initialize Frontend with Vite (AC: 1, 2)
+  - [x] Run `npm create vite@latest frontend -- --template react-ts`
+  - [x] Create `frontend/Dockerfile` for production build
+  - [x] Create `frontend/Dockerfile.dev` for development with HMR
+  - [x] Configure `vite.config.ts` for Docker networking (host: true)
+  - [x] Add basic `frontend/.env.example`
 
-- [ ] Task 3: Initialize Backend with Express + TypeScript (AC: 1, 3)
-  - [ ] Create `backend/` directory structure
-  - [ ] Initialize with `npm init -y`
-  - [ ] Install dependencies: express, cors, dotenv
-  - [ ] Install dev dependencies: typescript, @types/express, @types/node, @types/cors, ts-node, nodemon
-  - [ ] Create `tsconfig.json` with strict TypeScript config
-  - [ ] Create `nodemon.json` for development hot reload
-  - [ ] Create `backend/Dockerfile` for production
-  - [ ] Create `backend/Dockerfile.dev` for development with nodemon
-  - [ ] Create basic Express app with `/api/health` endpoint
-  - [ ] Add `backend/.env.example`
+- [x] Task 3: Initialize Backend with Express + TypeScript (AC: 1, 3)
+  - [x] Create `backend/` directory structure
+  - [x] Initialize with `npm init -y`
+  - [x] Install dependencies: express, cors, dotenv
+  - [x] Install dev dependencies: typescript, @types/express, @types/node, @types/cors, ts-node, nodemon
+  - [x] Create `tsconfig.json` with strict TypeScript config
+  - [x] Create `nodemon.json` for development hot reload
+  - [x] Create `backend/Dockerfile` for production
+  - [x] Create `backend/Dockerfile.dev` for development with nodemon
+  - [x] Create basic Express app with `/api/health` endpoint
+  - [x] Add `backend/.env.example`
 
-- [ ] Task 4: Create Docker Compose configuration (AC: 1, 2, 3)
-  - [ ] Create `docker-compose.yml` with all three services
-  - [ ] Create `docker-compose.dev.yml` override with volume mounts for hot reload
-  - [ ] Configure environment variables with PORT_* placeholders
-  - [ ] Configure postgres_data volume for persistence
-  - [ ] Set up service dependencies (frontend → backend → db)
+- [x] Task 4: Create Docker Compose configuration (AC: 1, 2, 3)
+  - [x] Create `docker-compose.yml` with all three services
+  - [x] Create `docker-compose.dev.yml` override with volume mounts for hot reload
+  - [x] Configure environment variables with PORT_* placeholders
+  - [x] Configure postgres_data volume for persistence
+  - [x] Set up service dependencies (frontend → backend → db)
 
-- [ ] Task 5: Integrate with dev-tunnel (AC: 1)
-  - [ ] Run `dev-tunnel register portfolio --path $(pwd)`
-  - [ ] Generate `.env.ports` with `dev-tunnel env portfolio > .env.ports`
-  - [ ] Update `.gitignore` to exclude `.env.ports`
-  - [ ] Document the dev-tunnel workflow in README
+- [x] Task 5: Integrate with dev-tunnel (AC: 1)
+  - [x] Run `dev-tunnel register portfolio --path $(pwd)`
+  - [x] Generate `.env.ports` with `dev-tunnel env portfolio > .env.ports`
+  - [x] Update `.gitignore` to exclude `.env.ports`
+  - [x] Document the dev-tunnel workflow in README
 
-- [ ] Task 6: Verify complete setup (AC: 1, 2, 3)
-  - [ ] Run `docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up`
-  - [ ] Verify frontend accessible at PORT_FRONTEND
-  - [ ] Verify backend health check at PORT_API/api/health returns 200
-  - [ ] Verify PostgreSQL accepts connections at PORT_DB
-  - [ ] Test frontend HMR by modifying a component
-  - [ ] Test backend hot reload by modifying a route
+- [x] Task 6: Verify complete setup (AC: 1, 2, 3)
+  - [x] Run `docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up`
+  - [x] Verify frontend accessible at PORT_FRONTEND
+  - [x] Verify backend health check at PORT_API/api/health returns 200
+  - [x] Verify PostgreSQL accepts connections at PORT_DB
+  - [x] Test frontend HMR by modifying a component
+  - [x] Test backend hot reload by modifying a route
 
 ## Dev Notes
 
@@ -301,16 +301,52 @@ app.listen(PORT, () => {
 
 ### Agent Model Used
 
-_To be filled by dev agent_
+Claude (claude-sonnet-4-20250514)
 
 ### Debug Log References
 
-_To be filled during implementation_
+_None - Task 1 files already existed from initial commit_
 
 ### Completion Notes List
 
-_To be filled after completion_
+- **Task 1 (2026-01-06):** Root project structure verified. Files `.gitignore`, `.env.example`, and `README.md` already existed with correct content from initial project setup.
+- **Task 2 (2026-01-06):** Frontend initialized with Vite + React 19 + TypeScript. Created Dockerfile (prod with nginx), Dockerfile.dev (dev with HMR), configured vite.config.ts with host:true for Docker networking. Build verified passing.
+- **Task 3 (2026-01-06):** Backend initialized with Express 5 + TypeScript. Created Dockerfile (multi-stage prod), Dockerfile.dev (nodemon hot reload), /api/health endpoint. Build and typecheck verified passing.
+- **Task 4 (2026-01-06):** Docker Compose configuration created. Refactored to base + override pattern (dev.yml, prod.yml). DB healthcheck configured.
+- **Task 5 (2026-01-06):** dev-tunnel integration verified. Project already registered, .env.ports generated with ports 10001-10003. Added allowedHosts to vite.config.ts for subdomain access.
+- **Task 6 (2026-01-06):** Complete validation performed:
+  - Dev mode: localhost + subdomain (portfolio.resnizky.ar, api.portfolio.resnizky.ar) ✅
+  - Prod mode: localhost + subdomain ✅
+  - Frontend HMR ✅, Backend hot reload ✅
+  - Database connectivity ✅
 
 ### File List
 
-_To be filled with all created/modified files_
+- `.gitignore` - Git ignore rules (node_modules, .env, .env.ports, dist, build)
+- `.env.example` - Environment variables template
+- `README.md` - Project documentation with setup instructions
+- `frontend/package.json` - Frontend dependencies (React 19, Vite 7.3)
+- `frontend/pnpm-lock.yaml` - Lock file
+- `frontend/tsconfig.json` - TypeScript config with strict mode and path aliases
+- `frontend/vite.config.ts` - Vite config with React plugin and Docker host settings
+- `frontend/index.html` - Entry HTML
+- `frontend/Dockerfile` - Production build (multi-stage with nginx)
+- `frontend/Dockerfile.dev` - Development with HMR
+- `frontend/nginx.conf` - Nginx config for SPA routing
+- `frontend/.env.example` - Frontend env template
+- `frontend/src/main.tsx` - React entry point
+- `frontend/src/App.tsx` - Root component
+- `frontend/src/index.css` - Base styles
+- `frontend/src/vite-env.d.ts` - Vite type declarations
+- `backend/package.json` - Backend dependencies (Express 5, TypeScript)
+- `backend/pnpm-lock.yaml` - Lock file
+- `backend/tsconfig.json` - TypeScript config with strict mode
+- `backend/nodemon.json` - Nodemon config for hot reload
+- `backend/Dockerfile` - Production build (multi-stage)
+- `backend/Dockerfile.dev` - Development with nodemon
+- `backend/.env.example` - Backend env template
+- `backend/.gitignore` - Backend git ignore
+- `backend/src/index.ts` - Express app with /api/health endpoint
+- `docker-compose.yml` - Base Docker Compose config (no ports for frontend/backend)
+- `docker-compose.dev.yml` - Development override (Dockerfile.dev, port 5173)
+- `docker-compose.prod.yml` - Production override (Dockerfile, port 80)

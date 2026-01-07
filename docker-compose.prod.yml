@@ -1,0 +1,17 @@
+# Production override
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.ports up
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT_FRONTEND:-10001}:80"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production

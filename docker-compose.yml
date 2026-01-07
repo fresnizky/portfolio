@@ -1,0 +1,40 @@
+# Base Docker Compose - use with an override file
+# Dev:  docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up
+# Prod: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.ports up
+
+services:
+  frontend:
+    environment:
+      - VITE_API_URL=http://localhost:${PORT_API:-10002}/api
+    depends_on:
+      - backend
+
+  backend:
+    ports:
+      - "${PORT_API:-10002}:3000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-portfolio_user}:${POSTGRES_PASSWORD:-portfolio_pass}@db:5432/${POSTGRES_DB:-portfolio}
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-me}
+      - PORT=3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18
+    ports:
+      - "${PORT_DB:-10003}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-portfolio_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-portfolio_pass}
+      - POSTGRES_DB=${POSTGRES_DB:-portfolio}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-portfolio_user} -d ${POSTGRES_DB:-portfolio}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
