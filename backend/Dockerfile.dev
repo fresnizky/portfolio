@@ -9,10 +9,14 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
+# Copy Prisma files needed for postinstall
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
+# Install dependencies (includes postinstall which runs prisma generate)
 RUN pnpm install
 
-# Copy source code (will be overridden by volume mount in dev)
+# Copy remaining source code (will be overridden by volume mount in dev)
 COPY . .
 
 EXPOSE 3000
