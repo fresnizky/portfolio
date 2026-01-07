@@ -34,16 +34,6 @@ Status: in-progress
 ## Tasks / Subtasks
 
 - [x] Task 1: Install required dependencies (AC: 1, 2, 3, 4)
-
-## Review Follow-ups (AI)
-
-- [x] [AI-Review][HIGH] Corregir discrepancias de Git - Documentar cambios en archivos no listados (1-2-database-schema-prisma-setup.md, 1-3-user-authentication-api.md)
-- [x] [AI-Review][MEDIUM] Limpiar localStorage corrupto en api.ts getAuthHeaders cuando JSON.parse falla
-- [x] [AI-Review][MEDIUM] Implementar redirección de vuelta a página original después del login usando location.state
-- [x] [AI-Review][MEDIUM] Agregar ruta 404 y manejo de rutas no encontradas en router.tsx
-- [x] [AI-Review][LOW] Mover token a memoria en lugar de localStorage para mejorar seguridad (aunque aceptable para MVP) - **WON'T FIX FOR MVP**: Requiere implementar refresh tokens con httpOnly cookies en backend para mantener UX de sesión persistente. Documentado para futura story de seguridad.
-- [x] [AI-Review][LOW] Agregar Error Boundary en App.tsx para manejo de errores de render
-- [x] [AI-Review][LOW] Mover botón de logout del Layout al Dashboard específico como indica la tarea 12 - **WON'T FIX**: Mantener en Layout es mejor UX ya que aparece en todas las páginas protegidas. Task 12 y 13 tenían indicaciones conflictivas.
   - [x] Install React Router: `pnpm add react-router`
   - [x] Install TanStack Query: `pnpm add @tanstack/react-query`
   - [x] Install Zustand: `pnpm add zustand`
@@ -146,38 +136,50 @@ Status: in-progress
   - [x] Test logout clears token and redirects to login
   - [x] Test persisted login survives page refresh
 
+## Review Follow-ups (AI)
+
+- [x] [AI-Review][HIGH] Corregir discrepancias de Git - Documentar cambios en archivos no listados (1-2-database-schema-prisma-setup.md, 1-3-user-authentication-api.md)
+- [x] [AI-Review][MEDIUM] Limpiar localStorage corrupto en api.ts getAuthHeaders cuando JSON.parse falla
+- [x] [AI-Review][MEDIUM] Implementar redirección de vuelta a página original después del login usando location.state
+- [x] [AI-Review][MEDIUM] Agregar ruta 404 y manejo de rutas no encontradas en router.tsx
+- [x] [AI-Review][LOW] Mover token a memoria en lugar de localStorage para mejorar seguridad (aunque aceptable para MVP) - **WON'T FIX FOR MVP**: Requiere implementar refresh tokens con httpOnly cookies en backend para mantener UX de sesión persistente. Documentado para futura story de seguridad.
+- [x] [AI-Review][LOW] Agregar Error Boundary en App.tsx para manejo de errores de render
+- [x] [AI-Review][LOW] Mover botón de logout del Layout al Dashboard específico como indica la tarea 12 - **WON'T FIX**: Mantener en Layout es mejor UX ya que aparece en todas las páginas protegidas. Task 12 y 13 tenían indicaciones conflictivas.
+
 ## Dev Notes
 
 ### Technology Stack
 
-| Component | Technology | Version | Notes |
-|-----------|------------|---------|-------|
-| Router | react-router | v7 (latest) | Data router API |
-| State Management | Zustand | latest | For auth state |
-| Server State | TanStack Query | v5 | For API mutations/queries |
-| Forms | React Hook Form + Zod | latest | Form validation |
-| Styling | Tailwind CSS | v4 | Utility-first CSS |
-| HTTP | fetch API | native | No axios needed |
+| Component        | Technology            | Version     | Notes                     |
+| ---------------- | --------------------- | ----------- | ------------------------- |
+| Router           | react-router          | v7 (latest) | Data router API           |
+| State Management | Zustand               | latest      | For auth state            |
+| Server State     | TanStack Query        | v5          | For API mutations/queries |
+| Forms            | React Hook Form + Zod | latest      | Form validation           |
+| Styling          | Tailwind CSS          | v4          | Utility-first CSS         |
+| HTTP             | fetch API             | native      | No axios needed           |
 
 ### Critical Architecture Patterns
 
 **API Response Format (from architecture.md):**
+
 ```typescript
 // Success Response
 interface SuccessResponse<T> {
-  data: T
-  message?: string
+  data: T;
+  message?: string;
 }
 
-// Error Response  
+// Error Response
 interface ErrorResponse {
-  error: string      // Code: "VALIDATION_ERROR", "UNAUTHORIZED"
-  message: string    // Human readable
-  details?: object   // Field-level errors
+  error: string; // Code: "VALIDATION_ERROR", "UNAUTHORIZED"
+  message: string; // Human readable
+  details?: object; // Field-level errors
 }
 ```
 
 **Backend Auth Endpoints (from Story 1.3):**
+
 ```typescript
 // POST /api/auth/login
 // Request: { email: string, password: string }
@@ -190,19 +192,20 @@ interface ErrorResponse {
 ```
 
 **Zustand Store Pattern (from architecture.md):**
+
 ```typescript
 // Naming: use[Feature]Store
 // Location: src/stores/[feature]Store.ts
 
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface AuthState {
-  token: string | null
-  user: { id: string; email: string } | null
-  isAuthenticated: boolean
-  login: (token: string, user: { id: string; email: string }) => void
-  logout: () => void
+  token: string | null;
+  user: { id: string; email: string } | null;
+  isAuthenticated: boolean;
+  login: (token: string, user: { id: string; email: string }) => void;
+  logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -214,26 +217,28 @@ export const useAuthStore = create<AuthState>()(
       login: (token, user) => set({ token, user, isAuthenticated: true }),
       logout: () => set({ token: null, user: null, isAuthenticated: false }),
     }),
-    { name: 'auth-storage' }
+    { name: "auth-storage" }
   )
-)
+);
 ```
 
 **TanStack Query Keys Pattern (from architecture.md):**
+
 ```typescript
 // Location: src/lib/queryKeys.ts
 export const queryKeys = {
   auth: {
-    me: () => ['auth', 'me'] as const,
+    me: () => ["auth", "me"] as const,
   },
   // Add more as needed
-}
+};
 ```
 
 **API Client Pattern:**
+
 ```typescript
 // Location: src/lib/api.ts
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:10002/api";
 
 class ApiError extends Error {
   constructor(
@@ -241,37 +246,40 @@ class ApiError extends Error {
     message: string,
     public details?: object
   ) {
-    super(message)
-    this.name = 'ApiError'
+    super(message);
+    this.name = "ApiError";
   }
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
-  const json = await response.json()
+  const json = await response.json();
   if (!response.ok) {
-    throw new ApiError(json.error, json.message, json.details)
+    throw new ApiError(json.error, json.message, json.details);
   }
-  return json.data
+  return json.data;
 }
 
 export const api = {
   auth: {
     login: async (email: string, password: string) => {
       const res = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      })
-      return handleResponse<{ user: { id: string; email: string }; token: string }>(res)
+      });
+      return handleResponse<{
+        user: { id: string; email: string };
+        token: string;
+      }>(res);
     },
     me: async (token: string) => {
       const res = await fetch(`${API_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      return handleResponse<{ id: string; email: string }>(res)
+      });
+      return handleResponse<{ id: string; email: string }>(res);
     },
   },
-}
+};
 ```
 
 ### File Structure to Create
@@ -320,20 +328,20 @@ frontend/src/
 
 ```typescript
 // vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import path from 'path'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   // ... existing config
-})
+});
 ```
 
 ```css
@@ -385,7 +393,7 @@ Per architecture.md: "Access token en memory" - but for MVP simplicity and page 
 
 ```typescript
 // Using Zustand persist middleware
-import { persist } from 'zustand/middleware'
+import { persist } from "zustand/middleware";
 
 // Token stored in localStorage as 'auth-storage'
 // On logout: clear localStorage
@@ -407,59 +415,65 @@ import.meta.env.VITE_API_URL
 ### Previous Story Intelligence (Story 1.3)
 
 **Backend Auth API Ready:**
+
 - `POST /api/auth/register` - Create new user
 - `POST /api/auth/login` - Authenticate, returns JWT
 - `GET /api/auth/me` - Validate token, returns user
 - Rate limiting: 5 login attempts/min
 
 **JWT Token Format:**
+
 - Expires in 1 hour (configurable via JWT_EXPIRES_IN)
 - Payload includes: `{ sub: userId, email: userEmail }`
 - Must be sent as: `Authorization: Bearer <token>`
 
 **Error Responses:**
+
 - `401 UNAUTHORIZED` - Invalid credentials or missing/expired token
 - `400 VALIDATION_ERROR` - Invalid input with details
 - `429 TOO_MANY_REQUESTS` - Rate limited
 
 ### Naming Conventions (from architecture.md)
 
-| Element | Convention | Example |
-|---------|------------|---------|
-| Files: Components | PascalCase.tsx | `LoginForm.tsx` |
-| Files: Utils/hooks | camelCase.ts | `useLogin.ts`, `api.ts` |
-| Files: Tests | *.test.ts(x) | `LoginForm.test.tsx` |
-| Components | PascalCase | `function LoginForm()` |
-| Functions | camelCase | `handleSubmit()` |
-| Variables | camelCase | `const isLoading` |
-| Types/Interfaces | PascalCase | `interface LoginInput` |
-| Stores | use[Feature]Store | `useAuthStore` |
-| Hooks | use[Action] | `useLogin`, `useAuth` |
+| Element            | Convention        | Example                 |
+| ------------------ | ----------------- | ----------------------- |
+| Files: Components  | PascalCase.tsx    | `LoginForm.tsx`         |
+| Files: Utils/hooks | camelCase.ts      | `useLogin.ts`, `api.ts` |
+| Files: Tests       | \*.test.ts(x)     | `LoginForm.test.tsx`    |
+| Components         | PascalCase        | `function LoginForm()`  |
+| Functions          | camelCase         | `handleSubmit()`        |
+| Variables          | camelCase         | `const isLoading`       |
+| Types/Interfaces   | PascalCase        | `interface LoginInput`  |
+| Stores             | use[Feature]Store | `useAuthStore`          |
+| Hooks              | use[Action]       | `useLogin`, `useAuth`   |
 
 ### Testing Approach
 
 **Test Co-location:** Tests next to source files
+
 - `LoginForm.tsx` -> `LoginForm.test.tsx`
 - `api.ts` -> `api.test.ts`
 
 **Test Libraries (already installed):**
+
 - Vitest (test runner)
 - @testing-library/react
 - @testing-library/jest-dom
 
 **Mocking API calls:**
+
 ```typescript
-import { vi } from 'vitest'
+import { vi } from "vitest";
 
 // Mock the api module
-vi.mock('@/lib/api', () => ({
+vi.mock("@/lib/api", () => ({
   api: {
     auth: {
       login: vi.fn(),
       me: vi.fn(),
     },
   },
-}))
+}));
 ```
 
 ### CRITICAL Reminders for Dev Agent
@@ -478,6 +492,7 @@ vi.mock('@/lib/api', () => ({
 ### UI/UX Notes
 
 **Login Page (minimal but functional):**
+
 - Centered card with form
 - Email and password inputs
 - Submit button with loading state
@@ -485,6 +500,7 @@ vi.mock('@/lib/api', () => ({
 - Simple, clean styling with Tailwind
 
 **Dashboard (placeholder):**
+
 - Header with app title and logout button
 - Welcome message with user email
 - "Dashboard coming soon" placeholder content
@@ -492,6 +508,7 @@ vi.mock('@/lib/api', () => ({
 ### Project Context Reference
 
 See `_bmad-output/project-context.md` for:
+
 - Full technology stack versions
 - Critical implementation rules
 - Anti-patterns to avoid
@@ -526,31 +543,32 @@ claude-opus-4-5
 1. **Task 1-3**: Installed all dependencies and created project structure
    - react-router 7.11.0, @tanstack/react-query 5.90.16, zustand 5.0.9
    - zod 4.3.5, react-hook-form 7.70.0, tailwindcss 4.1.18
-   
+
 2. **Task 4**: API client with ApiError class and typed responses
    - 5 tests covering login, me endpoint, and error handling
-   
+
 3. **Task 5**: Zustand auth store with persist middleware
    - 7 tests covering login, logout, setLoading, checkAuth
-   
+
 4. **Task 6-7**: TanStack Query setup and Zod validation schemas
-   
+
 5. **Task 8**: LoginForm with React Hook Form + Zod resolver
    - 6 tests covering validation, submission, loading states
-   
+
 6. **Task 9**: Auth hooks (useLogin, useLogout, useAuth)
    - 3 tests for useLogin hook
-   
+
 7. **Task 10-11**: Router with protected routes
    - 3 tests for ProtectedRoute component
-   
+
 8. **Task 12-14**: Dashboard, Layout, and App.tsx with providers
-   
+
 9. **Task 15**: All integration tests passing (25 total)
 
 ### File List
 
 **New Files:**
+
 - frontend/src/types/api.ts
 - frontend/src/lib/api.ts
 - frontend/src/lib/api.test.ts
@@ -574,6 +592,7 @@ claude-opus-4-5
 - frontend/eslint.config.js
 
 **Modified Files:**
+
 - frontend/package.json (added dependencies and updated lint script)
 - frontend/vite.config.ts (added Tailwind plugin and path aliases)
 - frontend/src/index.css (Tailwind v4 imports)
