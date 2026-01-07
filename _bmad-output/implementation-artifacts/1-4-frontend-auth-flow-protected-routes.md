@@ -1,6 +1,6 @@
 # Story 1.4: Frontend Auth Flow & Protected Routes
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -34,6 +34,16 @@ Status: review
 ## Tasks / Subtasks
 
 - [x] Task 1: Install required dependencies (AC: 1, 2, 3, 4)
+
+## Review Follow-ups (AI)
+
+- [x] [AI-Review][HIGH] Corregir discrepancias de Git - Documentar cambios en archivos no listados (1-2-database-schema-prisma-setup.md, 1-3-user-authentication-api.md)
+- [x] [AI-Review][MEDIUM] Limpiar localStorage corrupto en api.ts getAuthHeaders cuando JSON.parse falla
+- [x] [AI-Review][MEDIUM] Implementar redirección de vuelta a página original después del login usando location.state
+- [x] [AI-Review][MEDIUM] Agregar ruta 404 y manejo de rutas no encontradas en router.tsx
+- [x] [AI-Review][LOW] Mover token a memoria en lugar de localStorage para mejorar seguridad (aunque aceptable para MVP) - **WON'T FIX FOR MVP**: Requiere implementar refresh tokens con httpOnly cookies en backend para mantener UX de sesión persistente. Documentado para futura story de seguridad.
+- [x] [AI-Review][LOW] Agregar Error Boundary en App.tsx para manejo de errores de render
+- [x] [AI-Review][LOW] Mover botón de logout del Layout al Dashboard específico como indica la tarea 12 - **WON'T FIX**: Mantener en Layout es mejor UX ya que aparece en todas las páginas protegidas. Task 12 y 13 tenían indicaciones conflictivas.
   - [x] Install React Router: `pnpm add react-router`
   - [x] Install TanStack Query: `pnpm add @tanstack/react-query`
   - [x] Install Zustand: `pnpm add zustand`
@@ -576,3 +586,7 @@ claude-opus-4-5
   - 15 tasks completed
   - 25 tests added and passing
   - All acceptance criteria satisfied
+
+### Notes
+
+**Git Discrepancies (Review Follow-up):** Los archivos `1-2-database-schema-prisma-setup.md` y `1-3-user-authentication-api.md` aparecían como modificados en git status durante el desarrollo de esta story. Estos archivos NO fueron incluidos en el commit de esta story ya que pertenecen a stories anteriores y sus cambios no son parte del scope de 1-4. Los cambios en esos archivos deben ser commiteados en sus respectivas branches o en un commit separado de mantenimiento.

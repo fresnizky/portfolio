@@ -1,16 +1,23 @@
-import { useNavigate } from 'react-router'
+import { useNavigate, useLocation } from 'react-router'
 import { LoginForm } from './components/LoginForm'
 import { useLogin } from './hooks/useLogin'
 import type { LoginInput } from '@/validations/auth'
 
+interface LocationState {
+  from?: { pathname: string }
+}
+
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { mutate: login, isPending, error } = useLogin()
+
+  const from = (location.state as LocationState)?.from?.pathname || '/dashboard'
 
   const handleSubmit = (data: LoginInput) => {
     login(data, {
       onSuccess: () => {
-        navigate('/dashboard', { replace: true })
+        navigate(from, { replace: true })
       },
     })
   }
