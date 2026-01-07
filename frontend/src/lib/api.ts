@@ -36,7 +36,8 @@ function getAuthHeaders(): HeadersInit {
         return { Authorization: `Bearer ${parsed.state.token}` }
       }
     } catch {
-      // Invalid token format, ignore
+      // Invalid/corrupted token format, clean up localStorage
+      localStorage.removeItem('auth-storage')
     }
   }
   return {}

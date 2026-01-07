@@ -113,5 +113,34 @@ describe('api', () => {
 
       await expect(api.auth.me()).rejects.toThrow(ApiError)
     })
+
+    it('should clear corrupted localStorage and continue without auth header', async () => {
+      const mockResponse = {
+        data: { id: '1', email: 'test@example.com' },
+      }
+
+      // Set corrupted/invalid JSON in localStorage
+      localStorage.setItem('auth-storage', 'not-valid-json{')
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      })
+
+      await api.auth.me()
+
+      // Verify localStorage was cleaned up
+      expect(localStorage.getItem('auth-storage')).toBeNull()
+
+      // Verify request was made without Authorization header
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/me'),
+        expect.objectContaining({
+          headers: expect.not.objectContaining({
+            Authorization: expect.any(String),
+          }),
+        })
+      )
+    })
   })
 })
