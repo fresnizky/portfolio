@@ -3,6 +3,13 @@ import { Errors } from '@/lib/errors'
 import type { CreateAssetInput, UpdateAssetInput } from '@/validations/asset'
 
 export const assetService = {
+  /**
+   * Create a new asset for a user
+   * @param userId - The ID of the user creating the asset
+   * @param data - Asset data (ticker, name, category)
+   * @returns The created asset
+   * @throws ValidationError if ticker already exists for this user
+   */
   async create(userId: string, data: CreateAssetInput) {
     // Check for duplicate ticker for this user
     const existing = await prisma.asset.findFirst({
@@ -17,13 +24,35 @@ export const assetService = {
     })
   },
 
-  async list(userId: string) {
-    return prisma.asset.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-    })
+  /**
+   * List all assets for a user with optional pagination
+   * @param userId - The ID of the user
+   * @param options - Optional pagination params (limit, offset)
+   * @returns Object with assets array and total count
+   */
+  async list(userId: string, options?: { limit?: number; offset?: number }) {
+    const { limit, offset } = options ?? {}
+    
+    const [assets, total] = await Promise.all([
+      prisma.asset.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'asc' },
+        ...(limit !== undefined && { take: limit }),
+        ...(offset !== undefined && { skip: offset }),
+      }),
+      prisma.asset.count({ where: { userId } }),
+    ])
+
+    return { assets, total }
   },
 
+  /**
+   * Get a single asset by ID with ownership verification
+   * @param userId - The ID of the user (for ownership check)
+   * @param id - The asset ID
+   * @returns The asset if found and owned by user
+   * @throws NotFoundError if asset doesn't exist or belongs to another user
+   */
   async getById(userId: string, id: string) {
     const asset = await prisma.asset.findFirst({
       where: { id, userId },
@@ -34,6 +63,15 @@ export const assetService = {
     return asset
   },
 
+  /**
+   * Update an existing asset with ownership verification
+   * @param userId - The ID of the user (for ownership check)
+   * @param id - The asset ID to update
+   * @param data - Partial asset data to update
+   * @returns The updated asset
+   * @throws NotFoundError if asset doesn't exist or belongs to another user
+   * @throws ValidationError if updating ticker to one that already exists
+   */
   async update(userId: string, id: string, data: UpdateAssetInput) {
     await this.getById(userId, id) // Verify ownership
 
@@ -53,6 +91,13 @@ export const assetService = {
     })
   },
 
+  /**
+   * Delete an asset with ownership verification
+   * @param userId - The ID of the user (for ownership check)
+   * @param id - The asset ID to delete
+   * @returns The deleted asset
+   * @throws NotFoundError if asset doesn't exist or belongs to another user
+   */
   async delete(userId: string, id: string) {
     await this.getById(userId, id) // Verify ownership
     return prisma.asset.delete({ where: { id } })
