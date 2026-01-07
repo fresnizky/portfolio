@@ -20,5 +20,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/nodemon.json:/app/nodemon.json
+      - ./backend/prisma:/app/prisma
+      - ./backend/prisma.config.ts:/app/prisma.config.ts
     environment:
       - NODE_ENV=development
