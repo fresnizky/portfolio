@@ -53,14 +53,14 @@ so that **I can define which investments I'm tracking**.
   - [x] DELETE `/api/assets/:id` - delete asset
   - [x] Register routes in `backend/src/index.ts` (with authMiddleware)
 
-- [ ] Task 5: Tests (AC: #1, #2, #3, #4, #5)
-  - [ ] Create `backend/src/services/assetService.test.ts`
-  - [ ] Test create with valid data
-  - [ ] Test create with duplicate ticker returns error
-  - [ ] Test list returns only user's assets
-  - [ ] Test update with valid data
-  - [ ] Test delete removes asset
-  - [ ] Test ownership validation (can't access other user's assets)
+- [x] Task 5: Tests (AC: #1, #2, #3, #4, #5)
+  - [x] Create `backend/src/services/assetService.test.ts`
+  - [x] Test create with valid data
+  - [x] Test create with duplicate ticker returns error
+  - [x] Test list returns only user's assets
+  - [x] Test update with valid data
+  - [x] Test delete removes asset
+  - [x] Test ownership validation (can't access other user's assets)
 
 ## Dev Notes
 
@@ -304,6 +304,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - ✅ Task 2: Zod Validation Schemas - Created assetCategorySchema, createAssetSchema, updateAssetSchema with proper validations (ticker uppercase transform, length limits). 17 unit tests added.
 - ✅ Task 3: Asset Service Layer - Implemented assetService with create, list, getById, update, delete methods. All include ownership verification and duplicate ticker validation.
 - ✅ Task 4: Asset Routes - Created CRUD routes (POST, GET, GET/:id, PUT/:id, DELETE/:id) with validation middleware. Routes protected with authMiddleware.
+- ✅ Task 5: Tests - Created 17 unit tests for assetService covering all CRUD operations, duplicate ticker validation, and ownership checks. Total: 84 tests passing.
 
 ### File List
 
@@ -312,6 +313,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - `backend/src/validations/asset.ts` (new)
 - `backend/src/validations/asset.test.ts` (new)
 - `backend/src/services/assetService.ts` (new)
+- `backend/src/services/assetService.test.ts` (new)
 - `backend/src/routes/assets.ts` (new)
 - `backend/src/index.ts` (modified)
 
