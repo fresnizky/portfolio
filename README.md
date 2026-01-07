@@ -41,6 +41,10 @@ dev-tunnel register portfolio --path $(pwd)
 
 ```bash
 dev-tunnel env portfolio > .env.ports
+
+# Verificar que se generó correctamente
+cat .env.ports | grep PORT_
+# Debería mostrar: PORT_FRONTEND, PORT_API, PORT_DB
 ```
 
 ### 3. Configurar variables de entorno

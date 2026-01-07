@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { errorHandler } from './middleware/errorHandler'
 
 dotenv.config()
 
@@ -18,6 +19,9 @@ app.get('/api/health', (_req, res) => {
     uptime: process.uptime(),
   })
 })
+
+// Centralized error handler (must be last)
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
