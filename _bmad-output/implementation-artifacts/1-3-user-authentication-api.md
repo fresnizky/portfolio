@@ -46,11 +46,11 @@ Status: ready-for-dev
   - [x] Use bcrypt with salt rounds 10-12
   - [x] Add tests in `backend/src/lib/password.test.ts`
 
-- [ ] Task 3: Create JWT utilities (AC: 2, 4)
-  - [ ] Create `backend/src/lib/jwt.ts` with generateToken and verifyToken functions
-  - [ ] Configure JWT_SECRET from environment variable (required)
-  - [ ] Set token expiration to 1 hour (configurable via JWT_EXPIRES_IN env var)
-  - [ ] Add tests in `backend/src/lib/jwt.test.ts`
+- [x] Task 3: Create JWT utilities (AC: 2, 4)
+  - [x] Create `backend/src/lib/jwt.ts` with generateToken and verifyToken functions
+  - [x] Configure JWT_SECRET from environment variable (required)
+  - [x] Set token expiration to 1 hour (configurable via JWT_EXPIRES_IN env var)
+  - [x] Add tests in `backend/src/lib/jwt.test.ts`
 
 - [ ] Task 4: Create Zod validation schemas (AC: 1, 2)
   - [ ] Create `backend/src/validations/auth.ts` with registerSchema and loginSchema
@@ -453,6 +453,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 
 - Task 1: Installed authentication dependencies (bcrypt ^6.0.0, jsonwebtoken ^9.0.3, express-rate-limit ^8.2.1) and type definitions (@types/bcrypt ^6.0.0, @types/jsonwebtoken ^9.0.10)
 - Task 2: Created password utilities with hashPassword and verifyPassword functions using bcrypt (salt rounds 10). Added 5 unit tests.
+- Task 3: Created JWT utilities with generateToken and verifyToken functions. Uses StringValue type from ms for proper typing. Added 7 unit tests.
 
 ### File List
 
@@ -460,6 +461,8 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - backend/pnpm-lock.yaml (modified)
 - backend/src/lib/password.ts (created)
 - backend/src/lib/password.test.ts (created)
+- backend/src/lib/jwt.ts (created)
+- backend/src/lib/jwt.test.ts (created)
 
 ## Change Log
 
@@ -468,3 +471,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Story created by SM agent with comprehensive context from epics, architecture, and previous story learnings |
 | 2026-01-07 | Task 1 completed: Installed auth dependencies (bcrypt, jsonwebtoken, express-rate-limit) and type definitions |
 | 2026-01-07 | Task 2 completed: Created password utilities (hashPassword, verifyPassword) with bcrypt and unit tests |
+| 2026-01-07 | Task 3 completed: Created JWT utilities (generateToken, verifyToken) with proper StringValue typing and unit tests |
