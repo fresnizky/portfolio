@@ -42,12 +42,12 @@ so that **I can define my investment strategy**.
   - [x] On validation failure, return error with current sum details
   - [x] Ensure update is rejected if sum would exceed/fall short of 100%
 
-- [ ] Task 5: Batch Update Targets Service Method (AC: #4)
-  - [ ] Create `assetService.batchUpdateTargets(userId, updates[])`
-  - [ ] Validate all assetIds belong to user (ownership check)
-  - [ ] Validate sum of ALL targets (existing + updated) equals 100%
-  - [ ] Use Prisma transaction for atomic update
-  - [ ] Return updated assets array
+- [x] Task 5: Batch Update Targets Service Method (AC: #4)
+  - [x] Create `assetService.batchUpdateTargets(userId, updates[])`
+  - [x] Validate all assetIds belong to user (ownership check)
+  - [x] Validate sum of ALL targets (existing + updated) equals 100%
+  - [x] Use Prisma transaction for atomic update
+  - [x] Return updated assets array
 
 - [ ] Task 6: Batch Update Targets Route (AC: #4)
   - [ ] Create `PUT /api/assets/targets` route in `backend/src/routes/assets.ts`
@@ -406,6 +406,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - **Task 2 (2026-01-07):** Created `batchUpdateTargetsSchema` with array of `{assetId, targetPercentage}` using `z.cuid2()` (Zod v4 top-level validator). Added `BatchUpdateTargetsInput` type export. Added 10 new tests for batch schema validation.
 - **Task 3 (2026-01-07):** Implemented `validateTargetsSum()` function in assetService. Queries all user assets, calculates sum with optional pending updates for pre-validation. Returns `{valid, sum, difference}` with 2-decimal rounding. Added 7 new tests.
 - **Task 4 (2026-01-07):** Modified `assetService.update()` to validate target sum when updating `targetPercentage`. Rejects with ValidationError including sum/difference details if sum ≠ 100%. Non-targetPercentage updates bypass validation. Added 5 new tests.
+- **Task 5 (2026-01-07):** Implemented `batchUpdateTargets()` for atomic multi-asset target updates. Verifies ownership, validates sum=100%, uses `prisma.$transaction()`. Added 6 new tests.
 
 ### File List
 

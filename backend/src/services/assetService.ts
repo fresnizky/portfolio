@@ -149,4 +149,56 @@ export const assetService = {
       difference,
     }
   },
+
+  /**
+   * Update targets for multiple assets atomically
+   * @param userId - The user's ID
+   * @param updates - Array of { assetId, targetPercentage }
+   * @returns Array of updated assets
+   * @throws NotFoundError if any assetId doesn't belong to user
+   * @throws ValidationError if sum doesn't equal 100%
+   */
+  async batchUpdateTargets(
+    userId: string,
+    updates: Array<{ assetId: string; targetPercentage: number }>
+  ) {
+    // 1. Verify all assets belong to user
+    const assetIds = updates.map(u => u.assetId)
+    const userAssets = await prisma.asset.findMany({
+      where: { userId, id: { in: assetIds } },
+      select: { id: true },
+    })
+
+    if (userAssets.length !== assetIds.length) {
+      const foundIds = new Set(userAssets.map(a => a.id))
+      const missingIds = assetIds.filter(id => !foundIds.has(id))
+      throw Errors.notFound(`Assets not found: ${missingIds.join(', ')}`)
+    }
+
+    // 2. Build pending updates map
+    const pendingUpdates = new Map(
+      updates.map(u => [u.assetId, u.targetPercentage])
+    )
+
+    // 3. Validate sum would equal 100%
+    const validation = await this.validateTargetsSum(userId, pendingUpdates)
+    if (!validation.valid) {
+      throw Errors.validation(
+        `Targets must sum to 100%. Current sum would be: ${validation.sum}%`,
+        { sum: validation.sum, difference: validation.difference }
+      )
+    }
+
+    // 4. Atomic update using transaction
+    const updatedAssets = await prisma.$transaction(
+      updates.map(({ assetId, targetPercentage }) =>
+        prisma.asset.update({
+          where: { id: assetId },
+          data: { targetPercentage },
+        })
+      )
+    )
+
+    return updatedAssets
+  },
 }
