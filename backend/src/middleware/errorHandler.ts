@@ -1,23 +1,29 @@
 import { Request, Response, NextFunction } from 'express'
-
-export interface AppError extends Error {
-  statusCode?: number
-  code?: string
-}
+import { AppError } from '@/lib/errors'
 
 export function errorHandler(
-  err: AppError,
+  err: Error,
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void {
-  const statusCode = err.statusCode || 500
-  const code = err.code || 'INTERNAL_ERROR'
+  // Handle our custom AppError
+  if (err instanceof AppError) {
+    console.error(`[Error] ${err.code}: ${err.message}`)
 
-  console.error(`[Error] ${code}: ${err.message}`)
+    res.status(err.statusCode).json({
+      error: err.code,
+      message: err.message,
+      ...(err.details && { details: err.details }),
+    })
+    return
+  }
 
-  res.status(statusCode).json({
-    error: code,
-    message: err.message || 'An unexpected error occurred',
+  // Handle unknown errors
+  console.error(`[Error] INTERNAL_ERROR: ${err.message}`)
+
+  res.status(500).json({
+    error: 'INTERNAL_ERROR',
+    message: 'An unexpected error occurred',
   })
 }
