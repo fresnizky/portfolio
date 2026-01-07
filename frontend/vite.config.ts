@@ -10,5 +10,9 @@ export default defineConfig({
     watch: {
       usePolling: true, // Required for Docker volume mounts
     },
+    allowedHosts: [
+      'localhost',
+      'portfolio.resnizky.ar',
+    ],
   },
 })

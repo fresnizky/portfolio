@@ -1,4 +1,6 @@
-# Development override - use with: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Development override
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up
+
 services:
   frontend:
     build:

@@ -1,21 +1,20 @@
+# Base Docker Compose - use with an override file
+# Dev:  docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up
+# Prod: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.ports up
+
 services:
   frontend:
-    build: ./frontend
-    ports:
-      - "${PORT_FRONTEND:-10001}:80"
     environment:
       - VITE_API_URL=http://localhost:${PORT_API:-10002}/api
     depends_on:
       - backend
 
   backend:
-    build: ./backend
     ports:
       - "${PORT_API:-10002}:3000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-portfolio_user}:${POSTGRES_PASSWORD:-portfolio_pass}@db:5432/${POSTGRES_DB:-portfolio}
       - JWT_SECRET=${JWT_SECRET:-dev-secret-change-me}
-      - NODE_ENV=production
       - PORT=3000
     depends_on:
       db:

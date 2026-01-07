@@ -1,6 +1,6 @@
 # Story 1.1: Project Scaffolding & Docker Setup
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -61,19 +61,19 @@ Status: ready-for-dev
   - [x] Configure postgres_data volume for persistence
   - [x] Set up service dependencies (frontend → backend → db)
 
-- [ ] Task 5: Integrate with dev-tunnel (AC: 1)
-  - [ ] Run `dev-tunnel register portfolio --path $(pwd)`
-  - [ ] Generate `.env.ports` with `dev-tunnel env portfolio > .env.ports`
-  - [ ] Update `.gitignore` to exclude `.env.ports`
-  - [ ] Document the dev-tunnel workflow in README
+- [x] Task 5: Integrate with dev-tunnel (AC: 1)
+  - [x] Run `dev-tunnel register portfolio --path $(pwd)`
+  - [x] Generate `.env.ports` with `dev-tunnel env portfolio > .env.ports`
+  - [x] Update `.gitignore` to exclude `.env.ports`
+  - [x] Document the dev-tunnel workflow in README
 
-- [ ] Task 6: Verify complete setup (AC: 1, 2, 3)
-  - [ ] Run `docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up`
-  - [ ] Verify frontend accessible at PORT_FRONTEND
-  - [ ] Verify backend health check at PORT_API/api/health returns 200
-  - [ ] Verify PostgreSQL accepts connections at PORT_DB
-  - [ ] Test frontend HMR by modifying a component
-  - [ ] Test backend hot reload by modifying a route
+- [x] Task 6: Verify complete setup (AC: 1, 2, 3)
+  - [x] Run `docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.ports up`
+  - [x] Verify frontend accessible at PORT_FRONTEND
+  - [x] Verify backend health check at PORT_API/api/health returns 200
+  - [x] Verify PostgreSQL accepts connections at PORT_DB
+  - [x] Test frontend HMR by modifying a component
+  - [x] Test backend hot reload by modifying a route
 
 ## Dev Notes
 
@@ -312,7 +312,13 @@ _None - Task 1 files already existed from initial commit_
 - **Task 1 (2026-01-06):** Root project structure verified. Files `.gitignore`, `.env.example`, and `README.md` already existed with correct content from initial project setup.
 - **Task 2 (2026-01-06):** Frontend initialized with Vite + React 19 + TypeScript. Created Dockerfile (prod with nginx), Dockerfile.dev (dev with HMR), configured vite.config.ts with host:true for Docker networking. Build verified passing.
 - **Task 3 (2026-01-06):** Backend initialized with Express 5 + TypeScript. Created Dockerfile (multi-stage prod), Dockerfile.dev (nodemon hot reload), /api/health endpoint. Build and typecheck verified passing.
-- **Task 4 (2026-01-06):** Docker Compose configuration created. Production and dev overrides with volume mounts for hot reload. DB healthcheck configured. Syntax validated OK.
+- **Task 4 (2026-01-06):** Docker Compose configuration created. Refactored to base + override pattern (dev.yml, prod.yml). DB healthcheck configured.
+- **Task 5 (2026-01-06):** dev-tunnel integration verified. Project already registered, .env.ports generated with ports 10001-10003. Added allowedHosts to vite.config.ts for subdomain access.
+- **Task 6 (2026-01-06):** Complete validation performed:
+  - Dev mode: localhost + subdomain (portfolio.resnizky.ar, api.portfolio.resnizky.ar) ✅
+  - Prod mode: localhost + subdomain ✅
+  - Frontend HMR ✅, Backend hot reload ✅
+  - Database connectivity ✅
 
 ### File List
 
@@ -341,5 +347,6 @@ _None - Task 1 files already existed from initial commit_
 - `backend/.env.example` - Backend env template
 - `backend/.gitignore` - Backend git ignore
 - `backend/src/index.ts` - Express app with /api/health endpoint
-- `docker-compose.yml` - Production Docker Compose config
-- `docker-compose.dev.yml` - Development override with volume mounts
+- `docker-compose.yml` - Base Docker Compose config (no ports for frontend/backend)
+- `docker-compose.dev.yml` - Development override (Dockerfile.dev, port 5173)
+- `docker-compose.prod.yml` - Production override (Dockerfile, port 80)
