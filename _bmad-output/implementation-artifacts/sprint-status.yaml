@@ -51,7 +51,7 @@ development_status:
   # Epic 2: Portfolio Configuration
   epic-2: in-progress
   2-1-asset-crud-api-database-model: done
-  2-2-target-percentage-assignment-validation: backlog
+  2-2-target-percentage-assignment-validation: in-progress
   2-3-portfolio-configuration-ui: backlog
   epic-2-retrospective: optional
 
