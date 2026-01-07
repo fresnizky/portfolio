@@ -578,7 +578,6 @@ describe('assetService', () => {
     it('should handle partial updates (not all assets updated)', async () => {
       const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: { toNumber: () => 60 } as Asset['targetPercentage'] })
       const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: { toNumber: () => 40 } as Asset['targetPercentage'] })
-      const updatedAsset1 = { ...asset1, targetPercentage: { toNumber: () => 50 } as Asset['targetPercentage'] }
 
       // Ownership check - only updating asset-1
       vi.mocked(prisma.asset.findMany)
