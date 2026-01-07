@@ -3,6 +3,7 @@ import { authService } from '@/services/authService'
 import { registerSchema, loginSchema } from '@/validations/auth'
 import { validate } from '@/middleware/validate'
 import { authRateLimiter } from '@/middleware/rateLimiter'
+import { authMiddleware } from '@/middleware/auth'
 
 const router: Router = Router()
 
@@ -41,6 +42,18 @@ router.post(
     } catch (error) {
       next(error)
     }
+  }
+)
+
+/**
+ * GET /api/auth/me
+ * Get current authenticated user
+ */
+router.get(
+  '/me',
+  authMiddleware,
+  (req: Request, res: Response) => {
+    res.status(200).json({ data: req.user })
   }
 )
 

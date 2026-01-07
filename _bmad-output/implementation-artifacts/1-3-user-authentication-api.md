@@ -94,11 +94,11 @@ Status: ready-for-dev
   - [x] JWT validation handled in jwt.ts (no separate env.ts needed)
   - [x] Update docker-compose.yml with JWT_SECRET and JWT_EXPIRES_IN
 
-- [ ] Task 10: Create protected test route (AC: 4)
-  - [ ] Create `/api/auth/me` route to verify token and return user data
-  - [ ] Apply auth middleware to this route
-  - [ ] Return user email and id (not passwordHash)
-  - [ ] Add integration test
+- [x] Task 10: Create protected test route (AC: 4)
+  - [x] Create `/api/auth/me` route to verify token and return user data
+  - [x] Apply auth middleware to this route
+  - [x] Return user email and id (not passwordHash)
+  - [x] Add integration test
 
 ## Dev Notes
 
@@ -460,6 +460,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Task 7: Created rate limiter middleware (authRateLimiter: 5/min, apiRateLimiter: 100/min). Added 4 unit tests.
 - Task 8: Created auth routes with Zod validation middleware. Installed supertest. Added 8 tests.
 - Task 9: Updated environment configuration with JWT_SECRET (required) and JWT_EXPIRES_IN (optional).
+- Task 10: Created protected /api/auth/me route with auth middleware. Added 3 tests.
 
 ### File List
 
@@ -502,3 +503,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 | 2026-01-07 | Task 7 completed: Created rate limiter middleware for auth (5/min) and API (100/min) |
 | 2026-01-07 | Task 8 completed: Created auth routes (/register, /login) with Zod validation and rate limiting |
 | 2026-01-07 | Task 9 completed: Updated .env.example and docker-compose.yml with JWT environment variables |
+| 2026-01-07 | Task 10 completed: Created protected /api/auth/me route with auth middleware |

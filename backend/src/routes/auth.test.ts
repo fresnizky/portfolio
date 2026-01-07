@@ -18,6 +18,12 @@ vi.mock('@/middleware/rateLimiter', () => ({
 
 import { authService } from '@/services/authService'
 import { AppError } from '@/lib/errors'
+import { verifyToken } from '@/lib/jwt'
+
+// Mock JWT verification for /me route
+vi.mock('@/lib/jwt', () => ({
+  verifyToken: vi.fn(),
+}))
 
 // Reusable test data
 const validCredentials = { email: 'test@example.com', password: 'password123' }
@@ -90,6 +96,41 @@ describe('auth routes', () => {
 
       expect(response.status).toBe(409)
       expect(response.body.error).toBe('CONFLICT')
+    })
+  })
+
+  describe('GET /api/auth/me', () => {
+    const getMe = (token?: string) => {
+      const req = request(app).get('/api/auth/me')
+      return token ? req.set('Authorization', `Bearer ${token}`) : req
+    }
+
+    it('should return user data for valid token', async () => {
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      vi.mocked(verifyToken).mockReturnValue(mockUser)
+
+      const response = await getMe('valid-token')
+
+      expect(response.status).toBe(200)
+      expect(response.body.data).toEqual(mockUser)
+    })
+
+    it('should return 401 when no token provided', async () => {
+      const response = await getMe()
+
+      expect(response.status).toBe(401)
+      expect(response.body.error).toBe('UNAUTHORIZED')
+    })
+
+    it('should return 401 for invalid token', async () => {
+      vi.mocked(verifyToken).mockImplementation(() => {
+        throw new Error('Invalid token')
+      })
+
+      const response = await getMe('invalid-token')
+
+      expect(response.status).toBe(401)
+      expect(response.body.error).toBe('UNAUTHORIZED')
     })
   })
 
