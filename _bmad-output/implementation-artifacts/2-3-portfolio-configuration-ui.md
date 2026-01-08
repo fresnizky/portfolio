@@ -29,11 +29,11 @@ so that **I can easily configure my investment strategy**.
   - [x] Add `api.assets` methods in `frontend/src/lib/api.ts` (list, create, update, delete, batchUpdateTargets)
   - [x] Add tests for new API methods
 
-- [ ] Task 2: Create Portfolio Feature Module Structure (AC: #1)
-  - [ ] Create `frontend/src/features/portfolio/` directory structure
-  - [ ] Create `index.tsx` as Portfolio page entry point
-  - [ ] Add route to `router.tsx` for `/portfolio`
-  - [ ] Add navigation link in Layout component
+- [x] Task 2: Create Portfolio Feature Module Structure (AC: #1)
+  - [x] Create `frontend/src/features/portfolio/` directory structure
+  - [x] Create `index.tsx` as Portfolio page entry point
+  - [x] Add route to `router.tsx` for `/portfolio`
+  - [x] Add navigation link in Layout component
 
 - [ ] Task 3: Asset List Component (AC: #1)
   - [ ] Create `AssetList.tsx` component with TanStack Query for data fetching
@@ -621,8 +621,20 @@ Claude 4 Sonnet (Anthropic)
   - Added comprehensive tests for all asset API methods (14 new test cases)
   - All 20 tests passing, typecheck clean, lint clean
 
+- **Task 2 (2026-01-07):** Created Portfolio feature module structure
+  - Created `frontend/src/features/portfolio/` directory with components/ and hooks/ subdirs
+  - Created `PortfolioPage` component as entry point
+  - Added `/portfolio` route to router.tsx
+  - Added navigation links (Dashboard, Portfolio) to Layout component with NavLink active states
+  - All 40 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
 - `frontend/src/lib/api.ts` (modified) - Added api.assets methods
 - `frontend/src/lib/api.test.ts` (modified) - Added tests for asset API methods
+- `frontend/src/features/portfolio/index.tsx` (new) - Portfolio page entry point
+- `frontend/src/features/portfolio/components/` (new) - Components directory
+- `frontend/src/features/portfolio/hooks/` (new) - Hooks directory
+- `frontend/src/router.tsx` (modified) - Added /portfolio route
+- `frontend/src/components/layout/Layout.tsx` (modified) - Added navigation links
