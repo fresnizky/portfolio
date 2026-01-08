@@ -58,12 +58,12 @@ so that **I can easily configure my investment strategy**.
   - [x] Add loading state during submission
   - [x] Add tests for AssetForm component
 
-- [ ] Task 6: Asset Card Component with Actions (AC: #3, #4)
-  - [ ] Create `AssetCard.tsx` to display individual asset
-  - [ ] Add edit button (pencil icon) triggering form modal
-  - [ ] Add delete button (trash icon) with confirmation dialog
-  - [ ] Visual distinction by category (different colors/badges)
-  - [ ] Add tests for AssetCard component
+- [x] Task 6: Asset Card Component with Actions (AC: #3, #4)
+  - [x] Create `AssetCard.tsx` to display individual asset
+  - [x] Add edit button (pencil icon) triggering form modal
+  - [x] Add delete button (trash icon) with confirmation dialog
+  - [x] Visual distinction by category (different colors/badges)
+  - [x] Add tests for AssetCard component
 
 - [ ] Task 7: Create Asset Modal (AC: #2)
   - [ ] Create modal/dialog for adding new asset
@@ -654,6 +654,15 @@ Claude 4 Sonnet (Anthropic)
   - 14 comprehensive tests covering create, edit, validation, and UI states
   - All 68 tests passing, typecheck clean, lint clean
 
+- **Task 6 (2026-01-07):** Created AssetCard component
+  - Card display with ticker, name, category badge, and target percentage
+  - Edit button (pencil icon) with aria-label for accessibility
+  - Delete button (trash icon) with hover state (red)
+  - Category-specific badge colors (ETF=blue, FCI=green, CRYPTO=orange, CASH=gray)
+  - Hover shadow effect for interactivity
+  - 12 comprehensive tests covering display, actions, and category styles
+  - All 80 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
@@ -673,3 +682,5 @@ Claude 4 Sonnet (Anthropic)
 - `frontend/src/validations/asset.ts` (new) - Zod validation schemas for assets
 - `frontend/src/features/portfolio/components/AssetForm.tsx` (new) - Create/Edit form component
 - `frontend/src/features/portfolio/components/AssetForm.test.tsx` (new) - Tests for AssetForm
+- `frontend/src/features/portfolio/components/AssetCard.tsx` (new) - Asset card with actions
+- `frontend/src/features/portfolio/components/AssetCard.test.tsx` (new) - Tests for AssetCard
