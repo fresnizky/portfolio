@@ -1,7 +1,7 @@
 import { Modal } from '@/components/common/Modal'
 import { AssetForm } from './AssetForm'
 import { useCreateAsset } from '../hooks/useAssets'
-import type { CreateAssetFormData } from '@/validations/asset'
+import type { AssetFormData } from '@/validations/asset'
 
 interface CreateAssetModalProps {
   isOpen: boolean
@@ -12,9 +12,10 @@ interface CreateAssetModalProps {
 export function CreateAssetModal({ isOpen, onClose, onSuccess }: CreateAssetModalProps) {
   const createAsset = useCreateAsset()
 
-  const handleSubmit = async (data: CreateAssetFormData) => {
+  const handleSubmit = async (data: AssetFormData) => {
     try {
-      await createAsset.mutateAsync(data)
+      // New assets are created with 0% target - adjust via TargetEditor
+      await createAsset.mutateAsync({ ...data, targetPercentage: 0 })
       onClose()
       onSuccess?.()
     } catch {

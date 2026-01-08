@@ -30,7 +30,6 @@ describe('AssetForm', () => {
       expect(screen.getByLabelText('Ticker')).toHaveValue('')
       expect(screen.getByLabelText('Name')).toHaveValue('')
       expect(screen.getByLabelText('Category')).toHaveValue('ETF')
-      expect(screen.getByLabelText('Target Percentage')).toHaveValue(0)
       expect(screen.getByRole('button', { name: 'Create Asset' })).toBeInTheDocument()
     })
 
@@ -54,8 +53,6 @@ describe('AssetForm', () => {
       await user.type(screen.getByLabelText('Ticker'), 'btc')
       await user.type(screen.getByLabelText('Name'), 'Bitcoin')
       await user.selectOptions(screen.getByLabelText('Category'), 'CRYPTO')
-      await user.clear(screen.getByLabelText('Target Percentage'))
-      await user.type(screen.getByLabelText('Target Percentage'), '25')
 
       await user.click(screen.getByRole('button', { name: 'Create Asset' }))
 
@@ -66,7 +63,6 @@ describe('AssetForm', () => {
           ticker: 'BTC', // uppercase transform
           name: 'Bitcoin',
           category: 'CRYPTO',
-          targetPercentage: 25,
         })
       })
     })
@@ -95,7 +91,6 @@ describe('AssetForm', () => {
       expect(screen.getByLabelText('Ticker')).toHaveValue('VOO')
       expect(screen.getByLabelText('Name')).toHaveValue('Vanguard S&P 500 ETF')
       expect(screen.getByLabelText('Category')).toHaveValue('ETF')
-      expect(screen.getByLabelText('Target Percentage')).toHaveValue(60)
       expect(screen.getByRole('button', { name: 'Save Changes' })).toBeInTheDocument()
     })
 
@@ -143,36 +138,18 @@ describe('AssetForm', () => {
       })
     })
 
-    it('should accept target percentage of 0', async () => {
+    it('should not include targetPercentage field (managed via TargetEditor)', async () => {
       const user = userEvent.setup()
       render(<AssetForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />)
 
       await user.type(screen.getByLabelText('Ticker'), 'TEST')
       await user.type(screen.getByLabelText('Name'), 'Test Asset')
-      // Default is 0, just submit
       await user.click(screen.getByRole('button', { name: 'Create Asset' }))
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalled()
         const calledWith = mockOnSubmit.mock.calls[0][0]
-        expect(calledWith.targetPercentage).toBe(0)
-      })
-    })
-
-    it('should accept target percentage of 100', async () => {
-      const user = userEvent.setup()
-      render(<AssetForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />)
-
-      await user.type(screen.getByLabelText('Ticker'), 'TEST')
-      await user.type(screen.getByLabelText('Name'), 'Test Asset')
-      await user.clear(screen.getByLabelText('Target Percentage'))
-      await user.type(screen.getByLabelText('Target Percentage'), '100')
-      await user.click(screen.getByRole('button', { name: 'Create Asset' }))
-
-      await waitFor(() => {
-        expect(mockOnSubmit).toHaveBeenCalled()
-        const calledWith = mockOnSubmit.mock.calls[0][0]
-        expect(calledWith.targetPercentage).toBe(100)
+        expect(calledWith).not.toHaveProperty('targetPercentage')
       })
     })
   })
@@ -199,7 +176,6 @@ describe('AssetForm', () => {
       expect(screen.getByLabelText('Ticker')).toBeDisabled()
       expect(screen.getByLabelText('Name')).toBeDisabled()
       expect(screen.getByLabelText('Category')).toBeDisabled()
-      expect(screen.getByLabelText('Target Percentage')).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Create Asset' })).toBeDisabled()
     })
