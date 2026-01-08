@@ -65,27 +65,27 @@ so that **I can easily configure my investment strategy**.
   - [x] Visual distinction by category (different colors/badges)
   - [x] Add tests for AssetCard component
 
-- [ ] Task 7: Create Asset Modal (AC: #2)
-  - [ ] Create modal/dialog for adding new asset
-  - [ ] Use AssetForm in create mode
-  - [ ] On success, close modal and refetch asset list (invalidate query)
-  - [ ] Show success toast notification
-  - [ ] Add tests for create flow
+- [x] Task 7: Create Asset Modal (AC: #2)
+  - [x] Create modal/dialog for adding new asset
+  - [x] Use AssetForm in create mode
+  - [x] On success, close modal and refetch asset list (invalidate query)
+  - [x] Show error message on failure
+  - [x] Add tests for create flow
 
-- [ ] Task 8: Edit Asset Modal (AC: #3)
-  - [ ] Create modal/dialog for editing existing asset
-  - [ ] Use AssetForm in edit mode with prefilled data
-  - [ ] On success, close modal and refetch asset list
-  - [ ] Show success toast notification
-  - [ ] Add tests for edit flow
+- [x] Task 8: Edit Asset Modal (AC: #3)
+  - [x] Create modal/dialog for editing existing asset
+  - [x] Use AssetForm in edit mode with prefilled data
+  - [x] On success, close modal and refetch asset list
+  - [x] Show error message on failure
+  - [x] Add tests for edit flow
 
-- [ ] Task 9: Delete Asset Confirmation (AC: #4)
-  - [ ] Create confirmation dialog component
-  - [ ] Show asset ticker/name in confirmation message
-  - [ ] Warn about data loss (transactions, holdings)
-  - [ ] On confirm, call delete API and refetch list
-  - [ ] Show success toast notification
-  - [ ] Add tests for delete flow
+- [x] Task 9: Delete Asset Confirmation (AC: #4)
+  - [x] Create confirmation dialog component
+  - [x] Show asset ticker/name in confirmation message
+  - [x] Warn about data loss (transactions, holdings)
+  - [x] On confirm, call delete API and refetch list
+  - [x] Show loading state during deletion
+  - [x] Add tests for delete flow
 
 - [ ] Task 10: Target Editor Mode (AC: #5, #6)
   - [ ] Create `TargetEditor.tsx` for batch editing targets
@@ -663,6 +663,15 @@ Claude 4 Sonnet (Anthropic)
   - 12 comprehensive tests covering display, actions, and category styles
   - All 80 tests passing, typecheck clean, lint clean
 
+- **Tasks 7, 8, 9 (2026-01-07):** Created modal system for CRUD operations
+  - Created reusable `Modal` and `ConfirmDialog` base components
+  - `CreateAssetModal`: Opens form in create mode, handles success/error states
+  - `EditAssetModal`: Opens form prefilled with asset data, handles updates
+  - `DeleteAssetDialog`: Confirmation with warning about data loss, loading state
+  - All modals close on ESC key, overlay click, and prevent close during loading
+  - 18 comprehensive tests for modal flows (5 create + 6 edit + 7 delete)
+  - All 98 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
@@ -684,3 +693,11 @@ Claude 4 Sonnet (Anthropic)
 - `frontend/src/features/portfolio/components/AssetForm.test.tsx` (new) - Tests for AssetForm
 - `frontend/src/features/portfolio/components/AssetCard.tsx` (new) - Asset card with actions
 - `frontend/src/features/portfolio/components/AssetCard.test.tsx` (new) - Tests for AssetCard
+- `frontend/src/components/common/Modal.tsx` (new) - Reusable modal component
+- `frontend/src/components/common/ConfirmDialog.tsx` (new) - Confirmation dialog component
+- `frontend/src/features/portfolio/components/CreateAssetModal.tsx` (new) - Create asset modal
+- `frontend/src/features/portfolio/components/CreateAssetModal.test.tsx` (new) - Tests for create modal
+- `frontend/src/features/portfolio/components/EditAssetModal.tsx` (new) - Edit asset modal
+- `frontend/src/features/portfolio/components/EditAssetModal.test.tsx` (new) - Tests for edit modal
+- `frontend/src/features/portfolio/components/DeleteAssetDialog.tsx` (new) - Delete confirmation dialog
+- `frontend/src/features/portfolio/components/DeleteAssetDialog.test.tsx` (new) - Tests for delete dialog
