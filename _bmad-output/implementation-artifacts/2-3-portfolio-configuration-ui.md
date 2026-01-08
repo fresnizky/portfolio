@@ -50,13 +50,13 @@ so that **I can easily configure my investment strategy**.
   - [x] Display green checkmark when sum is exactly 100%
   - [x] Add tests for TargetSumIndicator component
 
-- [ ] Task 5: Asset Form Component for Create/Edit (AC: #2, #3)
-  - [ ] Create `AssetForm.tsx` with React Hook Form + Zod validation
-  - [ ] Fields: ticker (uppercase, required), name (required), category (dropdown), targetPercentage (0-100)
-  - [ ] Reuse form for both create (empty) and edit (prefilled) modes
-  - [ ] Add validation messages for each field
-  - [ ] Add loading state during submission
-  - [ ] Add tests for AssetForm component
+- [x] Task 5: Asset Form Component for Create/Edit (AC: #2, #3)
+  - [x] Create `AssetForm.tsx` with React Hook Form + Zod validation
+  - [x] Fields: ticker (uppercase, required), name (required), category (dropdown), targetPercentage (0-100)
+  - [x] Reuse form for both create (empty) and edit (prefilled) modes
+  - [x] Add validation messages for each field
+  - [x] Add loading state during submission
+  - [x] Add tests for AssetForm component
 
 - [ ] Task 6: Asset Card Component with Actions (AC: #3, #4)
   - [ ] Create `AssetCard.tsx` to display individual asset
@@ -645,6 +645,15 @@ Claude 4 Sonnet (Anthropic)
   - 8 comprehensive tests covering all scenarios
   - All 54 tests passing, typecheck clean, lint clean
 
+- **Task 5 (2026-01-07):** Created AssetForm component
+  - React Hook Form + Zod validation for type-safe forms
+  - Fields: ticker (uppercase transform), name, category dropdown, targetPercentage
+  - Dual mode: create (empty form) and edit (prefilled from asset prop)
+  - Validation messages for required fields and constraints
+  - Loading state with spinner during submission
+  - 14 comprehensive tests covering create, edit, validation, and UI states
+  - All 68 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
@@ -661,3 +670,6 @@ Claude 4 Sonnet (Anthropic)
 - `frontend/src/features/portfolio/index.tsx` (modified) - Integrated AssetList component
 - `frontend/src/features/portfolio/components/TargetSumIndicator.tsx` (new) - Target sum indicator
 - `frontend/src/features/portfolio/components/TargetSumIndicator.test.tsx` (new) - Tests for indicator
+- `frontend/src/validations/asset.ts` (new) - Zod validation schemas for assets
+- `frontend/src/features/portfolio/components/AssetForm.tsx` (new) - Create/Edit form component
+- `frontend/src/features/portfolio/components/AssetForm.test.tsx` (new) - Tests for AssetForm
