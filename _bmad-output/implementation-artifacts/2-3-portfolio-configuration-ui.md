@@ -42,13 +42,13 @@ so that **I can easily configure my investment strategy**.
   - [x] Add empty state message when no assets exist
   - [x] Add tests for AssetList component
 
-- [ ] Task 4: Target Sum Indicator Component (AC: #5, #6)
-  - [ ] Create `TargetSumIndicator.tsx` component
-  - [ ] Calculate sum from asset list in real-time
-  - [ ] Display current sum with color coding (red <100, green =100, red >100)
-  - [ ] Show difference from 100% (e.g., "-10%" or "+5%")
-  - [ ] Display green checkmark when sum is exactly 100%
-  - [ ] Add tests for TargetSumIndicator component
+- [x] Task 4: Target Sum Indicator Component (AC: #5, #6)
+  - [x] Create `TargetSumIndicator.tsx` component
+  - [x] Calculate sum from asset list in real-time
+  - [x] Display current sum with color coding (red <100, green =100, red >100)
+  - [x] Show difference from 100% (e.g., "-10%" or "+5%")
+  - [x] Display green checkmark when sum is exactly 100%
+  - [x] Add tests for TargetSumIndicator component
 
 - [ ] Task 5: Asset Form Component for Create/Edit (AC: #2, #3)
   - [ ] Create `AssetForm.tsx` with React Hook Form + Zod validation
@@ -636,6 +636,15 @@ Claude 4 Sonnet (Anthropic)
   - Added 6 comprehensive tests for AssetList component
   - All 46 tests passing, typecheck clean, lint clean
 
+- **Task 4 (2026-01-07):** Created TargetSumIndicator component
+  - Real-time sum calculation with support for pending local changes
+  - Color coding: green when sum=100%, red otherwise
+  - Shows difference from 100% with +/- prefix
+  - SVG icons for checkmark (valid) and X (invalid)
+  - Accessible with role="status" and aria-live="polite"
+  - 8 comprehensive tests covering all scenarios
+  - All 54 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
@@ -650,3 +659,5 @@ Claude 4 Sonnet (Anthropic)
 - `frontend/src/features/portfolio/components/AssetList.tsx` (new) - Asset list component
 - `frontend/src/features/portfolio/components/AssetList.test.tsx` (new) - Tests for AssetList
 - `frontend/src/features/portfolio/index.tsx` (modified) - Integrated AssetList component
+- `frontend/src/features/portfolio/components/TargetSumIndicator.tsx` (new) - Target sum indicator
+- `frontend/src/features/portfolio/components/TargetSumIndicator.test.tsx` (new) - Tests for indicator
