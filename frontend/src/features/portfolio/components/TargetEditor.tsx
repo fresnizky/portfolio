@@ -45,7 +45,7 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
     return Math.round(total * 100) / 100
   }, [pendingChanges])
 
-  const isValid = sum === 100
+  const isValid = sum <= 100
   const hasChanges = useMemo(() => {
     for (const asset of assets) {
       const pending = pendingChanges.get(asset.id)
@@ -127,9 +127,15 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
         </p>
       )}
 
-      {!isValid && hasChanges && (
+      {sum > 100 && (
+        <p className="text-sm text-red-600">
+          Targets cannot exceed 100%. Current sum: {sum}%
+        </p>
+      )}
+
+      {sum < 100 && hasChanges && (
         <p className="text-sm text-amber-600">
-          Targets must sum to exactly 100% to save. Adjust your allocations to continue.
+          Warning: Targets sum to {sum}%. You have {Math.round((100 - sum) * 100) / 100}% unallocated.
         </p>
       )}
 

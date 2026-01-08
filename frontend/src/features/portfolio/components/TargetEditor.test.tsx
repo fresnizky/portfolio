@@ -105,17 +105,34 @@ describe('TargetEditor', () => {
     expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 90%')
   })
 
-  it('should disable save button when sum is not 100%', async () => {
+  it('should disable save button when sum exceeds 100%', async () => {
     const user = userEvent.setup()
     renderWithClient(
       <TargetEditor assets={mockAssets} onClose={mockOnClose} onSuccess={mockOnSuccess} />
     )
 
+    // Change VOO from 60 to 80 (sum becomes 120%)
+    const vooInput = screen.getByLabelText('Target percentage for VOO')
+    await user.clear(vooInput)
+    await user.type(vooInput, '80')
+
+    expect(screen.getByRole('button', { name: 'Save Targets' })).toBeDisabled()
+    expect(screen.getByText(/cannot exceed 100%/)).toBeInTheDocument()
+  })
+
+  it('should enable save button when sum is below 100% (with warning)', async () => {
+    const user = userEvent.setup()
+    renderWithClient(
+      <TargetEditor assets={mockAssets} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+    )
+
+    // Change VOO from 60 to 50 (sum becomes 90%)
     const vooInput = screen.getByLabelText('Target percentage for VOO')
     await user.clear(vooInput)
     await user.type(vooInput, '50')
 
-    expect(screen.getByRole('button', { name: 'Save Targets' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Save Targets' })).toBeEnabled()
+    expect(screen.getByText(/Warning.*90%.*10% unallocated/)).toBeInTheDocument()
   })
 
   it('should disable save button when no changes made', () => {

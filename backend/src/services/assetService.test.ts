@@ -24,7 +24,7 @@ const createMockDecimal = (value: number) => ({
   toNumber: () => value,
   valueOf: () => value,
   toString: () => String(value),
-}) as Asset['targetPercentage']
+}) as unknown as Asset['targetPercentage']
 
 // Reusable mock asset factory
 const createMockAsset = (overrides: Partial<Asset> = {}): Asset => ({
@@ -336,7 +336,7 @@ describe('assetService', () => {
       expect(result).toEqual({ valid: false, sum: 120, difference: 20 })
     })
 
-    it('should return valid:false with negative difference when sum is below 100', async () => {
+    it('should return valid:true with negative difference when sum is below 100', async () => {
       const mockAssets = [
         createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(30) }),
         createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(20) }),
@@ -347,7 +347,8 @@ describe('assetService', () => {
 
       const result = await assetService.validateTargetsSum(userId)
 
-      expect(result).toEqual({ valid: false, sum: 50, difference: -50 })
+      // sum <= 100 is valid (allows partial allocation)
+      expect(result).toEqual({ valid: true, sum: 50, difference: -50 })
     })
 
     it('should apply pending updates when calculating sum', async () => {
@@ -397,13 +398,14 @@ describe('assetService', () => {
       expect(result).toEqual({ valid: true, sum: 100, difference: 0 })
     })
 
-    it('should return valid:false when user has no assets (sum is 0)', async () => {
+    it('should return valid:true when user has no assets (sum is 0)', async () => {
       vi.mocked(prisma.asset.findMany).mockResolvedValue([])
       vi.mocked(prisma.asset.count).mockResolvedValue(0)
 
       const result = await assetService.validateTargetsSum(userId)
 
-      expect(result).toEqual({ valid: false, sum: 0, difference: -100 })
+      // sum <= 100 is valid (0 is valid, allows starting fresh)
+      expect(result).toEqual({ valid: true, sum: 0, difference: -100 })
     })
   })
 
@@ -450,24 +452,23 @@ describe('assetService', () => {
       expect(prisma.asset.update).not.toHaveBeenCalled()
     })
 
-    it('should reject targetPercentage update when sum would be below 100%', async () => {
+    it('should allow targetPercentage update when sum would be below 100%', async () => {
       const existingAsset = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
       const otherAsset = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+      const updatedAsset = { ...existingAsset, targetPercentage: createMockDecimal(30) }
 
       // getById check
       vi.mocked(prisma.asset.findFirst).mockResolvedValueOnce(existingAsset)
       // validateTargetsSum - list call
       vi.mocked(prisma.asset.findMany).mockResolvedValueOnce([existingAsset, otherAsset])
       vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+      vi.mocked(prisma.asset.update).mockResolvedValue(updatedAsset)
 
-      // Try to change asset-1 from 60 to 30 (would make sum 70)
-      await expect(assetService.update(userId, 'asset-1', { targetPercentage: 30 }))
-        .rejects.toMatchObject({
-          statusCode: 400,
-          code: 'VALIDATION_ERROR',
-        })
+      // Change asset-1 from 60 to 30 (sum becomes 70, which is valid)
+      const result = await assetService.update(userId, 'asset-1', { targetPercentage: 30 })
 
-      expect(prisma.asset.update).not.toHaveBeenCalled()
+      expect(result).toEqual(updatedAsset)
+      expect(prisma.asset.update).toHaveBeenCalled()
     })
 
     it('should include sum details in validation error', async () => {
@@ -585,6 +586,7 @@ describe('assetService', () => {
     it('should handle partial updates (not all assets updated)', async () => {
       const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(60) })
       const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(40) })
+      const updatedAsset1 = { ...asset1, targetPercentage: createMockDecimal(50) }
 
       // Ownership check - only updating asset-1
       vi.mocked(prisma.asset.findMany)
@@ -592,14 +594,15 @@ describe('assetService', () => {
         // validateTargetsSum - list call (includes both assets)
         .mockResolvedValueOnce([asset1, asset2])
       vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1])
 
-      // Update only asset-1 from 60 to 50 (sum would be 50 + 40 = 90, invalid)
-      await expect(assetService.batchUpdateTargets(userId, [
+      // Update only asset-1 from 60 to 50 (sum would be 50 + 40 = 90, valid since <= 100)
+      const result = await assetService.batchUpdateTargets(userId, [
         { assetId: 'asset-1', targetPercentage: 50 },
-      ])).rejects.toMatchObject({
-        statusCode: 400,
-        code: 'VALIDATION_ERROR',
-      })
+      ])
+
+      expect(result).toHaveLength(1)
+      expect(prisma.$transaction).toHaveBeenCalled()
     })
 
     it('should include sum details in validation error', async () => {
@@ -684,32 +687,35 @@ describe('assetService', () => {
       expect(prisma.$transaction).toHaveBeenCalled()
     })
 
-    it('should reject when all assets are set to 0%', async () => {
+    it('should allow when all assets are set to 0%', async () => {
       const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(50) })
       const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(50) })
+      const updatedAsset1 = { ...asset1, targetPercentage: createMockDecimal(0) }
+      const updatedAsset2 = { ...asset2, targetPercentage: createMockDecimal(0) }
 
       vi.mocked(prisma.asset.findMany)
         .mockResolvedValueOnce([{ id: 'asset-1' }, { id: 'asset-2' }] as Asset[])
         .mockResolvedValueOnce([asset1, asset2])
       vi.mocked(prisma.asset.count).mockResolvedValueOnce(2)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1, updatedAsset2])
 
-      await expect(assetService.batchUpdateTargets(userId, [
+      // Setting all to 0% is valid (sum = 0, which is <= 100)
+      const result = await assetService.batchUpdateTargets(userId, [
         { assetId: 'asset-1', targetPercentage: 0 },
         { assetId: 'asset-2', targetPercentage: 0 },
-      ])).rejects.toMatchObject({
-        statusCode: 400,
-        code: 'VALIDATION_ERROR',
-      })
+      ])
 
-      expect(prisma.$transaction).not.toHaveBeenCalled()
+      expect(result).toHaveLength(2)
+      expect(prisma.$transaction).toHaveBeenCalled()
     })
 
-    it('should reject single asset batch update when resulting sum < 100% (3 assets scenario)', async () => {
+    it('should allow single asset batch update when resulting sum < 100% (3 assets scenario)', async () => {
       // User has 3 assets: 40% + 30% + 30% = 100%
       // Updating only asset-1 from 40% to 20% would result in 20% + 30% + 30% = 80%
       const asset1 = createMockAsset({ id: 'asset-1', targetPercentage: createMockDecimal(40) })
       const asset2 = createMockAsset({ id: 'asset-2', targetPercentage: createMockDecimal(30) })
       const asset3 = createMockAsset({ id: 'asset-3', targetPercentage: createMockDecimal(30) })
+      const updatedAsset1 = { ...asset1, targetPercentage: createMockDecimal(20) }
 
       // Ownership check - only updating asset-1
       vi.mocked(prisma.asset.findMany)
@@ -717,22 +723,15 @@ describe('assetService', () => {
         // validateTargetsSum - list call (includes ALL 3 assets)
         .mockResolvedValueOnce([asset1, asset2, asset3])
       vi.mocked(prisma.asset.count).mockResolvedValueOnce(3)
+      vi.mocked(prisma.$transaction).mockResolvedValue([updatedAsset1])
 
-      // Verify rejection with correct error details
-      try {
-        await assetService.batchUpdateTargets(userId, [
-          { assetId: 'asset-1', targetPercentage: 20 },
-        ])
-        expect.fail('Should have thrown an error')
-      } catch (error: unknown) {
-        const appError = error as AppError
-        expect(appError.statusCode).toBe(400)
-        expect(appError.code).toBe('VALIDATION_ERROR')
-        expect(appError.details).toHaveProperty('sum', 80)
-        expect(appError.details).toHaveProperty('difference', -20)
-      }
+      // sum = 80% which is <= 100%, so it's valid
+      const result = await assetService.batchUpdateTargets(userId, [
+        { assetId: 'asset-1', targetPercentage: 20 },
+      ])
 
-      expect(prisma.$transaction).not.toHaveBeenCalled()
+      expect(result).toHaveLength(1)
+      expect(prisma.$transaction).toHaveBeenCalled()
     })
 
     it('should accept valid cash-only portfolio (one asset at 100%)', async () => {
