@@ -107,6 +107,13 @@ so that **I can easily configure my investment strategy**.
   - [x] Add warning message in TargetEditor when sum != 100%
   - [x] Update AssetCard to show name more prominently than ticker
 
+- [x] Task 13: Allow Target Sum < 100% (User Requested)
+  - [x] Backend: Remove sum=100% validation from batchUpdateTargets endpoint (now allows sum <= 100%)
+  - [x] Backend: Update tests to allow sum < 100%
+  - [x] Frontend: Enable Save button when sum <= 100% (warn but allow)
+  - [x] Frontend: Update TargetEditor tests to reflect new behavior
+  - [x] Frontend: Update integration tests
+
 ## Dev Notes
 
 ### Critical Architecture Patterns

@@ -2,8 +2,8 @@ import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
 import type { CreateAssetInput, UpdateAssetInput } from '@/validations/asset'
 
-/** Target percentages must sum to this value (100%) */
-const TARGET_SUM_REQUIRED = 100
+/** Target percentages maximum allowed sum (100%) */
+const TARGET_SUM_MAX = 100
 
 export const assetService = {
   /**
@@ -74,7 +74,7 @@ export const assetService = {
    * @returns The updated asset
    * @throws NotFoundError if asset doesn't exist or belongs to another user
    * @throws ValidationError if updating ticker to one that already exists
-   * @throws ValidationError if updating targetPercentage and sum would not equal 100%
+   * @throws ValidationError if updating targetPercentage and sum would exceed 100%
    */
   async update(userId: string, id: string, data: UpdateAssetInput) {
     await this.getById(userId, id) // Verify ownership
@@ -89,13 +89,13 @@ export const assetService = {
       }
     }
 
-    // If updating targetPercentage, validate sum would equal 100%
+    // If updating targetPercentage, validate sum would not exceed 100%
     if (data.targetPercentage !== undefined) {
       const pendingUpdates = new Map([[id, data.targetPercentage]])
       const validation = await this.validateTargetsSum(userId, pendingUpdates)
       if (!validation.valid) {
         throw Errors.validation(
-          `Targets must sum to 100%. Current sum: ${validation.sum}%`,
+          `Targets cannot exceed 100%. Current sum: ${validation.sum}%`,
           { sum: validation.sum, difference: validation.difference }
         )
       }
@@ -120,11 +120,11 @@ export const assetService = {
   },
 
   /**
-   * Validate that targets sum to 100%
+   * Validate that targets do not exceed 100%
    * @param userId - The user's ID
    * @param pendingUpdates - Optional map of assetId -> new targetPercentage to apply
    * @returns Promise<{valid: boolean, sum: number, difference: number}> - Validation result
-   *   - valid: true if sum equals 100%
+   *   - valid: true if sum is <= 100%
    *   - sum: calculated sum of all targets (rounded to 2 decimals)
    *   - difference: how far from 100% (positive = over, negative = under)
    */
@@ -145,10 +145,10 @@ export const assetService = {
 
     // Round to avoid floating point issues
     sum = Math.round(sum * 100) / 100
-    const difference = Math.round((sum - TARGET_SUM_REQUIRED) * 100) / 100
+    const difference = Math.round((sum - TARGET_SUM_MAX) * 100) / 100
 
     return {
-      valid: sum === TARGET_SUM_REQUIRED,
+      valid: sum <= TARGET_SUM_MAX,
       sum,
       difference,
     }
@@ -160,7 +160,7 @@ export const assetService = {
    * @param updates - Array of { assetId, targetPercentage } updates to apply
    * @returns Promise<Asset[]> - Array of updated assets in same order as input
    * @throws {AppError} NotFoundError (404) if any assetId doesn't belong to user
-   * @throws {AppError} ValidationError (400) if sum of all targets doesn't equal 100%
+   * @throws {AppError} ValidationError (400) if sum of all targets exceeds 100%
    */
   async batchUpdateTargets(
     userId: string,
@@ -184,11 +184,11 @@ export const assetService = {
       updates.map(u => [u.assetId, u.targetPercentage])
     )
 
-    // 3. Validate sum would equal 100%
+    // 3. Validate sum would not exceed 100%
     const validation = await this.validateTargetsSum(userId, pendingUpdates)
     if (!validation.valid) {
       throw Errors.validation(
-        `Targets must sum to 100%. Current sum: ${validation.sum}%`,
+        `Targets cannot exceed 100%. Current sum: ${validation.sum}%`,
         { sum: validation.sum, difference: validation.difference }
       )
     }

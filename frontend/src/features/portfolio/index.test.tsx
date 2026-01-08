@@ -265,7 +265,7 @@ describe('PortfolioPage Integration', () => {
       expect(within(dialog).getByLabelText('Target percentage for BND')).toHaveValue(40)
     })
 
-    it('should prevent save when targets do not sum to 100%', async () => {
+    it('should prevent save when targets exceed 100%', async () => {
       const user = userEvent.setup()
       vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
 
@@ -280,16 +280,45 @@ describe('PortfolioPage Integration', () => {
       const dialog = screen.getByRole('dialog')
       const vooInput = within(dialog).getByLabelText('Target percentage for VOO')
 
-      // Change to invalid sum
+      // Change to sum > 100% (80 + 40 = 120)
       await user.clear(vooInput)
-      await user.type(vooInput, '50')
+      await user.type(vooInput, '80')
 
-      // Save should be disabled
+      // Save should be disabled when sum exceeds 100%
       const saveButton = within(dialog).getByRole('button', { name: 'Save Targets' })
       expect(saveButton).toBeDisabled()
 
       // Sum indicator should show error
+      expect(within(dialog).getByTestId('sum-value')).toHaveTextContent('Sum: 120%')
+    })
+
+    it('should allow save when targets sum to less than 100% (with warning)', async () => {
+      const user = userEvent.setup()
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.assets.batchUpdateTargets).mockResolvedValue(mockAssets)
+
+      renderWithClient(<PortfolioPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('VOO')).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByText('Edit Targets'))
+
+      const dialog = screen.getByRole('dialog')
+      const vooInput = within(dialog).getByLabelText('Target percentage for VOO')
+
+      // Change to sum < 100% (50 + 40 = 90)
+      await user.clear(vooInput)
+      await user.type(vooInput, '50')
+
+      // Save should be enabled when sum <= 100%
+      const saveButton = within(dialog).getByRole('button', { name: 'Save Targets' })
+      expect(saveButton).toBeEnabled()
+
+      // Sum indicator should show warning
       expect(within(dialog).getByTestId('sum-value')).toHaveTextContent('Sum: 90%')
+      expect(within(dialog).getByText(/Warning.*90%/)).toBeInTheDocument()
     })
 
     it('should save targets when sum equals 100%', async () => {
