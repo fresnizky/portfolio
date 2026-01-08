@@ -26,10 +26,54 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
     return initial
   })
 
+  // Track validation errors for each input
+  const [inputErrors, setInputErrors] = useState<Map<string, string>>(new Map())
+
   const batchUpdate = useBatchUpdateTargets()
 
   const handleTargetChange = (assetId: string, value: string) => {
-    const numValue = parseFloat(value) || 0
+    // Clear previous error for this field
+    setInputErrors(prev => {
+      const next = new Map(prev)
+      next.delete(assetId)
+      return next
+    })
+
+    // Validate input
+    const trimmedValue = value.trim()
+    
+    // Empty string defaults to 0
+    if (trimmedValue === '') {
+      setPendingChanges(prev => {
+        const next = new Map(prev)
+        next.set(assetId, 0)
+        return next
+      })
+      return
+    }
+
+    const numValue = parseFloat(trimmedValue)
+
+    // Check for invalid number
+    if (isNaN(numValue)) {
+      setInputErrors(prev => {
+        const next = new Map(prev)
+        next.set(assetId, 'Must be a valid number')
+        return next
+      })
+      return
+    }
+
+    // Check for negative values
+    if (numValue < 0) {
+      setInputErrors(prev => {
+        const next = new Map(prev)
+        next.set(assetId, 'Target must be >= 0')
+        return next
+      })
+      return
+    }
+
     setPendingChanges(prev => {
       const next = new Map(prev)
       next.set(assetId, numValue)
@@ -45,7 +89,8 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
     return Math.round(total * 100) / 100
   }, [pendingChanges])
 
-  const isValid = sum <= 100
+  const hasInputErrors = inputErrors.size > 0
+  const isValid = sum <= 100 && !hasInputErrors
   const hasChanges = useMemo(() => {
     for (const asset of assets) {
       const pending = pendingChanges.get(asset.id)
@@ -103,19 +148,31 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
                 <span className="ml-2 text-sm text-gray-500">{asset.name}</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={pendingChanges.get(asset.id) ?? 0}
-                onChange={(e) => handleTargetChange(asset.id, e.target.value)}
-                disabled={batchUpdate.isPending}
-                className="w-20 rounded-md border border-gray-300 px-2 py-1 text-right text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-                aria-label={`Target percentage for ${asset.ticker}`}
-              />
-              <span className="text-sm text-gray-500">%</span>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={pendingChanges.get(asset.id) ?? 0}
+                  onChange={(e) => handleTargetChange(asset.id, e.target.value)}
+                  disabled={batchUpdate.isPending}
+                  className={`w-20 rounded-md border px-2 py-1 text-right text-sm focus:outline-none focus:ring-1 disabled:bg-gray-100 ${
+                    inputErrors.has(asset.id)
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                  aria-label={`Target percentage for ${asset.ticker}`}
+                  aria-invalid={inputErrors.has(asset.id)}
+                />
+                <span className="text-sm text-gray-500">%</span>
+              </div>
+              {inputErrors.has(asset.id) && (
+                <span className="text-xs text-red-600" role="alert">
+                  {inputErrors.get(asset.id)}
+                </span>
+              )}
             </div>
           </div>
         ))}

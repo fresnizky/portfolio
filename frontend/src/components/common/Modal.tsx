@@ -5,15 +5,17 @@ interface ModalProps {
   onClose: () => void
   title: string
   children: React.ReactNode
+  /** When true, prevents modal from closing via ESC key or overlay click */
+  isLoading?: boolean
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, isLoading = false }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !isLoading) {
         onClose()
       }
     }
@@ -27,10 +29,16 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = 'unset'
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, isLoading])
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) {
+    if (e.target === overlayRef.current && !isLoading) {
+      onClose()
+    }
+  }
+
+  const handleCloseClick = () => {
+    if (!isLoading) {
       onClose()
     }
   }
@@ -55,8 +63,9 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             {title}
           </h2>
           <button
-            onClick={onClose}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            onClick={handleCloseClick}
+            disabled={isLoading}
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Close modal"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

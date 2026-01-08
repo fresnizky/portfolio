@@ -417,12 +417,30 @@ describe('PortfolioPage Integration', () => {
       expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 100%')
     })
 
-    it('should show red indicator when targets do not sum to 100%', async () => {
-      const invalidAssets: Asset[] = [
+    it('should show amber indicator when targets sum to less than 100%', async () => {
+      const underAssets: Asset[] = [
         { ...mockAssets[0], targetPercentage: '50.00' },
         { ...mockAssets[1], targetPercentage: '30.00' },
       ]
-      vi.mocked(api.assets.list).mockResolvedValue(invalidAssets)
+      vi.mocked(api.assets.list).mockResolvedValue(underAssets)
+
+      renderWithClient(<PortfolioPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('VOO')).toBeInTheDocument()
+      })
+
+      const indicator = screen.getByRole('status')
+      expect(indicator).toHaveClass('text-amber-600')
+      expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 80%')
+    })
+
+    it('should show red indicator when targets exceed 100%', async () => {
+      const overAssets: Asset[] = [
+        { ...mockAssets[0], targetPercentage: '70.00' },
+        { ...mockAssets[1], targetPercentage: '50.00' },
+      ]
+      vi.mocked(api.assets.list).mockResolvedValue(overAssets)
 
       renderWithClient(<PortfolioPage />)
 
@@ -432,7 +450,7 @@ describe('PortfolioPage Integration', () => {
 
       const indicator = screen.getByRole('status')
       expect(indicator).toHaveClass('text-red-600')
-      expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 80%')
+      expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 120%')
     })
   })
 })

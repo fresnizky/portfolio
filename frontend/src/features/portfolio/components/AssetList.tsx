@@ -1,3 +1,16 @@
+/**
+ * AssetList - Table-based display of assets
+ * 
+ * NOTE: This component provides a tabular view of assets.
+ * Currently NOT USED in the main PortfolioPage which uses AssetCard grid layout instead.
+ * 
+ * Consider using this component when:
+ * - You need a compact, dense list view (e.g., for admin panels)
+ * - You want to display many assets at once without pagination
+ * - You need sortable columns (future enhancement)
+ * 
+ * For the card-based layout with edit/delete actions, use AssetCard instead.
+ */
 import { useAssets } from '../hooks/useAssets'
 import type { Asset, AssetCategory } from '@/types/api'
 

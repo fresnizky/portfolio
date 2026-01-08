@@ -74,11 +74,11 @@ describe('DeleteAssetDialog', () => {
     expect(screen.getByText(/Vanguard S&P 500 ETF/)).toBeInTheDocument()
   })
 
-  it('should warn about data loss', () => {
+  it('should warn about data loss including snapshots and calculations', () => {
     renderWithClient(
       <DeleteAssetDialog asset={mockAsset} isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />
     )
-    expect(screen.getByText(/holdings and transactions/)).toBeInTheDocument()
+    expect(screen.getByText(/holdings, transactions, portfolio snapshots, and historical calculations/)).toBeInTheDocument()
     expect(screen.getByText(/cannot be undone/)).toBeInTheDocument()
   })
 

@@ -21,6 +21,11 @@ export class ApiError extends Error {
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
+  // Handle 204 No Content responses (e.g., DELETE)
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   const json = await response.json()
 
   if (!response.ok) {
@@ -115,11 +120,7 @@ export const api = {
           ...getAuthHeaders(),
         },
       })
-      if (!res.ok) {
-        const json = await res.json()
-        throw new ApiError(json.error, json.message, json.details)
-      }
-      // DELETE returns 204 No Content
+      return handleResponse<void>(res)
     },
 
     batchUpdateTargets: async (input: BatchUpdateTargetsInput): Promise<Asset[]> => {

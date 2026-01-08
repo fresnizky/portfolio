@@ -109,6 +109,43 @@ describe('AssetForm', () => {
         expect(calledWith.name).toBe('Updated Name')
       })
     })
+
+    it('should show warning when ticker is changed in edit mode', async () => {
+      const user = userEvent.setup()
+      render(<AssetForm asset={mockAsset} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />)
+
+      // No warning initially
+      expect(screen.queryByText(/Changing the ticker/)).not.toBeInTheDocument()
+
+      // Change ticker
+      await user.clear(screen.getByLabelText('Ticker'))
+      await user.type(screen.getByLabelText('Ticker'), 'SPY')
+
+      // Warning should appear
+      expect(screen.getByText(/Changing the ticker may affect historical/)).toBeInTheDocument()
+    })
+
+    it('should not show warning when ticker is unchanged in edit mode', async () => {
+      const user = userEvent.setup()
+      render(<AssetForm asset={mockAsset} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />)
+
+      // Clear and retype the same ticker
+      await user.clear(screen.getByLabelText('Ticker'))
+      await user.type(screen.getByLabelText('Ticker'), 'VOO')
+
+      // No warning for same ticker
+      expect(screen.queryByText(/Changing the ticker/)).not.toBeInTheDocument()
+    })
+
+    it('should not show ticker warning in create mode', async () => {
+      const user = userEvent.setup()
+      render(<AssetForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />)
+
+      await user.type(screen.getByLabelText('Ticker'), 'BTC')
+
+      // No warning in create mode
+      expect(screen.queryByText(/Changing the ticker/)).not.toBeInTheDocument()
+    })
   })
 
   describe('Validation', () => {

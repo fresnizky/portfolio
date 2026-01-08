@@ -243,4 +243,39 @@ describe('TargetEditor', () => {
     const cashElements = screen.getAllByText('CASH')
     expect(cashElements.length).toBe(2)
   })
+
+  describe('Input Validation', () => {
+    it('should handle empty input as zero', async () => {
+      const user = userEvent.setup()
+      renderWithClient(
+        <TargetEditor assets={mockAssets} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+      )
+
+      const vooInput = screen.getByLabelText('Target percentage for VOO')
+      await user.clear(vooInput)
+
+      // Empty defaults to 0, sum should be 40 (BND 30 + CASH 10)
+      expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 40%')
+    })
+
+    it('should have min=0 constraint on inputs to prevent negative values', () => {
+      renderWithClient(
+        <TargetEditor assets={mockAssets} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+      )
+
+      const vooInput = screen.getByLabelText('Target percentage for VOO')
+      expect(vooInput).toHaveAttribute('min', '0')
+      expect(vooInput).toHaveAttribute('max', '100')
+      expect(vooInput).toHaveAttribute('step', '0.01')
+    })
+
+    it('should have aria-invalid false for valid inputs', () => {
+      renderWithClient(
+        <TargetEditor assets={mockAssets} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+      )
+
+      const vooInput = screen.getByLabelText('Target percentage for VOO')
+      expect(vooInput).toHaveAttribute('aria-invalid', 'false')
+    })
+  })
 })

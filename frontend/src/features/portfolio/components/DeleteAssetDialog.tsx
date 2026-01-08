@@ -38,7 +38,7 @@ export function DeleteAssetDialog({ asset, isOpen, onClose, onSuccess }: DeleteA
       onClose={handleClose}
       onConfirm={handleConfirm}
       title={`Delete ${asset.ticker}?`}
-      message={`This will permanently delete the asset "${asset.name}" and all associated data including holdings and transactions. This action cannot be undone.`}
+      message={`This will permanently delete the asset "${asset.name}" and ALL associated data: holdings, transactions, portfolio snapshots, and historical calculations. This action cannot be undone.`}
       confirmText="Delete"
       cancelText="Cancel"
       isLoading={deleteAsset.isPending}

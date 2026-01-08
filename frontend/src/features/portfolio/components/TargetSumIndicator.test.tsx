@@ -26,11 +26,12 @@ describe('TargetSumIndicator', () => {
 
     const indicator = screen.getByRole('status')
     expect(indicator).toHaveClass('text-green-600')
+    expect(screen.getByTestId('icon-checkmark')).toBeInTheDocument()
     expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 100%')
     expect(screen.queryByTestId('difference-value')).not.toBeInTheDocument()
   })
 
-  it('should display red X and negative difference when sum is below 100%', () => {
+  it('should display amber warning and negative difference when sum is below 100%', () => {
     const assets = [
       createMockAsset('1', '50.00'),
       createMockAsset('2', '30.00'),
@@ -39,12 +40,13 @@ describe('TargetSumIndicator', () => {
     render(<TargetSumIndicator assets={assets} />)
 
     const indicator = screen.getByRole('status')
-    expect(indicator).toHaveClass('text-red-600')
+    expect(indicator).toHaveClass('text-amber-600')
+    expect(screen.getByTestId('icon-warning')).toBeInTheDocument()
     expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 80%')
     expect(screen.getByTestId('difference-value')).toHaveTextContent('(-20%)')
   })
 
-  it('should display red X and positive difference when sum is above 100%', () => {
+  it('should display red error and positive difference when sum is above 100%', () => {
     const assets = [
       createMockAsset('1', '60.00'),
       createMockAsset('2', '50.00'),
@@ -54,15 +56,17 @@ describe('TargetSumIndicator', () => {
 
     const indicator = screen.getByRole('status')
     expect(indicator).toHaveClass('text-red-600')
+    expect(screen.getByTestId('icon-error')).toBeInTheDocument()
     expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 110%')
     expect(screen.getByTestId('difference-value')).toHaveTextContent('(+10%)')
   })
 
-  it('should handle empty asset list', () => {
+  it('should handle empty asset list with amber warning', () => {
     render(<TargetSumIndicator assets={[]} />)
 
     const indicator = screen.getByRole('status')
-    expect(indicator).toHaveClass('text-red-600')
+    expect(indicator).toHaveClass('text-amber-600')
+    expect(screen.getByTestId('icon-warning')).toBeInTheDocument()
     expect(screen.getByTestId('sum-value')).toHaveTextContent('Sum: 0%')
     expect(screen.getByTestId('difference-value')).toHaveTextContent('(-100%)')
   })
