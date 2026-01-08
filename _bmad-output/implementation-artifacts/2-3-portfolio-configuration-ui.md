@@ -35,12 +35,12 @@ so that **I can easily configure my investment strategy**.
   - [x] Add route to `router.tsx` for `/portfolio`
   - [x] Add navigation link in Layout component
 
-- [ ] Task 3: Asset List Component (AC: #1)
-  - [ ] Create `AssetList.tsx` component with TanStack Query for data fetching
-  - [ ] Display ticker, name, category, targetPercentage for each asset
-  - [ ] Add loading and error states
-  - [ ] Add empty state message when no assets exist
-  - [ ] Add tests for AssetList component
+- [x] Task 3: Asset List Component (AC: #1)
+  - [x] Create `AssetList.tsx` component with TanStack Query for data fetching
+  - [x] Display ticker, name, category, targetPercentage for each asset
+  - [x] Add loading and error states
+  - [x] Add empty state message when no assets exist
+  - [x] Add tests for AssetList component
 
 - [ ] Task 4: Target Sum Indicator Component (AC: #5, #6)
   - [ ] Create `TargetSumIndicator.tsx` component
@@ -628,6 +628,14 @@ Claude 4 Sonnet (Anthropic)
   - Added navigation links (Dashboard, Portfolio) to Layout component with NavLink active states
   - All 40 tests passing, typecheck clean, lint clean
 
+- **Task 3 (2026-01-07):** Created AssetList component
+  - Created `useAssets` hook with TanStack Query (list, create, update, delete, batchUpdateTargets)
+  - Created `AssetList.tsx` with table display of assets (ticker, name, category badge, target %)
+  - Implemented loading skeleton, empty state, and error state
+  - Category badges with distinct colors (ETF=blue, FCI=green, CRYPTO=orange, CASH=gray)
+  - Added 6 comprehensive tests for AssetList component
+  - All 46 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
@@ -638,3 +646,7 @@ Claude 4 Sonnet (Anthropic)
 - `frontend/src/features/portfolio/hooks/` (new) - Hooks directory
 - `frontend/src/router.tsx` (modified) - Added /portfolio route
 - `frontend/src/components/layout/Layout.tsx` (modified) - Added navigation links
+- `frontend/src/features/portfolio/hooks/useAssets.ts` (new) - TanStack Query hooks for assets
+- `frontend/src/features/portfolio/components/AssetList.tsx` (new) - Asset list component
+- `frontend/src/features/portfolio/components/AssetList.test.tsx` (new) - Tests for AssetList
+- `frontend/src/features/portfolio/index.tsx` (modified) - Integrated AssetList component
