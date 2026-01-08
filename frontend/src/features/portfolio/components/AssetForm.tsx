@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createAssetSchema, type CreateAssetFormData } from '@/validations/asset'
+import { assetFormSchema, type AssetFormData } from '@/validations/asset'
 import type { Asset, AssetCategory } from '@/types/api'
 
 const categories: { value: AssetCategory; label: string }[] = [
@@ -12,7 +12,7 @@ const categories: { value: AssetCategory; label: string }[] = [
 
 interface AssetFormProps {
   asset?: Asset  // If provided, form is in edit mode
-  onSubmit: (data: CreateAssetFormData) => void
+  onSubmit: (data: AssetFormData) => void
   onCancel: () => void
   isSubmitting?: boolean
 }
@@ -24,20 +24,18 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateAssetFormData>({
-    resolver: zodResolver(createAssetSchema),
+  } = useForm<AssetFormData>({
+    resolver: zodResolver(assetFormSchema),
     defaultValues: asset
       ? {
           ticker: asset.ticker,
           name: asset.name,
           category: asset.category,
-          targetPercentage: Number(asset.targetPercentage),
         }
       : {
           ticker: '',
           name: '',
           category: 'ETF',
-          targetPercentage: 0,
         },
   })
 
@@ -100,33 +98,6 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
         {errors.category && (
           <p className="mt-1 text-sm text-red-600" role="alert">
             {errors.category.message}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="targetPercentage" className="block text-sm font-medium text-gray-700">
-          Target Percentage
-        </label>
-        <div className="relative mt-1">
-          <input
-            id="targetPercentage"
-            type="number"
-            step="0.01"
-            min="0"
-            max="100"
-            {...register('targetPercentage', { valueAsNumber: true })}
-            disabled={isSubmitting}
-            className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-8 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-            placeholder="0"
-          />
-          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
-            %
-          </span>
-        </div>
-        {errors.targetPercentage && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
-            {errors.targetPercentage.message}
           </p>
         )}
       </div>

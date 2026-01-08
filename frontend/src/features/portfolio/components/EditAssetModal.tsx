@@ -2,7 +2,7 @@ import { Modal } from '@/components/common/Modal'
 import { AssetForm } from './AssetForm'
 import { useUpdateAsset } from '../hooks/useAssets'
 import type { Asset } from '@/types/api'
-import type { CreateAssetFormData } from '@/validations/asset'
+import type { AssetFormData } from '@/validations/asset'
 
 interface EditAssetModalProps {
   asset: Asset | null
@@ -14,10 +14,11 @@ interface EditAssetModalProps {
 export function EditAssetModal({ asset, isOpen, onClose, onSuccess }: EditAssetModalProps) {
   const updateAsset = useUpdateAsset()
 
-  const handleSubmit = async (data: CreateAssetFormData) => {
+  const handleSubmit = async (data: AssetFormData) => {
     if (!asset) return
 
     try {
+      // Only update ticker, name, category - target managed via TargetEditor
       await updateAsset.mutateAsync({
         id: asset.id,
         input: data,

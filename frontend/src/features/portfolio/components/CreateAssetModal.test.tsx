@@ -73,7 +73,7 @@ describe('CreateAssetModal', () => {
       ticker: 'BTC',
       name: 'Bitcoin',
       category: 'CRYPTO',
-      targetPercentage: '25.00',
+      targetPercentage: '0.00',
       createdAt: '2026-01-07T00:00:00.000Z',
       updatedAt: '2026-01-07T00:00:00.000Z',
       userId: 'user-1',
@@ -86,11 +86,15 @@ describe('CreateAssetModal', () => {
     await user.type(screen.getByLabelText('Ticker'), 'BTC')
     await user.type(screen.getByLabelText('Name'), 'Bitcoin')
     await user.selectOptions(screen.getByLabelText('Category'), 'CRYPTO')
-    await user.clear(screen.getByLabelText('Target Percentage'))
-    await user.type(screen.getByLabelText('Target Percentage'), '25')
     await user.click(screen.getByRole('button', { name: 'Create Asset' }))
 
     await waitFor(() => {
+      expect(api.assets.create).toHaveBeenCalledWith({
+        ticker: 'BTC',
+        name: 'Bitcoin',
+        category: 'CRYPTO',
+        targetPercentage: 0,
+      })
       expect(mockOnClose).toHaveBeenCalled()
       expect(mockOnSuccess).toHaveBeenCalled()
     })

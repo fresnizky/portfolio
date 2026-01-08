@@ -17,13 +17,13 @@ export function AssetCard({ asset, onEdit, onDelete }: AssetCardProps) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <span
             className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${categoryStyles[asset.category]}`}
           >
             {asset.category}
           </span>
-          <span className="text-lg font-semibold text-gray-900">{asset.ticker}</span>
+          <span className="text-sm font-medium text-gray-500">{asset.ticker}</span>
         </div>
         <div className="flex gap-1">
           <button
@@ -56,7 +56,7 @@ export function AssetCard({ asset, onEdit, onDelete }: AssetCardProps) {
           </button>
         </div>
       </div>
-      <p className="mt-2 text-sm text-gray-600">{asset.name}</p>
+      <h3 className="mt-2 text-base font-semibold text-gray-900">{asset.name}</h3>
       <div className="mt-3 flex items-center justify-between">
         <span className="text-sm text-gray-500">Target</span>
         <span className="text-lg font-semibold text-gray-900">

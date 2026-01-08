@@ -82,8 +82,7 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Edit Target Allocations</h3>
+      <div className="flex items-center justify-end">
         <TargetSumIndicator assets={assets} pendingChanges={pendingChanges} />
       </div>
 
@@ -125,6 +124,12 @@ export function TargetEditor({ assets, onClose, onSuccess }: TargetEditorProps) 
       {batchUpdate.isError && (
         <p className="text-sm text-red-600">
           {batchUpdate.error?.message ?? 'Failed to update targets'}
+        </p>
+      )}
+
+      {!isValid && hasChanges && (
+        <p className="text-sm text-amber-600">
+          Targets must sum to exactly 100% to save. Adjust your allocations to continue.
         </p>
       )}
 
