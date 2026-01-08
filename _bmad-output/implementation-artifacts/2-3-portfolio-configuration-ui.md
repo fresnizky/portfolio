@@ -1,6 +1,6 @@
 # Story 2.3: Portfolio Configuration UI
 
-Status: completed
+Status: in-progress
 
 ## Story
 
@@ -113,6 +113,44 @@ so that **I can easily configure my investment strategy**.
   - [x] Frontend: Enable Save button when sum <= 100% (warn but allow)
   - [x] Frontend: Update TargetEditor tests to reflect new behavior
   - [x] Frontend: Update integration tests
+
+## Review Follow-ups (AI Code Review)
+
+- [x] Task 14: Fix TargetSumIndicator Visual States (HIGH Priority)
+  - [x] Update TargetSumIndicator to distinguish three states: green (sum=100%), amber (sum<100%), red (sum>100%)
+  - [x] Add conditional icon: checkmark for green, warning-triangle for amber, x-mark for red
+  - [x] Update tests to verify all three visual states
+
+- [x] Task 15: Add Ticker Change Warning (HIGH Priority)
+  - [x] Add warning alert in AssetForm when editing an existing asset and ticker field is modified
+  - [x] Message: "Changing the ticker may affect historical transaction records and portfolio calculations."
+  - [x] Update tests for ticker change warning flow
+
+- [x] Task 16: Update Delete Confirmation Message (HIGH Priority)
+  - [x] Update DeleteAssetDialog message to mention portfolio snapshots and historical calculations
+  - [x] Message: "...holdings, transactions, portfolio snapshots, and historical calculations..."
+  - [x] Update tests for new message content
+
+- [x] Task 17: Validate Target Inputs for Invalid Values (HIGH Priority)
+  - [x] Input type="number" with min="0" max="100" step="0.01" already prevents invalid values
+  - [x] Added aria-invalid attribute for accessibility
+  - [x] Added validation state tracking with inputErrors Map
+  - [x] Update tests to verify input constraints
+
+- [x] Task 18: Consistent Error Handling in API Client (MEDIUM Priority)
+  - [x] Modified handleResponse helper to handle 204 No Content responses gracefully
+  - [x] Updated api.assets.delete method to use handleResponse<void> instead of manual error handling
+  - [x] Removed duplicate error handling code from delete method
+
+- [x] Task 19: Prevent Modal Close During Mutations (MEDIUM Priority)
+  - [x] Added optional isLoading prop to Modal component
+  - [x] Prevent overlay click and ESC key from closing modal when isLoading=true
+  - [x] Pass isLoading prop from CreateAssetModal and EditAssetModal
+
+- [x] Task 20: Remove or Document Unused AssetList Component (LOW Priority)
+  - [x] Verified AssetList.tsx is NOT used in the main PortfolioPage (uses AssetCard grid instead)
+  - [x] Added documentation comment explaining when to use AssetList vs AssetCard
+  - [x] Kept component for potential future use (table view for admin panels, etc.)
 
 ## Dev Notes
 

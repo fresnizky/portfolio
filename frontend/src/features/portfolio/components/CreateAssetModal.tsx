@@ -30,7 +30,7 @@ export function CreateAssetModal({ isOpen, onClose, onSuccess }: CreateAssetModa
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Add New Asset">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Add New Asset" isLoading={createAsset.isPending}>
       <AssetForm
         onSubmit={handleSubmit}
         onCancel={handleClose}

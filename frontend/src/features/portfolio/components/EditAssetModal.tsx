@@ -39,7 +39,7 @@ export function EditAssetModal({ asset, isOpen, onClose, onSuccess }: EditAssetM
   if (!asset) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={`Edit ${asset.ticker}`}>
+    <Modal isOpen={isOpen} onClose={handleClose} title={`Edit ${asset.ticker}`} isLoading={updateAsset.isPending}>
       <AssetForm
         asset={asset}
         onSubmit={handleSubmit}
