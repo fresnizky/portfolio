@@ -52,7 +52,7 @@ development_status:
   epic-2: in-progress
   2-1-asset-crud-api-database-model: done
   2-2-target-percentage-assignment-validation: done
-  2-3-portfolio-configuration-ui: backlog
+  2-3-portfolio-configuration-ui: in-progress
   epic-2-retrospective: optional
 
   # Epic 3: Holdings & Price Management

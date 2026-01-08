@@ -1,4 +1,11 @@
-import type { LoginResponse, AuthMeResponse } from '@/types/api'
+import type {
+  LoginResponse,
+  AuthMeResponse,
+  Asset,
+  CreateAssetInput,
+  UpdateAssetInput,
+  BatchUpdateTargetsInput,
+} from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
 
@@ -62,6 +69,69 @@ export const api = {
         },
       })
       return handleResponse<AuthMeResponse>(res)
+    },
+  },
+
+  assets: {
+    list: async (): Promise<Asset[]> => {
+      const res = await fetch(`${API_URL}/assets`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<Asset[]>(res)
+    },
+
+    create: async (input: CreateAssetInput): Promise<Asset> => {
+      const res = await fetch(`${API_URL}/assets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<Asset>(res)
+    },
+
+    update: async (id: string, input: UpdateAssetInput): Promise<Asset> => {
+      const res = await fetch(`${API_URL}/assets/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<Asset>(res)
+    },
+
+    delete: async (id: string): Promise<void> => {
+      const res = await fetch(`${API_URL}/assets/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      if (!res.ok) {
+        const json = await res.json()
+        throw new ApiError(json.error, json.message, json.details)
+      }
+      // DELETE returns 204 No Content
+    },
+
+    batchUpdateTargets: async (input: BatchUpdateTargetsInput): Promise<Asset[]> => {
+      const res = await fetch(`${API_URL}/assets/targets`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<Asset[]>(res)
     },
   },
 }
