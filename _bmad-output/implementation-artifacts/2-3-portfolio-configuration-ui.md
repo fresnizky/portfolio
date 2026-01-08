@@ -1,6 +1,6 @@
 # Story 2.3: Portfolio Configuration UI
 
-Status: in-progress
+Status: completed
 
 ## Story
 
