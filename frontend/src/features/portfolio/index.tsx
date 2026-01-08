@@ -1,3 +1,5 @@
+import { AssetList } from './components/AssetList'
+
 export function PortfolioPage() {
   return (
     <div className="space-y-6">
@@ -7,8 +9,8 @@ export function PortfolioPage() {
         </h1>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-        <p className="text-gray-500">Asset list coming soon...</p>
+      <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <AssetList />
       </div>
     </div>
   )
