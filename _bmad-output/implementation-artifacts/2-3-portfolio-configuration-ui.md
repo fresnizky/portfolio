@@ -87,13 +87,13 @@ so that **I can easily configure my investment strategy**.
   - [x] Show loading state during deletion
   - [x] Add tests for delete flow
 
-- [ ] Task 10: Target Editor Mode (AC: #5, #6)
-  - [ ] Create `TargetEditor.tsx` for batch editing targets
-  - [ ] Display all assets with editable target inputs
-  - [ ] Real-time sum calculation with TargetSumIndicator
-  - [ ] Save button enabled only when sum = 100%
-  - [ ] Use batch update endpoint for atomic save
-  - [ ] Add tests for TargetEditor component
+- [x] Task 10: Target Editor Mode (AC: #5, #6)
+  - [x] Create `TargetEditor.tsx` for batch editing targets
+  - [x] Display all assets with editable target inputs
+  - [x] Real-time sum calculation with TargetSumIndicator
+  - [x] Save button enabled only when sum = 100%
+  - [x] Use batch update endpoint for atomic save
+  - [x] Add tests for TargetEditor component
 
 - [ ] Task 11: Integration Testing
   - [ ] Test full CRUD flow with mocked API
@@ -672,6 +672,16 @@ Claude 4 Sonnet (Anthropic)
   - 18 comprehensive tests for modal flows (5 create + 6 edit + 7 delete)
   - All 98 tests passing, typecheck clean, lint clean
 
+- **Task 10 (2026-01-07):** Created TargetEditor component
+  - Batch editing of target percentages for all assets
+  - Real-time sum calculation with TargetSumIndicator integration
+  - Save button disabled when sum != 100% OR no changes made
+  - Uses batch update endpoint for atomic save
+  - Error handling with message display
+  - Loading state during save operation
+  - 10 comprehensive tests covering all scenarios
+  - All 108 tests passing, typecheck clean, lint clean
+
 ### File List
 
 - `frontend/src/types/api.ts` (modified) - Added Asset types
@@ -701,3 +711,5 @@ Claude 4 Sonnet (Anthropic)
 - `frontend/src/features/portfolio/components/EditAssetModal.test.tsx` (new) - Tests for edit modal
 - `frontend/src/features/portfolio/components/DeleteAssetDialog.tsx` (new) - Delete confirmation dialog
 - `frontend/src/features/portfolio/components/DeleteAssetDialog.test.tsx` (new) - Tests for delete dialog
+- `frontend/src/features/portfolio/components/TargetEditor.tsx` (new) - Target editor component
+- `frontend/src/features/portfolio/components/TargetEditor.test.tsx` (new) - Tests for TargetEditor
