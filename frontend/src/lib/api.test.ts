@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { api, ApiError } from './api'
+import type { Asset, CreateAssetInput, UpdateAssetInput, BatchUpdateTargetsInput } from '@/types/api'
 
 describe('api', () => {
   const originalFetch = global.fetch
@@ -141,6 +142,347 @@ describe('api', () => {
           }),
         })
       )
+    })
+  })
+
+  describe('assets', () => {
+    const mockAsset: Asset = {
+      id: 'asset-1',
+      ticker: 'VOO',
+      name: 'Vanguard S&P 500 ETF',
+      category: 'ETF',
+      targetPercentage: '60.00',
+      createdAt: '2026-01-07T00:00:00.000Z',
+      updatedAt: '2026-01-07T00:00:00.000Z',
+      userId: 'user-1',
+    }
+
+    beforeEach(() => {
+      // Simulate stored token for authenticated requests
+      localStorage.setItem(
+        'auth-storage',
+        JSON.stringify({ state: { token: 'jwt-token-123' } })
+      )
+    })
+
+    describe('assets.list', () => {
+      it('should fetch all assets for the authenticated user', async () => {
+        const mockResponse = {
+          data: [mockAsset],
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.assets.list()
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/assets'),
+          expect.objectContaining({
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+          })
+        )
+        expect(result).toEqual([mockAsset])
+      })
+
+      it('should return empty array when no assets exist', async () => {
+        const mockResponse = { data: [] }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.assets.list()
+
+        expect(result).toEqual([])
+      })
+
+      it('should throw ApiError when not authenticated', async () => {
+        localStorage.clear()
+        const mockError = {
+          error: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.list()).rejects.toThrow(ApiError)
+      })
+    })
+
+    describe('assets.create', () => {
+      it('should create a new asset', async () => {
+        const input: CreateAssetInput = {
+          ticker: 'VOO',
+          name: 'Vanguard S&P 500 ETF',
+          category: 'ETF',
+          targetPercentage: 60,
+        }
+
+        const mockResponse = { data: mockAsset }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.assets.create(input)
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/assets'),
+          expect.objectContaining({
+            method: 'POST',
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+            body: JSON.stringify(input),
+          })
+        )
+        expect(result).toEqual(mockAsset)
+      })
+
+      it('should throw ApiError on validation failure', async () => {
+        const input: CreateAssetInput = {
+          ticker: '',
+          name: '',
+          category: 'ETF',
+        }
+
+        const mockError = {
+          error: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: { ticker: 'Ticker is required' },
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.create(input)).rejects.toMatchObject({
+          error: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+        })
+      })
+
+      it('should throw ApiError on duplicate ticker', async () => {
+        const input: CreateAssetInput = {
+          ticker: 'VOO',
+          name: 'Duplicate',
+          category: 'ETF',
+        }
+
+        const mockError = {
+          error: 'CONFLICT',
+          message: 'Asset with ticker VOO already exists',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.create(input)).rejects.toMatchObject({
+          error: 'CONFLICT',
+        })
+      })
+    })
+
+    describe('assets.update', () => {
+      it('should update an existing asset', async () => {
+        const input: UpdateAssetInput = {
+          name: 'Updated Name',
+          targetPercentage: 70,
+        }
+
+        const updatedAsset = { ...mockAsset, name: 'Updated Name', targetPercentage: '70.00' }
+        const mockResponse = { data: updatedAsset }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.assets.update('asset-1', input)
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/assets/asset-1'),
+          expect.objectContaining({
+            method: 'PUT',
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+            body: JSON.stringify(input),
+          })
+        )
+        expect(result).toEqual(updatedAsset)
+      })
+
+      it('should throw ApiError when asset not found', async () => {
+        const input: UpdateAssetInput = { name: 'New Name' }
+
+        const mockError = {
+          error: 'NOT_FOUND',
+          message: 'Asset not found',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.update('nonexistent', input)).rejects.toMatchObject({
+          error: 'NOT_FOUND',
+        })
+      })
+    })
+
+    describe('assets.delete', () => {
+      it('should delete an asset', async () => {
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 204,
+        })
+
+        await expect(api.assets.delete('asset-1')).resolves.toBeUndefined()
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/assets/asset-1'),
+          expect.objectContaining({
+            method: 'DELETE',
+            headers: expect.objectContaining({
+              Authorization: 'Bearer jwt-token-123',
+            }),
+          })
+        )
+      })
+
+      it('should throw ApiError when asset not found', async () => {
+        const mockError = {
+          error: 'NOT_FOUND',
+          message: 'Asset not found',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.delete('nonexistent')).rejects.toMatchObject({
+          error: 'NOT_FOUND',
+        })
+      })
+
+      it('should throw ApiError when not authorized', async () => {
+        const mockError = {
+          error: 'FORBIDDEN',
+          message: 'Not authorized to delete this asset',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.delete('other-user-asset')).rejects.toMatchObject({
+          error: 'FORBIDDEN',
+        })
+      })
+    })
+
+    describe('assets.batchUpdateTargets', () => {
+      it('should batch update target percentages', async () => {
+        const input: BatchUpdateTargetsInput = {
+          targets: [
+            { assetId: 'asset-1', targetPercentage: 60 },
+            { assetId: 'asset-2', targetPercentage: 40 },
+          ],
+        }
+
+        const updatedAssets: Asset[] = [
+          { ...mockAsset, id: 'asset-1', targetPercentage: '60.00' },
+          { ...mockAsset, id: 'asset-2', ticker: 'BND', targetPercentage: '40.00' },
+        ]
+        const mockResponse = { data: updatedAssets }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.assets.batchUpdateTargets(input)
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/assets/targets'),
+          expect.objectContaining({
+            method: 'PUT',
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+            body: JSON.stringify(input),
+          })
+        )
+        expect(result).toEqual(updatedAssets)
+      })
+
+      it('should throw ApiError when targets do not sum to 100%', async () => {
+        const input: BatchUpdateTargetsInput = {
+          targets: [
+            { assetId: 'asset-1', targetPercentage: 60 },
+            { assetId: 'asset-2', targetPercentage: 30 },
+          ],
+        }
+
+        const mockError = {
+          error: 'VALIDATION_ERROR',
+          message: 'Target percentages must sum to exactly 100%',
+          details: { sum: 90, difference: -10 },
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.batchUpdateTargets(input)).rejects.toMatchObject({
+          error: 'VALIDATION_ERROR',
+          details: { sum: 90, difference: -10 },
+        })
+      })
+
+      it('should throw ApiError when asset not found', async () => {
+        const input: BatchUpdateTargetsInput = {
+          targets: [
+            { assetId: 'nonexistent', targetPercentage: 100 },
+          ],
+        }
+
+        const mockError = {
+          error: 'NOT_FOUND',
+          message: 'Asset not found',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.assets.batchUpdateTargets(input)).rejects.toMatchObject({
+          error: 'NOT_FOUND',
+        })
+      })
     })
   })
 })
