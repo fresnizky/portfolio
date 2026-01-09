@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/errorHandler'
 import { authMiddleware } from './middleware/auth'
 import authRouter from './routes/auth'
 import assetsRouter from './routes/assets'
+import holdingsRouter from './routes/holdings'
 
 dotenv.config()
 
@@ -27,6 +28,7 @@ app.get('/api/health', (_req, res) => {
 // Routes
 app.use('/api/auth', authRouter)
 app.use('/api/assets', authMiddleware, assetsRouter)
+app.use('/api/holdings', authMiddleware, holdingsRouter)
 
 // Centralized error handler (must be last)
 app.use(errorHandler)

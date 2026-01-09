@@ -17,7 +17,8 @@ model User {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  assets Asset[]
+  assets   Asset[]
+  holdings Holding[]
 }
 
 enum AssetCategory {
@@ -37,10 +38,26 @@ model Asset {
   updatedAt        DateTime      @updatedAt
 
   // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holding Holding?
 
   // Constraints
   @@unique([userId, ticker])
+  @@index([userId])
+}
+
+model Holding {
+  id        String   @id @default(cuid())
+  quantity  Decimal  @db.Decimal(18, 8)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetId String @unique
+  asset   Asset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
