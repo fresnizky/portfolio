@@ -18,6 +18,8 @@ vi.mock('@/config/database', () => ({
   },
 }))
 
+const mockedPrisma = vi.mocked(prisma)
+
 // Helper to create mock Prisma Decimal that works with Number()
 const createMockDecimal = (value: number) => ({
   toNumber: () => value,
@@ -149,18 +151,16 @@ describe('holdingService', () => {
 
   describe('createOrUpdateHolding', () => {
     describe('when asset exists and belongs to user', () => {
-      it('should create a new holding when none exists', async () => {
+      it('should create or update holding and return holding object', async () => {
         const mockAsset = createMockAsset()
         const mockHoldingWithAsset = createMockHoldingWithAsset()
 
         vi.mocked(prisma.asset.findUnique).mockResolvedValue(mockAsset)
-        vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
         vi.mocked(prisma.holding.upsert).mockResolvedValue(mockHoldingWithAsset)
 
         const result = await holdingService.createOrUpdateHolding(userId, 'asset-123', 10.5)
 
-        expect(result.isNew).toBe(true)
-        expect(result.holding).toEqual(mockHoldingWithAsset)
+        expect(result).toEqual(mockHoldingWithAsset)
         expect(prisma.holding.upsert).toHaveBeenCalledWith({
           where: { assetId: 'asset-123' },
           create: {
@@ -184,21 +184,6 @@ describe('holdingService', () => {
         })
       })
 
-      it('should update existing holding', async () => {
-        const mockAsset = createMockAsset()
-        const existingHolding = createMockHolding({ quantity: createMockDecimal(5) as unknown as Holding['quantity'] })
-        const updatedHoldingWithAsset = createMockHoldingWithAsset({ quantity: createMockDecimal(15) as unknown as Holding['quantity'] })
-
-        vi.mocked(prisma.asset.findUnique).mockResolvedValue(mockAsset)
-        vi.mocked(prisma.holding.findUnique).mockResolvedValue(existingHolding)
-        vi.mocked(prisma.holding.upsert).mockResolvedValue(updatedHoldingWithAsset)
-
-        const result = await holdingService.createOrUpdateHolding(userId, 'asset-123', 15)
-
-        expect(result.isNew).toBe(false)
-        expect(result.holding).toEqual(updatedHoldingWithAsset)
-      })
-
       it('should accept fractional quantities for crypto', async () => {
         const mockAsset = createMockAsset({ category: 'CRYPTO', ticker: 'BTC' })
         const mockHoldingWithAsset = createMockHoldingWithAsset(
@@ -207,12 +192,11 @@ describe('holdingService', () => {
         )
 
         vi.mocked(prisma.asset.findUnique).mockResolvedValue(mockAsset)
-        vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
         vi.mocked(prisma.holding.upsert).mockResolvedValue(mockHoldingWithAsset)
 
         const result = await holdingService.createOrUpdateHolding(userId, 'asset-123', 0.00012345)
 
-        expect(result.holding).toEqual(mockHoldingWithAsset)
+        expect(result).toEqual(mockHoldingWithAsset)
         expect(prisma.holding.upsert).toHaveBeenCalledWith(
           expect.objectContaining({
             create: expect.objectContaining({ quantity: 0.00012345 }),
@@ -227,12 +211,11 @@ describe('holdingService', () => {
         })
 
         vi.mocked(prisma.asset.findUnique).mockResolvedValue(mockAsset)
-        vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
         vi.mocked(prisma.holding.upsert).mockResolvedValue(mockHoldingWithAsset)
 
         const result = await holdingService.createOrUpdateHolding(userId, 'asset-123', 1000000)
 
-        expect(result.holding).toEqual(mockHoldingWithAsset)
+        expect(result).toEqual(mockHoldingWithAsset)
       })
     })
 
@@ -273,38 +256,44 @@ describe('holdingService', () => {
     })
 
     describe('edge cases', () => {
-      it('should handle update with same quantity', async () => {
-        const mockAsset = createMockAsset()
-        const existingHolding = createMockHolding({ quantity: createMockDecimal(10) as unknown as Holding['quantity'] })
-        const holdingWithAsset = createMockHoldingWithAsset({ quantity: createMockDecimal(10) as unknown as Holding['quantity'] })
-
-        vi.mocked(prisma.asset.findUnique).mockResolvedValue(mockAsset)
-        vi.mocked(prisma.holding.findUnique).mockResolvedValue(existingHolding)
-        vi.mocked(prisma.holding.upsert).mockResolvedValue(holdingWithAsset)
-
-        const result = await holdingService.createOrUpdateHolding(userId, 'asset-123', 10)
-
-        expect(result.isNew).toBe(false)
-        expect(prisma.holding.upsert).toHaveBeenCalled()
-      })
-
       it('should include asset details in returned holding', async () => {
         const mockAsset = createMockAsset()
         const holdingWithAsset = createMockHoldingWithAsset()
 
         vi.mocked(prisma.asset.findUnique).mockResolvedValue(mockAsset)
-        vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
         vi.mocked(prisma.holding.upsert).mockResolvedValue(holdingWithAsset)
 
         const result = await holdingService.createOrUpdateHolding(userId, 'asset-123', 10)
 
-        expect(result.holding.asset).toEqual({
+        expect(result.asset).toEqual({
           id: 'asset-123',
           ticker: 'VOO',
           name: 'Vanguard S&P 500 ETF',
           category: 'ETF',
         })
       })
+    })
+  })
+
+  describe('holdingExists', () => {
+    it('should return true when holding exists', async () => {
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue({ id: 'holding-123' } as Holding)
+
+      const result = await holdingService.holdingExists('asset-123')
+
+      expect(result).toBe(true)
+      expect(prisma.holding.findUnique).toHaveBeenCalledWith({
+        where: { assetId: 'asset-123' },
+        select: { id: true },
+      })
+    })
+
+    it('should return false when holding does not exist', async () => {
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
+
+      const result = await holdingService.holdingExists('asset-123')
+
+      expect(result).toBe(false)
     })
   })
 })

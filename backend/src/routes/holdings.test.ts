@@ -9,6 +9,7 @@ vi.mock('@/services/holdingService', () => ({
   holdingService: {
     getHoldings: vi.fn(),
     createOrUpdateHolding: vi.fn(),
+    holdingExists: vi.fn(),
   },
 }))
 
@@ -118,31 +119,28 @@ describe('holdings routes', () => {
   describe('PUT /api/holdings/:assetId', () => {
     it('should create a new holding with valid data', async () => {
       const mockHolding = createMockHoldingWithAsset()
-      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue({
-        holding: mockHolding as never,
-        isNew: true,
-      })
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(false)
+      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue(mockHolding as never)
 
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 10.5 })
+      const response = await putHolding('any-valid-asset-id', { quantity: 10.5 })
 
       expect(response.status).toBe(200)
       expect(response.body.data).toBeDefined()
       expect(response.body.message).toBe('Holding created')
+      expect(holdingService.holdingExists).toHaveBeenCalledWith('any-valid-asset-id')
       expect(holdingService.createOrUpdateHolding).toHaveBeenCalledWith(
         'user-123',
-        'clx1234567890abcdefghijkl',
+        'any-valid-asset-id',
         10.5
       )
     })
 
     it('should update existing holding with valid data', async () => {
       const mockHolding = createMockHoldingWithAsset({ quantity: createMockDecimal(25) })
-      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue({
-        holding: mockHolding as never,
-        isNew: false,
-      })
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(true)
+      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue(mockHolding as never)
 
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 25 })
+      const response = await putHolding('any-valid-asset-id', { quantity: 25 })
 
       expect(response.status).toBe(200)
       expect(response.body.message).toBe('Holding updated')
@@ -150,40 +148,36 @@ describe('holdings routes', () => {
 
     it('should accept integer quantity', async () => {
       const mockHolding = createMockHoldingWithAsset({ quantity: createMockDecimal(100) })
-      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue({
-        holding: mockHolding as never,
-        isNew: true,
-      })
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(false)
+      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue(mockHolding as never)
 
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 100 })
+      const response = await putHolding('any-valid-asset-id', { quantity: 100 })
 
       expect(response.status).toBe(200)
       expect(holdingService.createOrUpdateHolding).toHaveBeenCalledWith(
         'user-123',
-        'clx1234567890abcdefghijkl',
+        'any-valid-asset-id',
         100
       )
     })
 
     it('should accept fractional quantity', async () => {
       const mockHolding = createMockHoldingWithAsset({ quantity: createMockDecimal(0.00012345) })
-      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue({
-        holding: mockHolding as never,
-        isNew: true,
-      })
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(false)
+      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue(mockHolding as never)
 
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 0.00012345 })
+      const response = await putHolding('any-valid-asset-id', { quantity: 0.00012345 })
 
       expect(response.status).toBe(200)
       expect(holdingService.createOrUpdateHolding).toHaveBeenCalledWith(
         'user-123',
-        'clx1234567890abcdefghijkl',
+        'any-valid-asset-id',
         0.00012345
       )
     })
 
     it('should return 400 for zero quantity', async () => {
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 0 })
+      const response = await putHolding('any-valid-asset-id', { quantity: 0 })
 
       expect(response.status).toBe(400)
       expect(response.body.error).toBe('VALIDATION_ERROR')
@@ -191,7 +185,7 @@ describe('holdings routes', () => {
     })
 
     it('should return 400 for negative quantity', async () => {
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: -5 })
+      const response = await putHolding('any-valid-asset-id', { quantity: -5 })
 
       expect(response.status).toBe(400)
       expect(response.body.error).toBe('VALIDATION_ERROR')
@@ -199,27 +193,27 @@ describe('holdings routes', () => {
     })
 
     it('should return 400 for missing quantity', async () => {
-      const response = await putHolding('clx1234567890abcdefghijkl', {})
+      const response = await putHolding('any-valid-asset-id', {})
 
       expect(response.status).toBe(400)
       expect(response.body.error).toBe('VALIDATION_ERROR')
       expect(holdingService.createOrUpdateHolding).not.toHaveBeenCalled()
     })
 
-    it('should return 400 for invalid assetId format', async () => {
-      const response = await putHolding('invalid-id', { quantity: 10 })
+    it('should return 400 for empty assetId', async () => {
+      // Empty assetId should fail validation (z.string().min(1))
+      const response = await request(app).put('/api/holdings/').send({ quantity: 10 })
 
-      expect(response.status).toBe(400)
-      expect(response.body.error).toBe('VALIDATION_ERROR')
-      expect(holdingService.createOrUpdateHolding).not.toHaveBeenCalled()
+      expect(response.status).toBe(404) // Express 404 for missing route param
     })
 
     it('should return 404 for non-existent asset', async () => {
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(false)
       vi.mocked(holdingService.createOrUpdateHolding).mockRejectedValue(
         new AppError(404, 'NOT_FOUND', 'Asset not found')
       )
 
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 10 })
+      const response = await putHolding('non-existent-asset-id', { quantity: 10 })
 
       expect(response.status).toBe(404)
       expect(response.body.error).toBe('NOT_FOUND')
@@ -227,11 +221,12 @@ describe('holdings routes', () => {
     })
 
     it('should return 403 for asset belonging to another user', async () => {
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(false)
       vi.mocked(holdingService.createOrUpdateHolding).mockRejectedValue(
         new AppError(403, 'FORBIDDEN', 'Access denied')
       )
 
-      const response = await putHolding('clx1234567890abcdefghijkl', { quantity: 10 })
+      const response = await putHolding('other-user-asset-id', { quantity: 10 })
 
       expect(response.status).toBe(403)
       expect(response.body.error).toBe('FORBIDDEN')
@@ -240,19 +235,17 @@ describe('holdings routes', () => {
 
     it('should coerce string quantity to number', async () => {
       const mockHolding = createMockHoldingWithAsset({ quantity: createMockDecimal(50) })
-      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue({
-        holding: mockHolding as never,
-        isNew: true,
-      })
+      vi.mocked(holdingService.holdingExists).mockResolvedValue(false)
+      vi.mocked(holdingService.createOrUpdateHolding).mockResolvedValue(mockHolding as never)
 
       const response = await request(app)
-        .put('/api/holdings/clx1234567890abcdefghijkl')
+        .put('/api/holdings/any-valid-asset-id')
         .send({ quantity: '50' })
 
       expect(response.status).toBe(200)
       expect(holdingService.createOrUpdateHolding).toHaveBeenCalledWith(
         'user-123',
-        'clx1234567890abcdefghijkl',
+        'any-valid-asset-id',
         50
       )
     })

@@ -1,6 +1,6 @@
 # Story 3.1: Holdings Management API
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -54,6 +54,13 @@ so that **I can track my actual positions**.
   - [x] Test holdings include asset details
   - [x] Test asset not found error
   - [x] Test unauthorized access (wrong user's asset)
+
+## Review Follow-ups (AI)
+
+- [x] [AI-Review][MEDIUM] Fix assetId validation discrepancy - change z.cuid2() to z.string().min(1) to match story specification
+- [x] [AI-Review][MEDIUM] Update holdingService API contract - return only holding object instead of { holding, isNew }
+- [x] [AI-Review][LOW] Add NaN validation to quantity schema - prevent invalid number coercion (Zod handles this automatically)
+- [x] [AI-Review][LOW] Make integration tests CI-friendly - add DATABASE_URL check with lazy imports
 
 ## Dev Notes
 
@@ -440,6 +447,10 @@ N/A - Implementation completed without issues
 - Task 4: Created holdings routes with proper validation middleware. Registered in index.ts with authMiddleware.
 - Task 5: Created comprehensive integration tests covering full flow, validation errors, updates, asset details, and authorization.
 - All 204 tests passing (59 new tests added: 19 validation, 12 service, 14 route unit, 14 integration)
+- ✅ Resolved review finding [MEDIUM]: Changed assetId validation from z.cuid2() to z.string().min(1) for flexibility
+- ✅ Resolved review finding [MEDIUM]: Simplified holdingService API to return holding object directly, added holdingExists() helper
+- ✅ Resolved review finding [LOW]: Verified Zod already handles NaN validation automatically with z.coerce.number()
+- ✅ Resolved review finding [LOW]: Made integration tests CI-friendly with DATABASE_URL check and lazy imports
 
 ### File List
 
@@ -457,8 +468,10 @@ N/A - Implementation completed without issues
 - backend/prisma/schema.prisma (added Holding model, relations to User and Asset)
 - backend/src/index.ts (registered holdings routes)
 - _bmad-output/implementation-artifacts/sprint-status.yaml (status updated)
-- _bmad-output/implementation-artifacts/3-1-holdings-management-api.md (this file)
+- _bmad-output/implementation-artifacts/3-1-holdings-management-api.md (this file - added review action items)
 
 ## Change Log
 
+- 2026-01-09: Addressed code review findings - 4 items resolved (2 MEDIUM, 2 LOW)
 - 2026-01-09: Implemented Holdings Management API - all 5 tasks completed, 204 tests passing
+- 2026-01-08: Code review completed - 4 action items added for MEDIUM/LOW priority fixes

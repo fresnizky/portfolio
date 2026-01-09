@@ -31,7 +31,23 @@ describe('quantitySchema', () => {
     expect(() => quantitySchema.parse('-10')).toThrow()
   })
 
-  it('provides meaningful error message', () => {
+  it('rejects NaN values from invalid coercion', () => {
+    expect(() => quantitySchema.parse('abc')).toThrow()
+    expect(() => quantitySchema.parse('not-a-number')).toThrow()
+    expect(() => quantitySchema.parse('')).toThrow()
+  })
+
+  it('provides meaningful error message for NaN', () => {
+    const result = quantitySchema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      // Zod automatically rejects NaN from invalid coercion
+      expect(result.error.issues[0].code).toBe('invalid_type')
+      expect(result.error.issues[0].message).toContain('NaN')
+    }
+  })
+
+  it('provides meaningful error message for non-positive', () => {
     const result = quantitySchema.safeParse(-5)
     expect(result.success).toBe(false)
     if (!result.success) {
@@ -101,8 +117,10 @@ describe('holdingParamsSchema', () => {
     expect(result.assetId).toBe('clx1234567890abcdefghijkl')
   })
 
-  it('rejects invalid ID format', () => {
-    expect(() => holdingParamsSchema.parse({ assetId: 'invalid-id' })).toThrow()
+  it('accepts any non-empty string', () => {
+    // Changed from z.cuid2() to z.string().min(1) per review - more flexible
+    const result = holdingParamsSchema.parse({ assetId: 'any-valid-id' })
+    expect(result.assetId).toBe('any-valid-id')
   })
 
   it('rejects empty assetId', () => {
@@ -113,12 +131,12 @@ describe('holdingParamsSchema', () => {
     expect(() => holdingParamsSchema.parse({})).toThrow()
   })
 
-  it('provides meaningful error message for invalid format', () => {
-    const result = holdingParamsSchema.safeParse({ assetId: 'bad-id' })
+  it('provides meaningful error message for empty string', () => {
+    const result = holdingParamsSchema.safeParse({ assetId: '' })
     expect(result.success).toBe(false)
     if (!result.success) {
       const errorMessages = result.error.issues.map(i => i.message)
-      expect(errorMessages).toContain('Invalid asset ID format')
+      expect(errorMessages).toContain('Asset ID is required')
     }
   })
 })
