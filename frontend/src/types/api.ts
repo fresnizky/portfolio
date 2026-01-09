@@ -18,6 +18,41 @@ export interface ListResponse<T> {
   }
 }
 
+// Asset Types
+export type AssetCategory = 'ETF' | 'FCI' | 'CRYPTO' | 'CASH'
+
+export interface Asset {
+  id: string
+  ticker: string
+  name: string
+  category: AssetCategory
+  targetPercentage: string  // Decimal from Prisma comes as string
+  createdAt: string
+  updatedAt: string
+  userId: string
+}
+
+export interface CreateAssetInput {
+  ticker: string
+  name: string
+  category: AssetCategory
+  targetPercentage?: number
+}
+
+export interface UpdateAssetInput {
+  ticker?: string
+  name?: string
+  category?: AssetCategory
+  targetPercentage?: number
+}
+
+export interface BatchUpdateTargetsInput {
+  targets: Array<{
+    assetId: string
+    targetPercentage: number
+  }>
+}
+
 // Auth Types
 export interface User {
   id: string

@@ -1,0 +1,46 @@
+import { Modal } from '@/components/common/Modal'
+import { AssetForm } from './AssetForm'
+import { useCreateAsset } from '../hooks/useAssets'
+import type { AssetFormData } from '@/validations/asset'
+
+interface CreateAssetModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSuccess?: () => void
+}
+
+export function CreateAssetModal({ isOpen, onClose, onSuccess }: CreateAssetModalProps) {
+  const createAsset = useCreateAsset()
+
+  const handleSubmit = async (data: AssetFormData) => {
+    try {
+      // New assets are created with 0% target - adjust via TargetEditor
+      await createAsset.mutateAsync({ ...data, targetPercentage: 0 })
+      onClose()
+      onSuccess?.()
+    } catch {
+      // Error is handled by the mutation
+    }
+  }
+
+  const handleClose = () => {
+    if (!createAsset.isPending) {
+      onClose()
+    }
+  }
+
+  return (
+    <Modal isOpen={isOpen} onClose={handleClose} title="Add New Asset" isLoading={createAsset.isPending}>
+      <AssetForm
+        onSubmit={handleSubmit}
+        onCancel={handleClose}
+        isSubmitting={createAsset.isPending}
+      />
+      {createAsset.isError && (
+        <p className="mt-4 text-sm text-red-600">
+          {createAsset.error?.message ?? 'Failed to create asset'}
+        </p>
+      )}
+    </Modal>
+  )
+}
