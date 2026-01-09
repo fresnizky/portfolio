@@ -30,7 +30,7 @@ export const holdingService = {
    * @param userId - The ID of the user
    * @param assetId - The ID of the asset
    * @param quantity - The quantity to set
-   * @returns Object with the holding and whether it was created or updated
+   * @returns The created or updated holding with asset details
    * @throws NotFoundError if asset doesn't exist
    * @throws ForbiddenError if asset belongs to another user
    */
@@ -49,13 +49,8 @@ export const holdingService = {
       throw Errors.forbidden()
     }
 
-    // Check if holding already exists to determine if this is create or update
-    const existingHolding = await prisma.holding.findUnique({
-      where: { assetId },
-    })
-
     // Upsert holding
-    const holding = await prisma.holding.upsert({
+    return prisma.holding.upsert({
       where: { assetId },
       create: {
         userId,
@@ -76,10 +71,18 @@ export const holdingService = {
         },
       },
     })
+  },
 
-    return {
-      holding,
-      isNew: !existingHolding,
-    }
+  /**
+   * Check if a holding exists for an asset
+   * @param assetId - The asset ID to check
+   * @returns true if holding exists, false otherwise
+   */
+  async holdingExists(assetId: string): Promise<boolean> {
+    const holding = await prisma.holding.findUnique({
+      where: { assetId },
+      select: { id: true },
+    })
+    return holding !== null
   },
 }

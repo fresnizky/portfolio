@@ -34,7 +34,10 @@ router.put(
       const { assetId } = req.params
       const { quantity } = req.body
 
-      const { holding, isNew } = await holdingService.createOrUpdateHolding(
+      // Check if holding exists before upsert to determine message
+      const existed = await holdingService.holdingExists(assetId)
+
+      const holding = await holdingService.createOrUpdateHolding(
         req.user!.id,
         assetId,
         quantity
@@ -42,7 +45,7 @@ router.put(
 
       res.json({
         data: holding,
-        message: isNew ? 'Holding created' : 'Holding updated',
+        message: existed ? 'Holding updated' : 'Holding created',
       })
     } catch (error) {
       next(error)

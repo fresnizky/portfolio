@@ -1,10 +1,17 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import express, { Express, Request, Response, NextFunction } from 'express'
 import request from 'supertest'
-import { prisma } from '@/config/database'
-import holdingsRouter from './holdings'
-import assetsRouter from './assets'
+import type { PrismaClient } from '@prisma/client'
 import { AppError } from '@/lib/errors'
+
+// CI-friendly: Skip integration tests if DATABASE_URL is not available
+const DATABASE_URL = process.env.DATABASE_URL
+const describeWithDb = DATABASE_URL ? describe : describe.skip
+
+// Lazy imports to prevent Prisma initialization when DATABASE_URL is not set
+let prisma: PrismaClient
+let holdingsRouter: typeof import('./holdings').default
+let assetsRouter: typeof import('./assets').default
 
 // Test data
 let testUserId: string
@@ -18,12 +25,18 @@ const createAuthMiddleware = (userId: string) => (req: Request, _res: Response, 
   next()
 }
 
-describe('Holdings API Integration Tests', () => {
+describeWithDb('Holdings API Integration Tests', () => {
   let app: Express
   let userApp: Express
   let otherUserApp: Express
 
   beforeAll(async () => {
+    // Lazy load modules that depend on DATABASE_URL
+    const dbModule = await import('@/config/database')
+    prisma = dbModule.prisma
+    holdingsRouter = (await import('./holdings')).default
+    assetsRouter = (await import('./assets')).default
+
     // Create test users
     const testUser = await prisma.user.create({
       data: {
