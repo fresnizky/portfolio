@@ -1,6 +1,6 @@
 # Story 3.1: Holdings Management API
 
-Status: in-progress
+Status: done
 
 ## Story
 
