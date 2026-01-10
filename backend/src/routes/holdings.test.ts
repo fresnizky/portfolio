@@ -21,7 +21,7 @@ const createMockDecimal = (value: number) => ({
   toNumber: () => value,
   valueOf: () => value,
   toString: () => String(value),
-})
+}) as unknown as Holding['quantity']
 
 // Mock holding with asset factory
 const createMockHoldingWithAsset = (overrides: Partial<Holding> = {}, assetOverrides = {}) => ({
