@@ -29,11 +29,11 @@ so that **I have a complete history of my investment movements**.
   - [x] Run `npx prisma migrate dev --name add_transaction_model`
   - [x] Verify generated Prisma types
 
-- [ ] Task 2: Create Transaction Validation Schemas (AC: #1, #2, #4)
-  - [ ] Create `backend/src/validations/transaction.ts`
-  - [ ] Add `createTransactionSchema` with Zod (type, assetId, date, quantity, price, commission)
-  - [ ] Add `transactionListQuerySchema` for filtering (optional: assetId, type, fromDate, toDate)
-  - [ ] Add unit tests for validation schemas
+- [x] Task 2: Create Transaction Validation Schemas (AC: #1, #2, #4)
+  - [x] Create `backend/src/validations/transaction.ts`
+  - [x] Add `createTransactionSchema` with Zod (type, assetId, date, quantity, price, commission)
+  - [x] Add `transactionListQuerySchema` for filtering (optional: assetId, type, fromDate, toDate)
+  - [x] Add unit tests for validation schemas
 
 - [ ] Task 3: Create Transaction Service (AC: #1, #2, #3, #5)
   - [ ] Create `backend/src/services/transactionService.ts`
@@ -543,9 +543,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Added TransactionType enum and Transaction model to Prisma schema. Added relations to User and Asset. Migration 20260110060239_add_transaction_model applied successfully. Prisma client regenerated.
+- Task 2: Created transaction validation schemas with Zod. Added createTransactionSchema, transactionListQuerySchema, transactionParamsSchema. 51 unit tests passing.
 
 ### File List
 
 - backend/prisma/schema.prisma (modified)
 - backend/prisma/migrations/20260110060239_add_transaction_model/migration.sql (created)
+- backend/src/validations/transaction.ts (created)
+- backend/src/validations/transaction.test.ts (created)
 
