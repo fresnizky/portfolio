@@ -1,6 +1,6 @@
 # Story 5.3: Alerts Panel & Attention Required View
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -61,9 +61,9 @@ So that **I know exactly what actions I need to take**.
   - [x] Ensure prominent placement for alerts panel
   - [x] Update `frontend/src/features/dashboard/index.test.tsx`
 
-- [ ] Task 6: Ensure all tests pass
-  - [ ] Run `pnpm test` to verify all tests pass
-  - [ ] Fix any failing tests
+- [x] Task 6: Ensure all tests pass
+  - [x] Run `pnpm test` to verify all tests pass
+  - [x] Fix any failing tests
 
 ## Dev Notes
 
@@ -541,6 +541,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 3: Implemented EmptyAlertsState component with checkmark SVG icon, green color scheme, positive message and encouraging subtext. 4 tests passing.
 - Task 4: Implemented AttentionRequiredSection component that groups alerts by asset, shows alert count summary badge, and displays all alerts per asset. 6 tests passing.
 - Task 5: Updated DashboardPage to include AlertsPanel (prominent placement after summary) and AttentionRequiredSection (consolidated view at bottom). Added 3 new tests for alerts display. 8 tests passing for DashboardPage.
+- Task 6: Verified all 337 tests pass across 42 test files. No failures.
 
 ### File List
 
