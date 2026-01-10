@@ -1,6 +1,6 @@
 # Story 3.3: Holdings & Prices UI with Staleness Indicator
 
-Status: review
+Status: done
 
 ## Story
 
