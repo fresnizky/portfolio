@@ -49,11 +49,11 @@ So that **I can track all my investment activity**.
   - [x] Create `frontend/src/validations/transaction.ts` (frontend version)
   - [x] Co-locate test file
 
-- [ ] Task 5: Create CreateTransactionModal component (AC: #3)
-  - [ ] Create `frontend/src/features/transactions/components/CreateTransactionModal.tsx`
-  - [ ] Wrap TransactionForm in Modal
-  - [ ] Use existing Modal pattern from `frontend/src/components/common/Modal.tsx`
-  - [ ] On success: close modal, invalidate queries (transactions + portfolio summary)
+- [x] Task 5: Create CreateTransactionModal component (AC: #3)
+  - [x] Create `frontend/src/features/transactions/components/CreateTransactionModal.tsx`
+  - [x] Wrap TransactionForm in Modal
+  - [x] Use existing Modal pattern from `frontend/src/components/common/Modal.tsx`
+  - [x] On success: close modal, invalidate queries (transactions + portfolio summary)
 
 - [ ] Task 6: Create TransactionFilters component (AC: #4)
   - [ ] Create `frontend/src/features/transactions/components/TransactionFilters.tsx`
@@ -549,6 +549,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 2**: Created TransactionCard component displaying type badge (BUY green/SELL red), formatted date, ticker, asset name, quantity, price, commission, and total cost/proceeds. Added 11 unit tests.
 - **Task 3**: Created TransactionList component with grid layout, loading skeleton (3 animated placeholders), and empty state. Added 5 unit tests.
 - **Task 4**: Created TransactionForm with React Hook Form + Zod validation. Fields: type, asset dropdown, date picker, quantity, price, commission. Created validation schema in validations/transaction.ts. Added 10 unit tests.
+- **Task 5**: Created CreateTransactionModal wrapping TransactionForm in Modal. Uses useMutation with query invalidation for transactions and portfolio. Added 5 unit tests.
 
 ### File List
 
@@ -563,4 +564,6 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `frontend/src/validations/transaction.ts` (new)
 - `frontend/src/features/transactions/components/TransactionForm.tsx` (new)
 - `frontend/src/features/transactions/components/TransactionForm.test.tsx` (new)
+- `frontend/src/features/transactions/components/CreateTransactionModal.tsx` (new)
+- `frontend/src/features/transactions/components/CreateTransactionModal.test.tsx` (new)
 
