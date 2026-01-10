@@ -770,4 +770,172 @@ describe('api', () => {
       })
     })
   })
+
+  describe('dashboard', () => {
+    const mockDashboardResponse = {
+      totalValue: '10000.00',
+      positions: [
+        {
+          assetId: 'asset-1',
+          ticker: 'VOO',
+          name: 'Vanguard S&P 500 ETF',
+          category: 'ETF',
+          quantity: '10',
+          currentPrice: '600.00',
+          value: '6000.00',
+          targetPercentage: '60.00',
+          actualPercentage: '60.00',
+          deviation: '0.00',
+          priceUpdatedAt: '2026-01-09T15:30:00.000Z',
+        },
+      ],
+      alerts: [
+        {
+          type: 'stale_price',
+          assetId: 'asset-2',
+          ticker: 'GLD',
+          message: 'GLD price is 10 days old',
+          severity: 'warning',
+          data: { daysOld: 10 },
+        },
+      ],
+    }
+
+    beforeEach(() => {
+      localStorage.setItem(
+        'auth-storage',
+        JSON.stringify({ state: { token: 'jwt-token-123' } })
+      )
+    })
+
+    describe('dashboard.get', () => {
+      it('should fetch dashboard data without params', async () => {
+        const mockResponse = { data: mockDashboardResponse }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.dashboard.get()
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/dashboard'),
+          expect.objectContaining({
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+          })
+        )
+        expect(result).toEqual(mockDashboardResponse)
+      })
+
+      it('should include deviationThreshold query param', async () => {
+        const mockResponse = { data: mockDashboardResponse }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        await api.dashboard.get({ deviationThreshold: 10 })
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('deviationThreshold=10'),
+          expect.any(Object)
+        )
+      })
+
+      it('should include staleDays query param', async () => {
+        const mockResponse = { data: mockDashboardResponse }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        await api.dashboard.get({ staleDays: 14 })
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('staleDays=14'),
+          expect.any(Object)
+        )
+      })
+
+      it('should include both query params', async () => {
+        const mockResponse = { data: mockDashboardResponse }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        await api.dashboard.get({ deviationThreshold: 3, staleDays: 3 })
+
+        const calledUrl = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]
+        expect(calledUrl).toContain('deviationThreshold=3')
+        expect(calledUrl).toContain('staleDays=3')
+      })
+
+      it('should return positions with calculated fields', async () => {
+        const mockResponse = { data: mockDashboardResponse }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.dashboard.get()
+
+        expect(result.positions[0]).toHaveProperty('actualPercentage')
+        expect(result.positions[0]).toHaveProperty('deviation')
+      })
+
+      it('should return alerts array', async () => {
+        const mockResponse = { data: mockDashboardResponse }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.dashboard.get()
+
+        expect(result.alerts).toHaveLength(1)
+        expect(result.alerts[0].type).toBe('stale_price')
+      })
+
+      it('should throw ApiError on server error', async () => {
+        const mockError = {
+          error: 'INTERNAL_ERROR',
+          message: 'Database error',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.dashboard.get()).rejects.toMatchObject({
+          error: 'INTERNAL_ERROR',
+        })
+      })
+
+      it('should throw ApiError without auth token', async () => {
+        localStorage.clear()
+        const mockError = {
+          error: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.dashboard.get()).rejects.toThrow(ApiError)
+      })
+    })
+  })
 })

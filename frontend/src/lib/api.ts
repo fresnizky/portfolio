@@ -12,6 +12,8 @@ import type {
   Transaction,
   TransactionListFilters,
   CreateTransactionInput,
+  DashboardResponse,
+  DashboardParams,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -230,6 +232,31 @@ export const api = {
         body: JSON.stringify(input),
       })
       return handleResponse<Transaction>(res)
+    },
+  },
+
+  dashboard: {
+    get: async (params?: DashboardParams): Promise<DashboardResponse> => {
+      const searchParams = new URLSearchParams()
+      if (params?.deviationThreshold !== undefined) {
+        searchParams.append('deviationThreshold', params.deviationThreshold.toString())
+      }
+      if (params?.staleDays !== undefined) {
+        searchParams.append('staleDays', params.staleDays.toString())
+      }
+
+      const queryString = searchParams.toString()
+      const url = queryString
+        ? `${API_URL}/dashboard?${queryString}`
+        : `${API_URL}/dashboard`
+
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<DashboardResponse>(res)
     },
   },
 }

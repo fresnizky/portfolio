@@ -10,6 +10,7 @@ import holdingsRouter from './routes/holdings'
 import pricesRouter from './routes/prices'
 import portfolioRouter from './routes/portfolio'
 import transactionsRouter from './routes/transactions'
+import dashboardRouter from './routes/dashboard'
 
 dotenv.config()
 
@@ -35,6 +36,7 @@ app.use('/api/holdings', authMiddleware, holdingsRouter)
 app.use('/api/prices', authMiddleware, pricesRouter)
 app.use('/api/portfolio', authMiddleware, portfolioRouter)
 app.use('/api/transactions', authMiddleware, transactionsRouter)
+app.use('/api/dashboard', authMiddleware, dashboardRouter)
 
 // Centralized error handler (must be last)
 app.use(errorHandler)
