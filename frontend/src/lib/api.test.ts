@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { api, ApiError } from './api'
-import type { Asset, CreateAssetInput, UpdateAssetInput, BatchUpdateTargetsInput } from '@/types/api'
+import type {
+  Asset,
+  CreateAssetInput,
+  UpdateAssetInput,
+  BatchUpdateTargetsInput,
+  Transaction,
+  CreateTransactionInput,
+  TransactionListFilters,
+} from '@/types/api'
 
 describe('api', () => {
   const originalFetch = global.fetch
@@ -480,6 +488,283 @@ describe('api', () => {
         })
 
         await expect(api.assets.batchUpdateTargets(input)).rejects.toMatchObject({
+          error: 'NOT_FOUND',
+        })
+      })
+    })
+  })
+
+  describe('transactions', () => {
+    const mockTransaction: Transaction = {
+      id: 'tx-1',
+      type: 'BUY',
+      date: '2026-01-07T00:00:00.000Z',
+      quantity: '10.00000000',
+      priceCents: '15000',
+      commissionCents: '500',
+      totalCents: '150500',
+      assetId: 'asset-1',
+      userId: 'user-1',
+      createdAt: '2026-01-07T00:00:00.000Z',
+      updatedAt: '2026-01-07T00:00:00.000Z',
+      asset: {
+        ticker: 'VOO',
+        name: 'Vanguard S&P 500 ETF',
+      },
+    }
+
+    beforeEach(() => {
+      localStorage.setItem(
+        'auth-storage',
+        JSON.stringify({ state: { token: 'jwt-token-123' } })
+      )
+    })
+
+    describe('transactions.list', () => {
+      it('should fetch all transactions without filters', async () => {
+        const mockResponse = {
+          data: [mockTransaction],
+          meta: { total: 1 },
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.transactions.list()
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/transactions'),
+          expect.objectContaining({
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+          })
+        )
+        expect(result).toEqual({
+          transactions: [mockTransaction],
+          total: 1,
+        })
+      })
+
+      it('should fetch transactions with filters', async () => {
+        const filters: TransactionListFilters = {
+          assetId: 'asset-1',
+          type: 'buy',
+          fromDate: '2026-01-01',
+          toDate: '2026-01-31',
+        }
+
+        const mockResponse = {
+          data: [mockTransaction],
+          meta: { total: 1 },
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.transactions.list(filters)
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringMatching(/\/transactions\?assetId=asset-1&type=buy&fromDate=2026-01-01&toDate=2026-01-31/),
+          expect.any(Object)
+        )
+        expect(result).toEqual({
+          transactions: [mockTransaction],
+          total: 1,
+        })
+      })
+
+      it('should return empty array when no transactions exist', async () => {
+        const mockResponse = {
+          data: [],
+          meta: { total: 0 },
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.transactions.list()
+
+        expect(result).toEqual({
+          transactions: [],
+          total: 0,
+        })
+      })
+
+      it('should handle response without meta', async () => {
+        const mockResponse = {
+          data: [mockTransaction],
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.transactions.list()
+
+        expect(result).toEqual({
+          transactions: [mockTransaction],
+          total: 1,
+        })
+      })
+
+      it('should throw ApiError when not authenticated', async () => {
+        localStorage.clear()
+        const mockError = {
+          error: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.transactions.list()).rejects.toThrow(ApiError)
+      })
+    })
+
+    describe('transactions.create', () => {
+      it('should create a new BUY transaction', async () => {
+        const input: CreateTransactionInput = {
+          type: 'buy',
+          assetId: 'asset-1',
+          date: '2026-01-07',
+          quantity: 10,
+          price: 150,
+          commission: 5,
+        }
+
+        const mockResponse = { data: mockTransaction }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.transactions.create(input)
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/transactions'),
+          expect.objectContaining({
+            method: 'POST',
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer jwt-token-123',
+            }),
+            body: JSON.stringify(input),
+          })
+        )
+        expect(result).toEqual(mockTransaction)
+      })
+
+      it('should create a new SELL transaction', async () => {
+        const input: CreateTransactionInput = {
+          type: 'sell',
+          assetId: 'asset-1',
+          date: '2026-01-07',
+          quantity: 5,
+          price: 160,
+          commission: 5,
+        }
+
+        const sellTransaction: Transaction = {
+          ...mockTransaction,
+          id: 'tx-2',
+          type: 'SELL',
+          quantity: '5.00000000',
+          totalCents: '79500',
+        }
+        const mockResponse = { data: sellTransaction }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+
+        const result = await api.transactions.create(input)
+
+        expect(result.type).toBe('SELL')
+      })
+
+      it('should throw ApiError on validation failure', async () => {
+        const input: CreateTransactionInput = {
+          type: 'buy',
+          assetId: '',
+          date: '',
+          quantity: -1,
+          price: 0,
+        }
+
+        const mockError = {
+          error: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: { quantity: 'Quantity must be positive' },
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.transactions.create(input)).rejects.toMatchObject({
+          error: 'VALIDATION_ERROR',
+        })
+      })
+
+      it('should throw ApiError when selling more than owned', async () => {
+        const input: CreateTransactionInput = {
+          type: 'sell',
+          assetId: 'asset-1',
+          date: '2026-01-07',
+          quantity: 1000,
+          price: 150,
+        }
+
+        const mockError = {
+          error: 'VALIDATION_ERROR',
+          message: 'Insufficient quantity to sell',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.transactions.create(input)).rejects.toMatchObject({
+          error: 'VALIDATION_ERROR',
+          message: 'Insufficient quantity to sell',
+        })
+      })
+
+      it('should throw ApiError when asset not found', async () => {
+        const input: CreateTransactionInput = {
+          type: 'buy',
+          assetId: 'nonexistent',
+          date: '2026-01-07',
+          quantity: 10,
+          price: 150,
+        }
+
+        const mockError = {
+          error: 'NOT_FOUND',
+          message: 'Asset not found',
+        }
+
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve(mockError),
+        })
+
+        await expect(api.transactions.create(input)).rejects.toMatchObject({
           error: 'NOT_FOUND',
         })
       })

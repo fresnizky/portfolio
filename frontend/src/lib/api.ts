@@ -9,6 +9,9 @@ import type {
   UpdatePriceInput,
   BatchUpdatePricesInput,
   BatchUpdatePricesResponse,
+  Transaction,
+  TransactionListFilters,
+  CreateTransactionInput,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -175,6 +178,58 @@ export const api = {
         body: JSON.stringify(input),
       })
       return handleResponse<BatchUpdatePricesResponse>(res)
+    },
+  },
+
+  transactions: {
+    list: async (
+      filters?: TransactionListFilters
+    ): Promise<{ transactions: Transaction[]; total: number }> => {
+      const params = new URLSearchParams()
+      if (filters?.assetId) params.append('assetId', filters.assetId)
+      if (filters?.type) params.append('type', filters.type)
+      if (filters?.fromDate) params.append('fromDate', filters.fromDate)
+      if (filters?.toDate) params.append('toDate', filters.toDate)
+
+      const queryString = params.toString()
+      const url = queryString
+        ? `${API_URL}/transactions?${queryString}`
+        : `${API_URL}/transactions`
+
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+
+      // Response format: { data: Transaction[], meta: { total: number } }
+      if (!res.ok) {
+        const json = await res.json()
+        throw new ApiError(
+          json.error || 'UNKNOWN_ERROR',
+          json.message || 'An unexpected error occurred',
+          json.details
+        )
+      }
+
+      const json = await res.json()
+      return {
+        transactions: json.data,
+        total: json.meta?.total ?? json.data.length,
+      }
+    },
+
+    create: async (input: CreateTransactionInput): Promise<Transaction> => {
+      const res = await fetch(`${API_URL}/transactions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<Transaction>(res)
     },
   },
 }
