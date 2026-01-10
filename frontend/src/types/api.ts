@@ -68,3 +68,43 @@ export interface AuthMeResponse {
   id: string
   email: string
 }
+
+// Portfolio Types
+export interface Position {
+  assetId: string
+  ticker: string
+  name: string
+  category: AssetCategory
+  quantity: string
+  currentPrice: string | null
+  value: string
+  targetPercentage: string | null
+  priceUpdatedAt: string | null
+}
+
+export interface PortfolioSummary {
+  totalValue: string
+  positions: Position[]
+}
+
+// Price Update Types
+export interface UpdatePriceInput {
+  price: number
+}
+
+export interface BatchUpdatePricesInput {
+  prices: Array<{
+    assetId: string
+    price: number
+  }>
+}
+
+export interface BatchUpdatePricesResponse {
+  updated: number
+  assets: Array<{
+    id: string
+    ticker: string
+    currentPrice: string
+    priceUpdatedAt: string
+  }>
+}

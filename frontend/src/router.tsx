@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { LoginPage } from '@/features/auth'
 import { DashboardPage } from '@/features/dashboard'
 import { PortfolioPage } from '@/features/portfolio'
+import { HoldingsPage } from '@/features/holdings'
 import { ProtectedRoute } from '@/components/common/ProtectedRoute'
 import { NotFound } from '@/components/common/NotFound'
 import { Layout } from '@/components/layout/Layout'
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
           {
             path: '/portfolio',
             element: <PortfolioPage />,
+          },
+          {
+            path: '/holdings',
+            element: <HoldingsPage />,
           },
         ],
       },

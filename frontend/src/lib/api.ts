@@ -5,6 +5,10 @@ import type {
   CreateAssetInput,
   UpdateAssetInput,
   BatchUpdateTargetsInput,
+  PortfolioSummary,
+  UpdatePriceInput,
+  BatchUpdatePricesInput,
+  BatchUpdatePricesResponse,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -133,6 +137,44 @@ export const api = {
         body: JSON.stringify(input),
       })
       return handleResponse<Asset[]>(res)
+    },
+  },
+
+  portfolio: {
+    summary: async (): Promise<PortfolioSummary> => {
+      const res = await fetch(`${API_URL}/portfolio/summary`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<PortfolioSummary>(res)
+    },
+  },
+
+  prices: {
+    update: async (assetId: string, input: UpdatePriceInput): Promise<Asset> => {
+      const res = await fetch(`${API_URL}/prices/${assetId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<Asset>(res)
+    },
+
+    batchUpdate: async (input: BatchUpdatePricesInput): Promise<BatchUpdatePricesResponse> => {
+      const res = await fetch(`${API_URL}/prices/batch`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<BatchUpdatePricesResponse>(res)
     },
   },
 }

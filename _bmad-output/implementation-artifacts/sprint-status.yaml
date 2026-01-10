@@ -56,10 +56,10 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Holdings & Price Management
-  epic-3: in-progress
+  epic-3: done
   3-1-holdings-management-api: done
   3-2-price-update-portfolio-valuation: done
-  3-3-holdings-prices-ui-staleness-indicator: backlog
+  3-3-holdings-prices-ui-staleness-indicator: done
   epic-3-retrospective: optional
 
   # Epic 4: Transaction Recording
