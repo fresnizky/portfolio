@@ -32,13 +32,13 @@ So that **I know exactly what actions I need to take**.
   - [x] Make alerts clickable with navigation to relevant page
   - [x] Create `frontend/src/features/dashboard/components/AlertsPanel.test.tsx`
 
-- [ ] Task 2: Create AlertItem component (AC: #2, #3, #4)
-  - [ ] Create `frontend/src/features/dashboard/components/AlertItem.tsx`
-  - [ ] Display alert message with icon based on type
-  - [ ] Show specific deviation for rebalance alerts
-  - [ ] Show days old for stale price alerts
-  - [ ] Implement click handler with navigation
-  - [ ] Create `frontend/src/features/dashboard/components/AlertItem.test.tsx`
+- [x] Task 2: Create AlertItem component (AC: #2, #3, #4)
+  - [x] Create `frontend/src/features/dashboard/components/AlertItem.tsx`
+  - [x] Display alert message with icon based on type
+  - [x] Show specific deviation for rebalance alerts
+  - [x] Show days old for stale price alerts
+  - [x] Implement click handler with navigation
+  - [x] Create `frontend/src/features/dashboard/components/AlertItem.test.tsx`
 
 - [ ] Task 3: Create EmptyAlertsState component (AC: #5)
   - [ ] Create `frontend/src/features/dashboard/components/EmptyAlertsState.tsx`
@@ -537,11 +537,13 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Created AlertsPanel component with tests. Uses AlertItem and EmptyAlertsState (stubs created, full implementation in Task 2 and 3). AlertsPanel displays list of alerts or empty state when no alerts. 4 tests passing.
+- Task 2: Implemented full AlertItem component with SVG icons (Clock for stale_price, Scale for rebalance_needed), color coding by severity, clickable navigation to /portfolio, and additional info display (days old, deviation). 9 tests passing.
 
 ### File List
 
 - frontend/src/features/dashboard/components/AlertsPanel.tsx (NEW)
 - frontend/src/features/dashboard/components/AlertsPanel.test.tsx (NEW)
-- frontend/src/features/dashboard/components/AlertItem.tsx (NEW - stub)
+- frontend/src/features/dashboard/components/AlertItem.tsx (NEW)
+- frontend/src/features/dashboard/components/AlertItem.test.tsx (NEW)
 - frontend/src/features/dashboard/components/EmptyAlertsState.tsx (NEW - stub)
 

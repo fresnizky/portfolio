@@ -1,15 +1,112 @@
+import { useNavigate } from 'react-router'
 import type { DashboardAlert } from '@/types/api'
 
 interface AlertItemProps {
   alert: DashboardAlert
 }
 
-// Stub implementation - will be fully implemented in Task 2
-export function AlertItem({ alert }: AlertItemProps) {
+function ClockIcon() {
   return (
-    <div data-testid={`alert-item-${alert.assetId}`}>
-      <span>{alert.ticker}</span>
-      <span>{alert.message}</span>
-    </div>
+    <svg
+      data-testid="alert-icon-clock"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  )
+}
+
+function ScaleIcon() {
+  return (
+    <svg
+      data-testid="alert-icon-scale"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <line x1="12" y1="3" x2="12" y2="21" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="3" y1="21" x2="21" y2="21" />
+      <path d="M4 14l4 7h-8z" />
+      <path d="M20 14l4 7h-8z" />
+    </svg>
+  )
+}
+
+export function AlertItem({ alert }: AlertItemProps) {
+  const navigate = useNavigate()
+
+  const handleClick = () => {
+    switch (alert.type) {
+      case 'stale_price':
+        navigate('/portfolio')
+        break
+      case 'rebalance_needed':
+        navigate('/portfolio')
+        break
+    }
+  }
+
+  const getIcon = () => {
+    switch (alert.type) {
+      case 'stale_price':
+        return <ClockIcon />
+      case 'rebalance_needed':
+        return <ScaleIcon />
+      default:
+        return null
+    }
+  }
+
+  const getBgColor = () => {
+    switch (alert.severity) {
+      case 'warning':
+        return 'bg-amber-50 border-amber-200'
+      case 'info':
+        return 'bg-blue-50 border-blue-200'
+      default:
+        return 'bg-gray-50 border-gray-200'
+    }
+  }
+
+  const getDeviationText = () => {
+    if (alert.type !== 'rebalance_needed' || !alert.data?.deviation) return null
+    const sign = alert.data.direction === 'overweight' ? '+' : '-'
+    return `${sign}${alert.data.deviation}% deviation`
+  }
+
+  const getDaysOldText = () => {
+    if (alert.type !== 'stale_price' || !alert.data?.daysOld) return null
+    return `Last updated ${alert.data.daysOld} days ago`
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      data-testid={`alert-item-${alert.assetId}`}
+      className={`w-full rounded-lg border p-3 text-left transition-colors hover:opacity-80 ${getBgColor()}`}
+    >
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 text-gray-600">{getIcon()}</span>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-900">{alert.ticker}</p>
+          <p className="text-sm text-gray-600">{alert.message}</p>
+          {getDaysOldText() && (
+            <p className="mt-1 text-xs text-amber-700">{getDaysOldText()}</p>
+          )}
+          {getDeviationText() && (
+            <p className="mt-1 text-xs text-amber-700">{getDeviationText()}</p>
+          )}
+        </div>
+        <span className="text-gray-400">→</span>
+      </div>
+    </button>
   )
 }
