@@ -1,6 +1,6 @@
 # Story 6.1: Portfolio Snapshots API
 
-Status: in-progress
+Status: review
 
 ## Story
 
@@ -53,9 +53,9 @@ So that **I can track my progress over time**.
   - [x] Modify `backend/src/index.ts` to import and use snapshots router
   - [x] Add route with authentication: `app.use('/api/snapshots', authMiddleware, snapshotsRouter)`
 
-- [ ] Task 6: Ensure all tests pass
-  - [ ] Run `pnpm test` to verify all tests pass
-  - [ ] Fix any failing tests
+- [x] Task 6: Ensure all tests pass
+  - [x] Run `pnpm test` to verify all tests pass
+  - [x] Fix any failing tests
 
 ## Dev Notes
 
@@ -555,6 +555,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 3**: Implemented snapshotService with create, list, getById methods. Handles one-snapshot-per-day constraint. 17 tests passing.
 - **Task 4**: Created snapshots router with POST, GET list, GET by ID endpoints. 13 route tests passing.
 - **Task 5**: Registered snapshots router in index.ts with authMiddleware.
+- **Task 6**: All tests passing - Backend: 452 tests, Frontend: 337 tests (789 total).
 
 ### File List
 
