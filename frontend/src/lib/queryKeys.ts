@@ -8,5 +8,11 @@ export const queryKeys = {
     list: () => [...queryKeys.assets.all, 'list'] as const,
     detail: (id: string) => [...queryKeys.assets.all, 'detail', id] as const,
   },
-  // Add more as needed
+  portfolio: {
+    all: ['portfolio'] as const,
+    summary: () => [...queryKeys.portfolio.all, 'summary'] as const,
+  },
+  prices: {
+    all: ['prices'] as const,
+  },
 }
