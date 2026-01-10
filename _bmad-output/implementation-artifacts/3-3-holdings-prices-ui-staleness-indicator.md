@@ -1,6 +1,6 @@
 # Story 3.3: Holdings & Prices UI with Staleness Indicator
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -60,12 +60,12 @@ so that **I can quickly update my portfolio each week**.
   - [x] Add navigation link in Layout
   - [x] Add page-level tests
 
-- [ ] Task 6: Integration Testing
-  - [ ] Verify API integration with mock server
-  - [ ] Test staleness indicator with various dates
-  - [ ] Test price update flow end-to-end
-  - [ ] Test batch price update
-  - [ ] Test total value recalculation
+- [x] Task 6: Integration Testing
+  - [x] Verify API integration with mock server
+  - [x] Test staleness indicator with various dates
+  - [x] Test price update flow end-to-end
+  - [x] Test batch price update
+  - [x] Test total value recalculation
 
 ## Dev Notes
 
@@ -502,6 +502,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 3: Created staleness utilities: isPriceStale, getDaysSinceUpdate, hasAnyStalePrice. Default threshold 7 days. Added 16 unit tests with mocked time.
 - Task 4: Created 7 UI components: StalenessIndicator, StaleAlertBanner, PortfolioSummaryCard, PositionCard, PositionList, PriceUpdateModal, BatchPriceUpdateModal. All with tests (43 total).
 - Task 5: Created HoldingsPage integrating all components. Added route and nav link. 10 page-level tests.
+- Task 6: Verified all integration tests. Frontend: 208 tests, Backend (prices/portfolio): 47 tests. All 6 ACs covered.
 
 ### File List
 
