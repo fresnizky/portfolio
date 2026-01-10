@@ -36,13 +36,13 @@ So that **I can quickly understand my investment position**.
   - [x] Show loading skeleton state
   - [x] Format value with `formatCurrency()` from lib/formatters.ts
 
-- [ ] Task 3: Create AllocationChart component (AC: #2)
-  - [ ] Create `frontend/src/features/dashboard/components/AllocationChart.tsx`
-  - [ ] Install Recharts: `npm install recharts` (already in architecture)
-  - [ ] Implement donut/pie chart using `<PieChart>` and `<Pie>` from Recharts
-  - [ ] Show actual distribution by asset with colors per category
-  - [ ] Add legend with asset tickers and percentages
-  - [ ] Handle empty state (no holdings)
+- [x] Task 3: Create AllocationChart component (AC: #2)
+  - [x] Create `frontend/src/features/dashboard/components/AllocationChart.tsx`
+  - [x] Install Recharts: `npm install recharts` (already in architecture)
+  - [x] Implement donut/pie chart using `<PieChart>` and `<Pie>` from Recharts
+  - [x] Show actual distribution by asset with colors per category
+  - [x] Add legend with asset tickers and percentages
+  - [x] Handle empty state (no holdings)
 
 - [ ] Task 4: Create PositionsList component (AC: #3, #4, #5, #6)
   - [ ] Create `frontend/src/features/dashboard/components/PositionsList.tsx`
@@ -406,6 +406,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - Task 1: Created useDashboard hook with TanStack Query integration. 4 tests passing.
 - Task 2: Created PortfolioSummaryCard component with formatCurrency utility. 5 tests passing.
+- Task 3: Created AllocationChart component with Recharts donut chart. 3 tests passing.
 
 ### File List
 
@@ -414,4 +415,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/lib/formatters.ts (NEW)
 - frontend/src/features/dashboard/components/PortfolioSummaryCard.tsx (NEW)
 - frontend/src/features/dashboard/components/PortfolioSummaryCard.test.tsx (NEW)
+- frontend/src/features/dashboard/components/AllocationChart.tsx (NEW)
+- frontend/src/features/dashboard/components/AllocationChart.test.tsx (NEW)
+- frontend/package.json (MODIFIED - added recharts, react-is)
 
