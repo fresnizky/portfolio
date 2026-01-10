@@ -1,6 +1,6 @@
 # Story 6.1: Portfolio Snapshots API
 
-Status: review
+Status: done
 
 ## Story
 
