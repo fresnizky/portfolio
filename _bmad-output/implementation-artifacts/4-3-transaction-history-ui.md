@@ -42,12 +42,12 @@ So that **I can track all my investment activity**.
   - [x] Loading skeleton with animate-pulse
   - [x] Empty state when no transactions
 
-- [ ] Task 4: Create TransactionForm component (AC: #3)
-  - [ ] Create `frontend/src/features/transactions/components/TransactionForm.tsx`
-  - [ ] React Hook Form + Zod validation schema
-  - [ ] Fields: type (select buy/sell), asset (select from user's assets), date (date picker), quantity, price, commission
-  - [ ] Create `frontend/src/validations/transaction.ts` (frontend version)
-  - [ ] Co-locate test file
+- [x] Task 4: Create TransactionForm component (AC: #3)
+  - [x] Create `frontend/src/features/transactions/components/TransactionForm.tsx`
+  - [x] React Hook Form + Zod validation schema
+  - [x] Fields: type (select buy/sell), asset (select from user's assets), date (date picker), quantity, price, commission
+  - [x] Create `frontend/src/validations/transaction.ts` (frontend version)
+  - [x] Co-locate test file
 
 - [ ] Task 5: Create CreateTransactionModal component (AC: #3)
   - [ ] Create `frontend/src/features/transactions/components/CreateTransactionModal.tsx`
@@ -548,6 +548,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 1**: Added Transaction types (Transaction, TransactionType, TransactionListFilters, CreateTransactionInput) to api.ts types. Added transactions namespace with list() and create() methods to api client. Added transactions query keys factory. Added 12 unit tests covering list with/without filters, error handling, and create with BUY/SELL types.
 - **Task 2**: Created TransactionCard component displaying type badge (BUY green/SELL red), formatted date, ticker, asset name, quantity, price, commission, and total cost/proceeds. Added 11 unit tests.
 - **Task 3**: Created TransactionList component with grid layout, loading skeleton (3 animated placeholders), and empty state. Added 5 unit tests.
+- **Task 4**: Created TransactionForm with React Hook Form + Zod validation. Fields: type, asset dropdown, date picker, quantity, price, commission. Created validation schema in validations/transaction.ts. Added 10 unit tests.
 
 ### File List
 
@@ -559,4 +560,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `frontend/src/features/transactions/components/TransactionCard.test.tsx` (new)
 - `frontend/src/features/transactions/components/TransactionList.tsx` (new)
 - `frontend/src/features/transactions/components/TransactionList.test.tsx` (new)
+- `frontend/src/validations/transaction.ts` (new)
+- `frontend/src/features/transactions/components/TransactionForm.tsx` (new)
+- `frontend/src/features/transactions/components/TransactionForm.test.tsx` (new)
 
