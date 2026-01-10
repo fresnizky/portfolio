@@ -38,13 +38,14 @@ so that **I know how much my investments are worth**.
   - [x] Include priceUpdatedAt with each asset
   - [x] Add unit tests in `backend/src/services/portfolioService.test.ts`
 
-- [ ] Task 4: Create Price Routes (AC: #1, #4)
-  - [ ] Create `backend/src/routes/prices.ts`
-  - [ ] Implement `PUT /api/prices/:assetId` - update single asset price
-  - [ ] Implement `PUT /api/prices/batch` - update multiple asset prices atomically
-  - [ ] Add validation middleware for request body and params
-  - [ ] Register routes in `backend/src/index.ts`
-  - [ ] Add route tests in `backend/src/routes/prices.test.ts`
+- [x] Task 4: Create Price Routes (AC: #1, #4)
+  - [x] Create `backend/src/routes/prices.ts`
+  - [x] Implement `PUT /api/prices/:assetId` - update single asset price
+  - [x] Implement `PUT /api/prices/batch` - update multiple asset prices atomically
+  - [x] Add validation middleware for request body and params
+  - [x] Register routes in `backend/src/index.ts`
+  - [x] Add route tests in `backend/src/routes/prices.test.ts`
+  - [x] Refactored to use cents (BigInt) instead of Decimal for price storage
 
 - [ ] Task 5: Create Portfolio Routes (AC: #2, #3)
   - [ ] Create `backend/src/routes/portfolio.ts`
@@ -721,12 +722,19 @@ N/A - Story file created, awaiting implementation
 - Task 1: Added currentPrice (Decimal 18,2) and priceUpdatedAt (DateTime?) fields to Asset model. Migration 20260109220727_add_price_fields created and applied. All 206 existing tests pass.
 - Task 2: Created Zod validation schemas for price operations. priceSchema rounds to 2 decimals, updatePriceSchema for single updates, batchUpdatePricesSchema for batch operations. 33 new tests added.
 - Task 3: Created portfolioService with getSummary method. Calculates position values (quantity × price), totalValue, handles null prices. 12 new tests added.
+- Task 4: Created priceService and price routes. Refactored from Decimal to BigInt (cents) for simpler type handling. API receives decimal prices, stores as cents internally. 280 total tests passing.
 
 ### File List
 
-- backend/prisma/schema.prisma (modified)
+- backend/prisma/schema.prisma (modified - currentPriceCents BigInt)
 - backend/prisma/migrations/20260109220727_add_price_fields/migration.sql (new)
+- backend/prisma/migrations/20260110043043_change_price_to_cents/migration.sql (new)
 - backend/src/validations/price.ts (new)
 - backend/src/validations/price.test.ts (new)
 - backend/src/services/portfolioService.ts (new)
 - backend/src/services/portfolioService.test.ts (new)
+- backend/src/services/priceService.ts (new)
+- backend/src/services/priceService.test.ts (new)
+- backend/src/routes/prices.ts (new)
+- backend/src/routes/prices.test.ts (new)
+- backend/src/index.ts (modified)

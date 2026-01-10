@@ -34,7 +34,7 @@ model Asset {
   name             String
   category         AssetCategory
   targetPercentage Decimal       @default(0)
-  currentPrice     Decimal?      @db.Decimal(18, 2)
+  currentPriceCents BigInt?
   priceUpdatedAt   DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt

@@ -1,5 +1,14 @@
 import { prisma } from '@/config/database'
 
+/**
+ * Convert cents to decimal number
+ * e.g., 45075n -> 450.75
+ */
+const centsToNumber = (cents: bigint | null): number | null => {
+  if (cents === null) return null
+  return Number(cents) / 100
+}
+
 export const portfolioService = {
   /**
    * Get portfolio summary with valuation
@@ -19,7 +28,7 @@ export const portfolioService = {
             name: true,
             category: true,
             targetPercentage: true,
-            currentPrice: true,
+            currentPriceCents: true,
             priceUpdatedAt: true,
           },
         },
@@ -30,9 +39,7 @@ export const portfolioService = {
     // Calculate positions with values
     const positions = holdings.map(holding => {
       const quantity = Number(holding.quantity)
-      const currentPrice = holding.asset.currentPrice
-        ? Number(holding.asset.currentPrice)
-        : null
+      const currentPrice = centsToNumber(holding.asset.currentPriceCents)
 
       // value = quantity × currentPrice (or 0 if price not set)
       const value =
