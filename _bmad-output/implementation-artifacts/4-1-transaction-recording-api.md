@@ -35,14 +35,14 @@ so that **I have a complete history of my investment movements**.
   - [x] Add `transactionListQuerySchema` for filtering (optional: assetId, type, fromDate, toDate)
   - [x] Add unit tests for validation schemas
 
-- [ ] Task 3: Create Transaction Service (AC: #1, #2, #3, #5)
-  - [ ] Create `backend/src/services/transactionService.ts`
-  - [ ] Implement `create(userId, input)` - creates transaction with calculated totalCents
-  - [ ] Implement `list(userId, filters?)` - lists user's transactions with optional filters
-  - [ ] Implement `getById(userId, transactionId)` - gets single transaction
-  - [ ] Add validation: check asset belongs to user
-  - [ ] Add validation: for SELL, check holding quantity >= transaction quantity
-  - [ ] Add unit tests in `backend/src/services/transactionService.test.ts`
+- [x] Task 3: Create Transaction Service (AC: #1, #2, #3, #5)
+  - [x] Create `backend/src/services/transactionService.ts`
+  - [x] Implement `create(userId, input)` - creates transaction with calculated totalCents
+  - [x] Implement `list(userId, filters?)` - lists user's transactions with optional filters
+  - [x] Implement `getById(userId, transactionId)` - gets single transaction
+  - [x] Add validation: check asset belongs to user
+  - [x] Add validation: for SELL, check holding quantity >= transaction quantity
+  - [x] Add unit tests in `backend/src/services/transactionService.test.ts`
 
 - [ ] Task 4: Create Transaction Routes (AC: #1, #2, #3, #4, #5)
   - [ ] Create `backend/src/routes/transactions.ts`
@@ -544,6 +544,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - Task 1: Added TransactionType enum and Transaction model to Prisma schema. Added relations to User and Asset. Migration 20260110060239_add_transaction_model applied successfully. Prisma client regenerated.
 - Task 2: Created transaction validation schemas with Zod. Added createTransactionSchema, transactionListQuerySchema, transactionParamsSchema. 51 unit tests passing.
+- Task 3: Created transactionService with create, list, getById, validateSellQuantity. Created shared lib/money.ts utility. Fixed tsconfig.json to exclude test files from build. 24 unit tests passing.
 
 ### File List
 
@@ -551,4 +552,9 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - backend/prisma/migrations/20260110060239_add_transaction_model/migration.sql (created)
 - backend/src/validations/transaction.ts (created)
 - backend/src/validations/transaction.test.ts (created)
+- backend/src/lib/money.ts (created)
+- backend/src/services/transactionService.ts (created)
+- backend/src/services/transactionService.test.ts (created)
+- backend/src/services/priceService.ts (modified)
+- backend/tsconfig.json (modified)
 

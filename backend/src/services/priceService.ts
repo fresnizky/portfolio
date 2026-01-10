@@ -1,24 +1,10 @@
 import { prisma } from '@/config/database'
 import { AppError, Errors } from '@/lib/errors'
+import { toCents, fromCentsNullable } from '@/lib/money'
 import type { UpdatePriceInput, BatchUpdatePricesInput } from '@/validations/price'
 
-/**
- * Convert decimal price to cents (integer)
- * e.g., 450.75 -> 45075n
- */
-const toCents = (price: number): bigint => {
-  return BigInt(Math.round(price * 100))
-}
-
-/**
- * Convert cents to decimal price string
- * e.g., 45075n -> "450.75"
- */
-export const fromCents = (cents: bigint | null): string | null => {
-  if (cents === null) return null
-  const value = Number(cents) / 100
-  return value.toFixed(2)
-}
+// Re-export for backward compatibility with tests
+export { fromCentsNullable as fromCents } from '@/lib/money'
 
 export const priceService = {
   /**
@@ -61,7 +47,7 @@ export const priceService = {
       id: updated.id,
       ticker: updated.ticker,
       name: updated.name,
-      currentPrice: fromCents(updated.currentPriceCents),
+      currentPrice: fromCentsNullable(updated.currentPriceCents),
       priceUpdatedAt: updated.priceUpdatedAt,
     }
   },
@@ -118,7 +104,7 @@ export const priceService = {
       assets: updates.map(a => ({
         id: a.id,
         ticker: a.ticker,
-        currentPrice: fromCents(a.currentPriceCents),
+        currentPrice: fromCentsNullable(a.currentPriceCents),
         priceUpdatedAt: a.priceUpdatedAt,
       })),
     }
