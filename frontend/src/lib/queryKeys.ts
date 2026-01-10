@@ -1,4 +1,4 @@
-import type { TransactionListFilters, DashboardParams } from '@/types/api'
+import type { TransactionListFilters, DashboardParams, SnapshotListFilters } from '@/types/api'
 
 export const queryKeys = {
   auth: {
@@ -26,5 +26,12 @@ export const queryKeys = {
     all: ['dashboard'] as const,
     summary: (params?: DashboardParams) =>
       [...queryKeys.dashboard.all, 'summary', params] as const,
+  },
+  snapshots: {
+    all: ['snapshots'] as const,
+    list: (filters?: SnapshotListFilters) =>
+      [...queryKeys.snapshots.all, 'list', filters] as const,
+    detail: (id: string) =>
+      [...queryKeys.snapshots.all, 'detail', id] as const,
   },
 }

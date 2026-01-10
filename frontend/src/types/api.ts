@@ -187,3 +187,32 @@ export interface DashboardParams {
   deviationThreshold?: number
   staleDays?: number
 }
+
+// Snapshot Types
+export interface SnapshotAsset {
+  assetId: string
+  ticker: string
+  name: string
+  quantity: string
+  price: string
+  value: string
+  percentage: string
+}
+
+export interface Snapshot {
+  id: string
+  date: string // ISO 8601
+  totalValue: string
+  assets: SnapshotAsset[]
+  createdAt: string
+}
+
+export interface SnapshotListFilters {
+  from?: string // ISO date string
+  to?: string   // ISO date string
+}
+
+export interface SnapshotListResponse {
+  snapshots: Snapshot[]
+  total: number
+}

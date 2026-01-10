@@ -14,6 +14,9 @@ import type {
   CreateTransactionInput,
   DashboardResponse,
   DashboardParams,
+  Snapshot,
+  SnapshotListFilters,
+  SnapshotListResponse,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -257,6 +260,51 @@ export const api = {
         },
       })
       return handleResponse<DashboardResponse>(res)
+    },
+  },
+
+  snapshots: {
+    list: async (filters?: SnapshotListFilters): Promise<SnapshotListResponse> => {
+      const params = new URLSearchParams()
+      if (filters?.from) params.append('from', filters.from)
+      if (filters?.to) params.append('to', filters.to)
+
+      const queryString = params.toString()
+      const url = queryString
+        ? `${API_URL}/snapshots?${queryString}`
+        : `${API_URL}/snapshots`
+
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+
+      if (!res.ok) {
+        const json = await res.json()
+        throw new ApiError(
+          json.error || 'UNKNOWN_ERROR',
+          json.message || 'An unexpected error occurred',
+          json.details
+        )
+      }
+
+      const json = await res.json()
+      return {
+        snapshots: json.data,
+        total: json.meta?.total ?? json.data.length,
+      }
+    },
+
+    getById: async (id: string): Promise<Snapshot> => {
+      const res = await fetch(`${API_URL}/snapshots/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<Snapshot>(res)
     },
   },
 }
