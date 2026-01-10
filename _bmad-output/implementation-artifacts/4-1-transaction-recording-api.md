@@ -52,14 +52,14 @@ so that **I have a complete history of my investment movements**.
   - [x] Add routes to `backend/src/routes/index.ts`
   - [x] Add unit tests in `backend/src/routes/transactions.test.ts`
 
-- [ ] Task 5: Integration Testing (AC: #1, #2, #3, #4, #5)
-  - [ ] Create `backend/src/routes/transactions.integration.test.ts`
-  - [ ] Test buy transaction creation
-  - [ ] Test sell transaction creation
-  - [ ] Test sell validation (insufficient holdings)
-  - [ ] Test validation errors
-  - [ ] Test transaction listing with filters
-  - [ ] Verify totalCost/totalProceeds calculations
+- [x] Task 5: Integration Testing (AC: #1, #2, #3, #4, #5)
+  - [x] Create `backend/src/routes/transactions.integration.test.ts`
+  - [x] Test buy transaction creation
+  - [x] Test sell transaction creation
+  - [x] Test sell validation (insufficient holdings)
+  - [x] Test validation errors
+  - [x] Test transaction listing with filters
+  - [x] Verify totalCost/totalProceeds calculations
 
 ## Dev Notes
 
@@ -546,6 +546,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 2: Created transaction validation schemas with Zod. Added createTransactionSchema, transactionListQuerySchema, transactionParamsSchema. 51 unit tests passing.
 - Task 3: Created transactionService with create, list, getById, validateSellQuantity. Created shared lib/money.ts utility. Fixed tsconfig.json to exclude test files from build. 24 unit tests passing.
 - Task 4: Created transaction routes (POST, GET list, GET by id). Registered in index.ts with auth middleware. 23 unit tests passing.
+- Task 5: Created comprehensive integration tests (18 tests). Tests cover buy/sell transactions, holdings validation, listing with filters, get by id. Full suite: 24 files, 418 tests passing.
 
 ### File List
 
@@ -561,4 +562,5 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - backend/src/routes/transactions.ts (created)
 - backend/src/routes/transactions.test.ts (created)
 - backend/src/index.ts (modified)
+- backend/src/routes/transactions.integration.test.ts (created)
 
