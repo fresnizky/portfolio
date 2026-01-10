@@ -1,6 +1,6 @@
 # Story 5.2: Dashboard UI with Distribution Visualization
 
-Status: review
+Status: done
 
 ## Story
 
