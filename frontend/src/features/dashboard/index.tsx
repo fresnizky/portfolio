@@ -2,6 +2,8 @@ import { useDashboard } from './hooks/useDashboard'
 import { PortfolioSummaryCard } from './components/PortfolioSummaryCard'
 import { AllocationChart } from './components/AllocationChart'
 import { PositionsList } from './components/PositionsList'
+import { AlertsPanel } from './components/AlertsPanel'
+import { AttentionRequiredSection } from './components/AttentionRequiredSection'
 
 export function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useDashboard()
@@ -14,6 +16,11 @@ export function DashboardPage() {
         totalValue={data?.totalValue ?? '0'}
         isLoading={isLoading}
       />
+
+      {/* Alerts Panel - Prominent placement */}
+      {!isLoading && !isError && (
+        <AlertsPanel alerts={data?.alerts ?? []} />
+      )}
 
       {isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
@@ -30,21 +37,26 @@ export function DashboardPage() {
       )}
 
       {!isLoading && !isError && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              Asset Allocation
-            </h2>
-            <AllocationChart positions={data?.positions ?? []} />
+        <>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">
+                Asset Allocation
+              </h2>
+              <AllocationChart positions={data?.positions ?? []} />
+            </div>
+
+            <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">
+                Portfolio Positions
+              </h2>
+              <PositionsList positions={data?.positions ?? []} />
+            </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              Portfolio Positions
-            </h2>
-            <PositionsList positions={data?.positions ?? []} />
-          </div>
-        </div>
+          {/* Attention Required Section - Consolidated view */}
+          <AttentionRequiredSection alerts={data?.alerts ?? []} />
+        </>
       )}
     </div>
   )

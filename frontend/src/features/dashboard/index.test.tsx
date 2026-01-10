@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MemoryRouter } from 'react-router'
 import { DashboardPage } from './index'
 import { api } from '@/lib/api'
 import type { ReactNode } from 'react'
@@ -33,7 +34,9 @@ describe('DashboardPage', () => {
   const createWrapper = () => {
     return function Wrapper({ children }: { children: ReactNode }) {
       return (
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <MemoryRouter>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </MemoryRouter>
       )
     }
   }
@@ -109,5 +112,56 @@ describe('DashboardPage', () => {
     render(<DashboardPage />, { wrapper: createWrapper() })
 
     expect(await screen.findByText('No assets to display')).toBeInTheDocument()
+  })
+
+  it('should display AlertsPanel with alerts', async () => {
+    const responseWithAlerts: DashboardResponse = {
+      ...mockDashboardResponse,
+      alerts: [
+        {
+          type: 'stale_price',
+          assetId: 'asset-1',
+          ticker: 'VOO',
+          message: 'Update prices - last updated 10 days ago',
+          severity: 'warning',
+          data: { daysOld: 10 },
+        },
+      ],
+    }
+    vi.mocked(api.dashboard.get).mockResolvedValue(responseWithAlerts)
+
+    render(<DashboardPage />, { wrapper: createWrapper() })
+
+    expect(await screen.findByText('Alerts')).toBeInTheDocument()
+    expect(screen.getByText('Update prices - last updated 10 days ago')).toBeInTheDocument()
+  })
+
+  it('should display EmptyAlertsState when no alerts', async () => {
+    vi.mocked(api.dashboard.get).mockResolvedValue(mockDashboardResponse)
+
+    render(<DashboardPage />, { wrapper: createWrapper() })
+
+    expect(await screen.findByText('Portfolio is on track!')).toBeInTheDocument()
+  })
+
+  it('should display AttentionRequiredSection when alerts exist', async () => {
+    const responseWithAlerts: DashboardResponse = {
+      ...mockDashboardResponse,
+      alerts: [
+        {
+          type: 'rebalance_needed',
+          assetId: 'asset-1',
+          ticker: 'VOO',
+          message: 'VOO is 7% overweight',
+          severity: 'warning',
+          data: { deviation: '7', direction: 'overweight' },
+        },
+      ],
+    }
+    vi.mocked(api.dashboard.get).mockResolvedValue(responseWithAlerts)
+
+    render(<DashboardPage />, { wrapper: createWrapper() })
+
+    expect(await screen.findByText('Attention Required')).toBeInTheDocument()
   })
 })

@@ -53,13 +53,13 @@ So that **I know exactly what actions I need to take**.
   - [x] Display each asset that needs action with all its reasons
   - [x] Create `frontend/src/features/dashboard/components/AttentionRequiredSection.test.tsx`
 
-- [ ] Task 5: Update DashboardPage to include alerts (AC: #1-6)
-  - [ ] Modify `frontend/src/features/dashboard/index.tsx`
-  - [ ] Add AlertsPanel above or alongside existing components
-  - [ ] Add AttentionRequiredSection
-  - [ ] Show EmptyAlertsState when no alerts exist
-  - [ ] Ensure prominent placement for alerts panel
-  - [ ] Update `frontend/src/features/dashboard/index.test.tsx`
+- [x] Task 5: Update DashboardPage to include alerts (AC: #1-6)
+  - [x] Modify `frontend/src/features/dashboard/index.tsx`
+  - [x] Add AlertsPanel above or alongside existing components
+  - [x] Add AttentionRequiredSection
+  - [x] Show EmptyAlertsState when no alerts exist
+  - [x] Ensure prominent placement for alerts panel
+  - [x] Update `frontend/src/features/dashboard/index.test.tsx`
 
 - [ ] Task 6: Ensure all tests pass
   - [ ] Run `pnpm test` to verify all tests pass
@@ -540,6 +540,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 2: Implemented full AlertItem component with SVG icons (Clock for stale_price, Scale for rebalance_needed), color coding by severity, clickable navigation to /portfolio, and additional info display (days old, deviation). 9 tests passing.
 - Task 3: Implemented EmptyAlertsState component with checkmark SVG icon, green color scheme, positive message and encouraging subtext. 4 tests passing.
 - Task 4: Implemented AttentionRequiredSection component that groups alerts by asset, shows alert count summary badge, and displays all alerts per asset. 6 tests passing.
+- Task 5: Updated DashboardPage to include AlertsPanel (prominent placement after summary) and AttentionRequiredSection (consolidated view at bottom). Added 3 new tests for alerts display. 8 tests passing for DashboardPage.
 
 ### File List
 
@@ -551,4 +552,6 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/dashboard/components/EmptyAlertsState.test.tsx (NEW)
 - frontend/src/features/dashboard/components/AttentionRequiredSection.tsx (NEW)
 - frontend/src/features/dashboard/components/AttentionRequiredSection.test.tsx (NEW)
+- frontend/src/features/dashboard/index.tsx (MODIFIED)
+- frontend/src/features/dashboard/index.test.tsx (MODIFIED)
 
