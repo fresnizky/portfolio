@@ -1,6 +1,6 @@
 # Story 3.2: Price Update & Portfolio Valuation
 
-Status: in-progress
+Status: done
 
 ## Story
 
@@ -53,15 +53,15 @@ so that **I know how much my investments are worth**.
   - [x] Register routes in `backend/src/index.ts`
   - [x] Add route tests in `backend/src/routes/portfolio.test.ts`
 
-- [ ] Task 6: Integration Testing
-  - [ ] Test full flow: create asset → add holding → update price → get summary
-  - [ ] Test valuation calculation accuracy (quantity × price)
-  - [ ] Test totalValue aggregation
-  - [ ] Test batch price updates are atomic (all succeed or all fail)
-  - [ ] Test price precision (2 decimals)
-  - [ ] Test asset not found error
-  - [ ] Test unauthorized access (wrong user's asset)
-  - [ ] Test priceUpdatedAt timestamp accuracy
+- [x] Task 6: Integration Testing
+  - [x] Test full flow: create asset → add holding → update price → get summary
+  - [x] Test valuation calculation accuracy (quantity × price)
+  - [x] Test totalValue aggregation
+  - [x] Test batch price updates are atomic (all succeed or all fail)
+  - [x] Test price precision (2 decimals)
+  - [x] Test asset not found error
+  - [x] Test unauthorized access (wrong user's asset)
+  - [x] Test priceUpdatedAt timestamp accuracy
 
 ## Dev Notes
 
@@ -724,6 +724,7 @@ N/A - Story file created, awaiting implementation
 - Task 3: Created portfolioService with getSummary method. Calculates position values (quantity × price), totalValue, handles null prices. 12 new tests added.
 - Task 4: Created priceService and price routes. Refactored from Decimal to BigInt (cents) for simpler type handling. API receives decimal prices, stores as cents internally. 280 total tests passing.
 - Task 5: Created portfolio routes with GET /api/portfolio/summary. Returns totalValue and positions with all asset details. 6 new route tests added. 286 total tests passing.
+- Task 6: Created comprehensive integration tests for price update and portfolio valuation flow. 16 integration tests covering full flow, atomic batch updates, and edge cases. Fixed BigInt serialization issue. 302 total tests passing.
 
 ### File List
 
@@ -740,4 +741,5 @@ N/A - Story file created, awaiting implementation
 - backend/src/routes/prices.test.ts (new)
 - backend/src/routes/portfolio.ts (new)
 - backend/src/routes/portfolio.test.ts (new)
+- backend/src/routes/prices.integration.test.ts (new)
 - backend/src/index.ts (modified)

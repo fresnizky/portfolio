@@ -56,10 +56,13 @@ export const priceService = {
       },
     })
 
-    // Return with formatted price (BigInt -> string)
+    // Return with formatted price (exclude BigInt field)
     return {
-      ...updated,
+      id: updated.id,
+      ticker: updated.ticker,
+      name: updated.name,
       currentPrice: fromCents(updated.currentPriceCents),
+      priceUpdatedAt: updated.priceUpdatedAt,
     }
   },
 
@@ -113,8 +116,10 @@ export const priceService = {
     return {
       updated: updates.length,
       assets: updates.map(a => ({
-        ...a,
+        id: a.id,
+        ticker: a.ticker,
         currentPrice: fromCents(a.currentPriceCents),
+        priceUpdatedAt: a.priceUpdatedAt,
       })),
     }
   },
