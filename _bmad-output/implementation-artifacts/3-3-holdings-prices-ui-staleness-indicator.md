@@ -29,12 +29,12 @@ so that **I can quickly update my portfolio each week**.
   - [x] Add `prices` and `portfolio` namespaces to `frontend/src/lib/api.ts`
   - [x] Add `portfolio` and `prices` query keys to `frontend/src/lib/queryKeys.ts`
 
-- [ ] Task 2: Create Portfolio Hooks (AC: #1, #4, #5)
-  - [ ] Create `frontend/src/features/holdings/hooks/usePortfolio.ts`
-  - [ ] Implement `usePortfolioSummary()` hook with TanStack Query
-  - [ ] Implement `useUpdatePrice()` mutation hook
-  - [ ] Implement `useBatchUpdatePrices()` mutation hook
-  - [ ] Add unit tests in `frontend/src/features/holdings/hooks/usePortfolio.test.ts`
+- [x] Task 2: Create Portfolio Hooks (AC: #1, #4, #5)
+  - [x] Create `frontend/src/features/holdings/hooks/usePortfolio.ts`
+  - [x] Implement `usePortfolioSummary()` hook with TanStack Query
+  - [x] Implement `useUpdatePrice()` mutation hook
+  - [x] Implement `useBatchUpdatePrices()` mutation hook
+  - [x] Add unit tests in `frontend/src/features/holdings/hooks/usePortfolio.test.ts`
 
 - [ ] Task 3: Create Staleness Helper Utilities (AC: #2, #3, #6)
   - [ ] Create `frontend/src/features/holdings/utils/staleness.ts`
@@ -498,9 +498,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Added Portfolio and Price types to frontend. Extended API client with portfolio.summary(), prices.update(), and prices.batchUpdate() methods. Added query keys for cache invalidation.
+- Task 2: Created usePortfolioSummary, useUpdatePrice, useBatchUpdatePrices hooks with TanStack Query. All hooks invalidate portfolio queries on success. Added 8 unit tests.
 
 ### File List
 
 - frontend/src/types/api.ts (modified)
 - frontend/src/lib/api.ts (modified)
 - frontend/src/lib/queryKeys.ts (modified)
+- frontend/src/features/holdings/hooks/usePortfolio.ts (created)
+- frontend/src/features/holdings/hooks/usePortfolio.test.tsx (created)
