@@ -44,13 +44,13 @@ so that **I have a complete history of my investment movements**.
   - [x] Add validation: for SELL, check holding quantity >= transaction quantity
   - [x] Add unit tests in `backend/src/services/transactionService.test.ts`
 
-- [ ] Task 4: Create Transaction Routes (AC: #1, #2, #3, #4, #5)
-  - [ ] Create `backend/src/routes/transactions.ts`
-  - [ ] Implement `POST /api/transactions` - create transaction
-  - [ ] Implement `GET /api/transactions` - list transactions with filters
-  - [ ] Implement `GET /api/transactions/:id` - get single transaction
-  - [ ] Add routes to `backend/src/routes/index.ts`
-  - [ ] Add unit tests in `backend/src/routes/transactions.test.ts`
+- [x] Task 4: Create Transaction Routes (AC: #1, #2, #3, #4, #5)
+  - [x] Create `backend/src/routes/transactions.ts`
+  - [x] Implement `POST /api/transactions` - create transaction
+  - [x] Implement `GET /api/transactions` - list transactions with filters
+  - [x] Implement `GET /api/transactions/:id` - get single transaction
+  - [x] Add routes to `backend/src/routes/index.ts`
+  - [x] Add unit tests in `backend/src/routes/transactions.test.ts`
 
 - [ ] Task 5: Integration Testing (AC: #1, #2, #3, #4, #5)
   - [ ] Create `backend/src/routes/transactions.integration.test.ts`
@@ -545,6 +545,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 1: Added TransactionType enum and Transaction model to Prisma schema. Added relations to User and Asset. Migration 20260110060239_add_transaction_model applied successfully. Prisma client regenerated.
 - Task 2: Created transaction validation schemas with Zod. Added createTransactionSchema, transactionListQuerySchema, transactionParamsSchema. 51 unit tests passing.
 - Task 3: Created transactionService with create, list, getById, validateSellQuantity. Created shared lib/money.ts utility. Fixed tsconfig.json to exclude test files from build. 24 unit tests passing.
+- Task 4: Created transaction routes (POST, GET list, GET by id). Registered in index.ts with auth middleware. 23 unit tests passing.
 
 ### File List
 
@@ -557,4 +558,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - backend/src/services/transactionService.test.ts (created)
 - backend/src/services/priceService.ts (modified)
 - backend/tsconfig.json (modified)
+- backend/src/routes/transactions.ts (created)
+- backend/src/routes/transactions.test.ts (created)
+- backend/src/index.ts (modified)
 
