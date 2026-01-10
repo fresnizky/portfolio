@@ -34,13 +34,13 @@ So that **I can track my progress over time**.
   - [x] Define `snapshotIdParamSchema` for URL parameter validation
   - [x] Create `backend/src/validations/snapshot.test.ts`
 
-- [ ] Task 3: Create snapshotService (AC: #1, #2, #3, #4, #5)
-  - [ ] Create `backend/src/services/snapshotService.ts`
-  - [ ] Implement `create(userId)` - creates snapshot from current portfolio state
-  - [ ] Implement `list(userId, query?)` - lists snapshots with optional date filtering
-  - [ ] Implement `getById(userId, snapshotId)` - retrieves single snapshot with breakdown
-  - [ ] Handle one-snapshot-per-day constraint (update if exists)
-  - [ ] Create `backend/src/services/snapshotService.test.ts`
+- [x] Task 3: Create snapshotService (AC: #1, #2, #3, #4, #5)
+  - [x] Create `backend/src/services/snapshotService.ts`
+  - [x] Implement `create(userId)` - creates snapshot from current portfolio state
+  - [x] Implement `list(userId, query?)` - lists snapshots with optional date filtering
+  - [x] Implement `getById(userId, snapshotId)` - retrieves single snapshot with breakdown
+  - [x] Handle one-snapshot-per-day constraint (update if exists)
+  - [x] Create `backend/src/services/snapshotService.test.ts`
 
 - [ ] Task 4: Create snapshots router (AC: #1, #2, #3)
   - [ ] Create `backend/src/routes/snapshots.ts`
@@ -552,6 +552,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - **Task 1**: Added Prisma models `PortfolioSnapshot` and `SnapshotAsset` with proper constraints (unique userId+date, cascade deletes). Migration `20260110181020_add_snapshots` applied successfully.
 - **Task 2**: Created validation schemas `snapshotQuerySchema` (from/to date filters) and `snapshotIdParamSchema`. 12 tests passing.
+- **Task 3**: Implemented snapshotService with create, list, getById methods. Handles one-snapshot-per-day constraint. 17 tests passing.
 
 ### File List
 
@@ -559,3 +560,5 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `backend/prisma/migrations/20260110181020_add_snapshots/migration.sql` (new)
 - `backend/src/validations/snapshot.ts` (new)
 - `backend/src/validations/snapshot.test.ts` (new)
+- `backend/src/services/snapshotService.ts` (new)
+- `backend/src/services/snapshotService.test.ts` (new)
