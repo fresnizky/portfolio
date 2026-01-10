@@ -70,10 +70,10 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: Dashboard & Alerts
-  epic-5: in-progress
+  epic-5: done
   5-1-dashboard-summary-api: done
   5-2-dashboard-ui-distribution-visualization: done
-  5-3-alerts-panel-attention-required-view: review
+  5-3-alerts-panel-attention-required-view: done
   epic-5-retrospective: optional
 
   # Epic 6: Historical Evolution & Onboarding

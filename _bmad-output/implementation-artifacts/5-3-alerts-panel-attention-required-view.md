@@ -1,6 +1,6 @@
 # Story 5.3: Alerts Panel & Attention Required View
 
-Status: review
+Status: done
 
 ## Story
 
