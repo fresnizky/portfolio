@@ -46,12 +46,12 @@ So that **I know exactly what actions I need to take**.
   - [x] Use green color scheme for positive feedback
   - [x] Create `frontend/src/features/dashboard/components/EmptyAlertsState.test.tsx`
 
-- [ ] Task 4: Create AttentionRequiredSection component (AC: #6)
-  - [ ] Create `frontend/src/features/dashboard/components/AttentionRequiredSection.tsx`
-  - [ ] Consolidate all alerts grouped by asset
-  - [ ] Show summary count of total alerts
-  - [ ] Display each asset that needs action with all its reasons
-  - [ ] Create `frontend/src/features/dashboard/components/AttentionRequiredSection.test.tsx`
+- [x] Task 4: Create AttentionRequiredSection component (AC: #6)
+  - [x] Create `frontend/src/features/dashboard/components/AttentionRequiredSection.tsx`
+  - [x] Consolidate all alerts grouped by asset
+  - [x] Show summary count of total alerts
+  - [x] Display each asset that needs action with all its reasons
+  - [x] Create `frontend/src/features/dashboard/components/AttentionRequiredSection.test.tsx`
 
 - [ ] Task 5: Update DashboardPage to include alerts (AC: #1-6)
   - [ ] Modify `frontend/src/features/dashboard/index.tsx`
@@ -539,6 +539,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 1: Created AlertsPanel component with tests. Uses AlertItem and EmptyAlertsState (stubs created, full implementation in Task 2 and 3). AlertsPanel displays list of alerts or empty state when no alerts. 4 tests passing.
 - Task 2: Implemented full AlertItem component with SVG icons (Clock for stale_price, Scale for rebalance_needed), color coding by severity, clickable navigation to /portfolio, and additional info display (days old, deviation). 9 tests passing.
 - Task 3: Implemented EmptyAlertsState component with checkmark SVG icon, green color scheme, positive message and encouraging subtext. 4 tests passing.
+- Task 4: Implemented AttentionRequiredSection component that groups alerts by asset, shows alert count summary badge, and displays all alerts per asset. 6 tests passing.
 
 ### File List
 
@@ -548,4 +549,6 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/dashboard/components/AlertItem.test.tsx (NEW)
 - frontend/src/features/dashboard/components/EmptyAlertsState.tsx (NEW)
 - frontend/src/features/dashboard/components/EmptyAlertsState.test.tsx (NEW)
+- frontend/src/features/dashboard/components/AttentionRequiredSection.tsx (NEW)
+- frontend/src/features/dashboard/components/AttentionRequiredSection.test.tsx (NEW)
 
