@@ -1,6 +1,6 @@
 # Story 4.2: Automatic Holdings Update on Transaction
 
-Status: review
+Status: done
 
 ## Story
 
