@@ -17,8 +17,9 @@ model User {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  assets   Asset[]
-  holdings Holding[]
+  assets       Asset[]
+  holdings     Holding[]
+  transactions Transaction[]
 }
 
 enum AssetCategory {
@@ -26,6 +27,11 @@ enum AssetCategory {
   FCI
   CRYPTO
   CASH
+}
+
+enum TransactionType {
+  BUY
+  SELL
 }
 
 model Asset {
@@ -40,9 +46,10 @@ model Asset {
   updatedAt        DateTime      @updatedAt
 
   // Relations
-  userId  String
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  holding Holding?
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holding      Holding?
+  transactions Transaction[]
 
   // Constraints
   @@unique([userId, ticker])
@@ -62,4 +69,26 @@ model Holding {
   asset   Asset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Transaction {
+  id              String          @id @default(cuid())
+  type            TransactionType
+  date            DateTime
+  quantity        Decimal         @db.Decimal(18, 8)
+  priceCents      BigInt          // Price per unit in cents
+  commissionCents BigInt          @default(0)
+  totalCents      BigInt          // Calculated: (quantity × priceCents) ± commissionCents
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetId String
+  asset   Asset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([assetId])
+  @@index([date])
 }
