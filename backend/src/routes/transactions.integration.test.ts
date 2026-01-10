@@ -489,4 +489,263 @@ describeWithDb('Transaction Recording Integration Tests', () => {
       expect(listResponse.body.data[1].type).toBe('BUY')
     })
   })
+
+  describe('Holdings update on transaction (Story 4.2)', () => {
+    it('should increase holding quantity on buy transaction (AC #1)', async () => {
+      // Setup: Create asset with initial holding of 10 units
+      await prisma.holding.create({
+        data: {
+          userId: testUserId,
+          assetId: testAssetId,
+          quantity: 10,
+        },
+      })
+
+      // Action: POST buy transaction for 5 units
+      const response = await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 5,
+          price: 100,
+        })
+
+      expect(response.status).toBe(201)
+
+      // Assert: GET holdings shows 15 units
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding).toBeDefined()
+      expect(holding.quantity).toBe('15') // 10 + 5
+    })
+
+    it('should decrease holding quantity on sell transaction (AC #2)', async () => {
+      // Setup: Create asset with holding of 10 units
+      await prisma.holding.create({
+        data: {
+          userId: testUserId,
+          assetId: testAssetId,
+          quantity: 10,
+        },
+      })
+
+      // Action: POST sell transaction for 3 units
+      const response = await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'sell',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 3,
+          price: 100,
+        })
+
+      expect(response.status).toBe(201)
+
+      // Assert: GET holdings shows 7 units
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding).toBeDefined()
+      expect(holding.quantity).toBe('7') // 10 - 3
+    })
+
+    it('should create new holding on first buy (AC #3)', async () => {
+      // Setup: Asset exists but NO holding
+      // (testAssetId has no holding after beforeEach cleanup)
+
+      // Action: POST buy transaction for 2 units
+      const response = await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 2,
+          price: 100,
+        })
+
+      expect(response.status).toBe(201)
+
+      // Assert: GET holdings shows 2 units (new holding created)
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding).toBeDefined()
+      expect(holding.quantity).toBe('2')
+    })
+
+    it('should not modify holding if transaction validation fails (AC #4)', async () => {
+      // Setup: Create asset with 5 units
+      await prisma.holding.create({
+        data: {
+          userId: testUserId,
+          assetId: testAssetId,
+          quantity: 5,
+        },
+      })
+
+      // Action: POST sell transaction for 10 units (should fail - insufficient holdings)
+      const response = await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'sell',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 10,
+          price: 100,
+        })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('VALIDATION_ERROR')
+
+      // Assert: GET holdings still shows 5 units (unchanged)
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding).toBeDefined()
+      expect(holding.quantity).toBe('5') // Unchanged
+    })
+
+    it('should set holding to zero when selling all units (AC #5)', async () => {
+      // Setup: Create asset with 5 units
+      await prisma.holding.create({
+        data: {
+          userId: testUserId,
+          assetId: testAssetId,
+          quantity: 5,
+        },
+      })
+
+      // Action: POST sell transaction for 5 units
+      const response = await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'sell',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 5,
+          price: 100,
+        })
+
+      expect(response.status).toBe(201)
+
+      // Assert: GET holdings shows 0 units (not deleted)
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding).toBeDefined()
+      expect(holding.quantity).toBe('0') // Zero, not deleted
+    })
+
+    it('should update holdings atomically - multiple buys accumulate', async () => {
+      // First buy creates holding
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 10,
+          price: 100,
+        })
+
+      // Second buy increases holding
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-11T10:00:00.000Z',
+          quantity: 5,
+          price: 110,
+        })
+
+      // Third buy increases holding again
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-12T10:00:00.000Z',
+          quantity: 3,
+          price: 120,
+        })
+
+      // Assert: Holdings = 10 + 5 + 3 = 18
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding.quantity).toBe('18')
+    })
+
+    it('should handle mixed buy/sell sequence correctly', async () => {
+      // Buy 10
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 10,
+          price: 100,
+        })
+
+      // Sell 3
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'sell',
+          assetId: testAssetId,
+          date: '2026-01-11T10:00:00.000Z',
+          quantity: 3,
+          price: 110,
+        })
+
+      // Buy 5
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'buy',
+          assetId: testAssetId,
+          date: '2026-01-12T10:00:00.000Z',
+          quantity: 5,
+          price: 105,
+        })
+
+      // Sell 2
+      await request(app)
+        .post('/api/transactions')
+        .send({
+          type: 'sell',
+          assetId: testAssetId,
+          date: '2026-01-13T10:00:00.000Z',
+          quantity: 2,
+          price: 115,
+        })
+
+      // Assert: Holdings = 10 - 3 + 5 - 2 = 10
+      const holdingsResponse = await request(app).get('/api/holdings')
+      const holding = holdingsResponse.body.data.find(
+        (h: { assetId: string }) => h.assetId === testAssetId
+      )
+
+      expect(holding.quantity).toBe('10')
+    })
+  })
 })

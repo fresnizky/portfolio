@@ -65,7 +65,7 @@ development_status:
   # Epic 4: Transaction Recording
   epic-4: in-progress
   4-1-transaction-recording-api: done
-  4-2-automatic-holdings-update-transaction: backlog
+  4-2-automatic-holdings-update-transaction: done
   4-3-transaction-history-ui: backlog
   epic-4-retrospective: optional
 
