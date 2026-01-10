@@ -42,12 +42,12 @@ So that **I can track my progress over time**.
   - [x] Handle one-snapshot-per-day constraint (update if exists)
   - [x] Create `backend/src/services/snapshotService.test.ts`
 
-- [ ] Task 4: Create snapshots router (AC: #1, #2, #3)
-  - [ ] Create `backend/src/routes/snapshots.ts`
-  - [ ] Implement `POST /api/snapshots` endpoint
-  - [ ] Implement `GET /api/snapshots` endpoint with query filtering
-  - [ ] Implement `GET /api/snapshots/:id` endpoint
-  - [ ] Create `backend/src/routes/snapshots.test.ts`
+- [x] Task 4: Create snapshots router (AC: #1, #2, #3)
+  - [x] Create `backend/src/routes/snapshots.ts`
+  - [x] Implement `POST /api/snapshots` endpoint
+  - [x] Implement `GET /api/snapshots` endpoint with query filtering
+  - [x] Implement `GET /api/snapshots/:id` endpoint
+  - [x] Create `backend/src/routes/snapshots.test.ts`
 
 - [ ] Task 5: Register snapshots router (AC: #1, #2, #3)
   - [ ] Modify `backend/src/index.ts` to import and use snapshots router
@@ -553,6 +553,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 1**: Added Prisma models `PortfolioSnapshot` and `SnapshotAsset` with proper constraints (unique userId+date, cascade deletes). Migration `20260110181020_add_snapshots` applied successfully.
 - **Task 2**: Created validation schemas `snapshotQuerySchema` (from/to date filters) and `snapshotIdParamSchema`. 12 tests passing.
 - **Task 3**: Implemented snapshotService with create, list, getById methods. Handles one-snapshot-per-day constraint. 17 tests passing.
+- **Task 4**: Created snapshots router with POST, GET list, GET by ID endpoints. 13 route tests passing.
 
 ### File List
 
@@ -562,3 +563,5 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `backend/src/validations/snapshot.test.ts` (new)
 - `backend/src/services/snapshotService.ts` (new)
 - `backend/src/services/snapshotService.test.ts` (new)
+- `backend/src/routes/snapshots.ts` (new)
+- `backend/src/routes/snapshots.test.ts` (new)
