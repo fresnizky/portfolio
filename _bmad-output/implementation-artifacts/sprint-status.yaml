@@ -77,8 +77,8 @@ development_status:
   epic-5-retrospective: optional
 
   # Epic 6: Historical Evolution & Onboarding
-  epic-6: backlog
-  6-1-portfolio-snapshots-api: backlog
+  epic-6: in-progress
+  6-1-portfolio-snapshots-api: done
   6-2-evolution-chart-historical-view: backlog
   6-3-onboarding-wizard: backlog
   6-4-settings-preferences-management: backlog
