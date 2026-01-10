@@ -44,15 +44,15 @@ So that **I can quickly understand my investment position**.
   - [x] Add legend with asset tickers and percentages
   - [x] Handle empty state (no holdings)
 
-- [ ] Task 4: Create PositionsList component (AC: #3, #4, #5, #6)
-  - [ ] Create `frontend/src/features/dashboard/components/PositionsList.tsx`
-  - [ ] Display each position with: ticker, name, value, actual%, target%, deviation
-  - [ ] Apply deviation color coding:
+- [x] Task 4: Create PositionsList component (AC: #3, #4, #5, #6)
+  - [x] Create `frontend/src/features/dashboard/components/PositionsList.tsx`
+  - [x] Display each position with: ticker, name, value, actual%, target%, deviation
+  - [x] Apply deviation color coding:
     - Green: `|deviation| <= 1` (balanced)
     - Orange: `deviation > 1` (overweight)
     - Blue: `deviation < -1` (underweight)
-  - [ ] Show side-by-side comparison of actual vs target percentage
-  - [ ] Use visual progress bar or dual-bar for comparison
+  - [x] Show side-by-side comparison of actual vs target percentage
+  - [x] Use visual progress bar or dual-bar for comparison
 
 - [ ] Task 5: Update DashboardPage to use new components (AC: #1-6)
   - [ ] Modify `frontend/src/features/dashboard/index.tsx`
@@ -407,6 +407,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 1: Created useDashboard hook with TanStack Query integration. 4 tests passing.
 - Task 2: Created PortfolioSummaryCard component with formatCurrency utility. 5 tests passing.
 - Task 3: Created AllocationChart component with Recharts donut chart. 3 tests passing.
+- Task 4: Created PositionsList component with deviation color coding. 7 tests passing.
 
 ### File List
 
@@ -417,5 +418,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/dashboard/components/PortfolioSummaryCard.test.tsx (NEW)
 - frontend/src/features/dashboard/components/AllocationChart.tsx (NEW)
 - frontend/src/features/dashboard/components/AllocationChart.test.tsx (NEW)
+- frontend/src/features/dashboard/components/PositionsList.tsx (NEW)
+- frontend/src/features/dashboard/components/PositionsList.test.tsx (NEW)
 - frontend/package.json (MODIFIED - added recharts, react-is)
 
