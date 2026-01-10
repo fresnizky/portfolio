@@ -28,11 +28,11 @@ So that **I can track my progress over time**.
   - [x] Run `npx prisma migrate dev --name add_snapshots`
   - [x] Run `npx prisma generate`
 
-- [ ] Task 2: Create snapshot validation schemas (AC: #1, #3)
-  - [ ] Create `backend/src/validations/snapshot.ts`
-  - [ ] Define `snapshotQuerySchema` with optional `from` and `to` date filters
-  - [ ] Define `snapshotIdParamSchema` for URL parameter validation
-  - [ ] Create `backend/src/validations/snapshot.test.ts`
+- [x] Task 2: Create snapshot validation schemas (AC: #1, #3)
+  - [x] Create `backend/src/validations/snapshot.ts`
+  - [x] Define `snapshotQuerySchema` with optional `from` and `to` date filters
+  - [x] Define `snapshotIdParamSchema` for URL parameter validation
+  - [x] Create `backend/src/validations/snapshot.test.ts`
 
 - [ ] Task 3: Create snapshotService (AC: #1, #2, #3, #4, #5)
   - [ ] Create `backend/src/services/snapshotService.ts`
@@ -551,8 +551,11 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - **Task 1**: Added Prisma models `PortfolioSnapshot` and `SnapshotAsset` with proper constraints (unique userId+date, cascade deletes). Migration `20260110181020_add_snapshots` applied successfully.
+- **Task 2**: Created validation schemas `snapshotQuerySchema` (from/to date filters) and `snapshotIdParamSchema`. 12 tests passing.
 
 ### File List
 
 - `backend/prisma/schema.prisma` (modified)
 - `backend/prisma/migrations/20260110181020_add_snapshots/migration.sql` (new)
+- `backend/src/validations/snapshot.ts` (new)
+- `backend/src/validations/snapshot.test.ts` (new)
