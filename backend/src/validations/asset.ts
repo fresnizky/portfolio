@@ -36,8 +36,14 @@ export const batchUpdateTargetsSchema = z.object({
   })).min(1, 'At least one target update required'),
 })
 
+// Batch create assets schema for onboarding
+export const batchCreateAssetsSchema = z.object({
+  assets: z.array(createAssetSchema).min(1, 'At least one asset required'),
+})
+
 export type AssetCategory = z.infer<typeof assetCategorySchema>
 export type CreateAssetInput = z.infer<typeof createAssetSchema>
 export type UpdateAssetInput = z.infer<typeof updateAssetSchema>
 export type ListAssetsQuery = z.infer<typeof listAssetsQuerySchema>
 export type BatchUpdateTargetsInput = z.infer<typeof batchUpdateTargetsSchema>
+export type BatchCreateAssetsInput = z.infer<typeof batchCreateAssetsSchema>

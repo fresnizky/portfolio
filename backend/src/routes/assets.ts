@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { assetService } from '@/services/assetService'
-import { createAssetSchema, updateAssetSchema, listAssetsQuerySchema, assetIdParamSchema, batchUpdateTargetsSchema, type BatchUpdateTargetsInput } from '@/validations/asset'
+import { createAssetSchema, updateAssetSchema, listAssetsQuerySchema, assetIdParamSchema, batchUpdateTargetsSchema, batchCreateAssetsSchema, type BatchUpdateTargetsInput, type BatchCreateAssetsInput } from '@/validations/asset'
 import { validate, validateParams } from '@/middleware/validate'
 
 const router: Router = Router()
@@ -16,6 +16,28 @@ router.post(
     try {
       const asset = await assetService.create(req.user!.id, req.body)
       res.status(201).json({ data: asset })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+/**
+ * POST /api/assets/batch
+ * Create multiple assets at once (for onboarding)
+ * NOTE: This route must be defined BEFORE /:id routes to avoid matching 'batch' as an ID
+ */
+router.post(
+  '/batch',
+  validate(batchCreateAssetsSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { assets } = req.body as BatchCreateAssetsInput
+      const createdAssets = await assetService.batchCreate(req.user!.id, assets)
+      res.status(201).json({
+        data: createdAssets,
+        message: `${createdAssets.length} assets created`,
+      })
     } catch (error) {
       next(error)
     }
@@ -45,7 +67,7 @@ router.get(
 /**
  * PUT /api/assets/targets
  * Batch update target percentages for multiple assets
- * All targets must sum to exactly 100%
+ * Targets must not exceed 100%
  * NOTE: This route must be defined BEFORE /:id routes to avoid matching 'targets' as an ID
  */
 router.put(
@@ -58,6 +80,28 @@ router.put(
       res.json({
         data: updatedAssets,
         message: 'Targets updated successfully',
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+/**
+ * PUT /api/assets/targets/batch
+ * Batch update target percentages for multiple assets (strict mode)
+ * Targets MUST sum to exactly 100% - used for onboarding
+ */
+router.put(
+  '/targets/batch',
+  validate(batchUpdateTargetsSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { targets } = req.body as BatchUpdateTargetsInput
+      const updatedAssets = await assetService.batchUpdateTargetsStrict(req.user!.id, targets)
+      res.json({
+        data: updatedAssets,
+        message: `Targets updated (sum: 100%)`,
       })
     } catch (error) {
       next(error)

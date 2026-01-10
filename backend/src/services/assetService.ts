@@ -155,6 +155,48 @@ export const assetService = {
   },
 
   /**
+   * Create multiple assets atomically
+   * @param userId - The user's ID
+   * @param assets - Array of asset data to create
+   * @returns Promise<Asset[]> - Array of created assets
+   * @throws {AppError} ValidationError (400) if any ticker is duplicate
+   */
+  async batchCreate(
+    userId: string,
+    assets: Array<{ ticker: string; name: string; category: string }>
+  ) {
+    // 1. Check for duplicate tickers within the batch
+    const tickers = assets.map(a => a.ticker)
+    const uniqueTickers = new Set(tickers)
+    if (uniqueTickers.size !== tickers.length) {
+      const duplicates = tickers.filter((t, i) => tickers.indexOf(t) !== i)
+      throw Errors.validation('Duplicate tickers in batch', { duplicates: [...new Set(duplicates)] })
+    }
+
+    // 2. Check for existing tickers for this user
+    const existingAssets = await prisma.asset.findMany({
+      where: { userId, ticker: { in: tickers } },
+      select: { ticker: true },
+    })
+
+    if (existingAssets.length > 0) {
+      const existingTickers = existingAssets.map(a => a.ticker)
+      throw Errors.validation('Assets with these tickers already exist', { tickers: existingTickers })
+    }
+
+    // 3. Create all assets atomically
+    const createdAssets = await prisma.$transaction(
+      assets.map(asset =>
+        prisma.asset.create({
+          data: { ...asset, userId },
+        })
+      )
+    )
+
+    return createdAssets
+  },
+
+  /**
    * Update targets for multiple assets atomically
    * @param userId - The user's ID
    * @param updates - Array of { assetId, targetPercentage } updates to apply
@@ -190,6 +232,57 @@ export const assetService = {
       throw Errors.validation(
         `Targets cannot exceed 100%. Current sum: ${validation.sum}%`,
         { sum: validation.sum, difference: validation.difference }
+      )
+    }
+
+    // 4. Atomic update using transaction
+    const updatedAssets = await prisma.$transaction(
+      updates.map(({ assetId, targetPercentage }) =>
+        prisma.asset.update({
+          where: { id: assetId },
+          data: { targetPercentage },
+        })
+      )
+    )
+
+    return updatedAssets
+  },
+
+  /**
+   * Update targets for multiple assets atomically (strict mode - requires exactly 100%)
+   * Used during onboarding to ensure all targets are fully allocated
+   * @param userId - The user's ID
+   * @param updates - Array of { assetId, targetPercentage } updates to apply
+   * @returns Promise<Asset[]> - Array of updated assets in same order as input
+   * @throws {AppError} NotFoundError (404) if any assetId doesn't belong to user
+   * @throws {AppError} ValidationError (400) if sum does not equal exactly 100%
+   */
+  async batchUpdateTargetsStrict(
+    userId: string,
+    updates: Array<{ assetId: string; targetPercentage: number }>
+  ) {
+    // 1. Verify all assets belong to user
+    const assetIds = updates.map(u => u.assetId)
+    const userAssets = await prisma.asset.findMany({
+      where: { userId, id: { in: assetIds } },
+      select: { id: true },
+    })
+
+    if (userAssets.length !== assetIds.length) {
+      const foundIds = new Set(userAssets.map(a => a.id))
+      const missingIds = assetIds.filter(id => !foundIds.has(id))
+      throw Errors.notFound(`Assets not found: ${missingIds.join(', ')}`)
+    }
+
+    // 2. Calculate sum of new targets
+    const sum = updates.reduce((acc, u) => acc + u.targetPercentage, 0)
+    const roundedSum = Math.round(sum * 100) / 100
+
+    // 3. Validate sum equals exactly 100%
+    if (Math.abs(roundedSum - 100) > 0.01) {
+      throw Errors.validation(
+        `Targets must sum to 100%`,
+        { sum: roundedSum }
       )
     }
 

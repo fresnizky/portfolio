@@ -17,6 +17,11 @@ import type {
   Snapshot,
   SnapshotListFilters,
   SnapshotListResponse,
+  OnboardingStatus,
+  BatchAssetCreate,
+  BatchTargetUpdate,
+  BatchHoldingCreate,
+  Holding,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -305,6 +310,76 @@ export const api = {
         },
       })
       return handleResponse<Snapshot>(res)
+    },
+  },
+
+  onboarding: {
+    getStatus: async (): Promise<OnboardingStatus> => {
+      const res = await fetch(`${API_URL}/onboarding/status`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<OnboardingStatus>(res)
+    },
+
+    complete: async (): Promise<OnboardingStatus> => {
+      const res = await fetch(`${API_URL}/onboarding/complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<OnboardingStatus>(res)
+    },
+
+    skip: async (): Promise<OnboardingStatus> => {
+      const res = await fetch(`${API_URL}/onboarding/skip`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<OnboardingStatus>(res)
+    },
+
+    batchCreateAssets: async (assets: BatchAssetCreate[]): Promise<Asset[]> => {
+      const res = await fetch(`${API_URL}/assets/batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ assets }),
+      })
+      return handleResponse<Asset[]>(res)
+    },
+
+    batchUpdateTargets: async (targets: BatchTargetUpdate[]): Promise<Asset[]> => {
+      const res = await fetch(`${API_URL}/assets/targets/batch`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ targets }),
+      })
+      return handleResponse<Asset[]>(res)
+    },
+
+    batchCreateHoldings: async (holdings: BatchHoldingCreate[]): Promise<Holding[]> => {
+      const res = await fetch(`${API_URL}/holdings/batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ holdings }),
+      })
+      return handleResponse<Holding[]>(res)
     },
   },
 }

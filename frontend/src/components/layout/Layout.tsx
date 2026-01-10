@@ -1,5 +1,6 @@
-import { Outlet, NavLink } from 'react-router'
+import { Outlet, NavLink, Link } from 'react-router'
 import { useLogout } from '@/features/auth/hooks/useLogout'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -11,9 +12,29 @@ const navLinks = [
 
 export function Layout() {
   const logout = useLogout()
+  const { onboardingStatus } = useAuth()
+
+  const showSkippedBanner = onboardingStatus?.skipped && !onboardingStatus?.completed
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Skipped Onboarding Banner */}
+      {showSkippedBanner && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2">
+          <div className="mx-auto max-w-7xl flex items-center justify-between">
+            <p className="text-sm text-amber-800">
+              Completa la configuración inicial para aprovechar todas las funciones.
+            </p>
+            <Link
+              to="/onboarding"
+              className="text-sm font-medium text-amber-700 hover:text-amber-900"
+            >
+              Completar setup
+            </Link>
+          </div>
+        </div>
+      )}
+
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-8">
