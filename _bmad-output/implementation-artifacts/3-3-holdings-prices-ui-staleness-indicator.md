@@ -43,15 +43,15 @@ so that **I can quickly update my portfolio each week**.
   - [x] Implement `hasAnyStalePrice(positions: Position[]): boolean`
   - [x] Add unit tests in `frontend/src/features/holdings/utils/staleness.test.ts`
 
-- [ ] Task 4: Create UI Components (AC: #1, #2, #3, #4, #5, #6)
-  - [ ] Create `StalenessIndicator.tsx` - shows green checkmark or yellow warning
-  - [ ] Create `StaleAlertBanner.tsx` - page-level alert when any price is stale
-  - [ ] Create `PositionCard.tsx` - displays single position with value and staleness
-  - [ ] Create `PositionList.tsx` - grid of all positions
-  - [ ] Create `PriceUpdateModal.tsx` - form to update single price
-  - [ ] Create `BatchPriceUpdateModal.tsx` - form to update multiple prices
-  - [ ] Create `PortfolioSummaryCard.tsx` - shows total portfolio value
-  - [ ] Add tests for each component
+- [x] Task 4: Create UI Components (AC: #1, #2, #3, #4, #5, #6)
+  - [x] Create `StalenessIndicator.tsx` - shows green checkmark or yellow warning
+  - [x] Create `StaleAlertBanner.tsx` - page-level alert when any price is stale
+  - [x] Create `PositionCard.tsx` - displays single position with value and staleness
+  - [x] Create `PositionList.tsx` - grid of all positions
+  - [x] Create `PriceUpdateModal.tsx` - form to update single price
+  - [x] Create `BatchPriceUpdateModal.tsx` - form to update multiple prices
+  - [x] Create `PortfolioSummaryCard.tsx` - shows total portfolio value
+  - [x] Add tests for each component
 
 - [ ] Task 5: Create Holdings Page (AC: #1, #2, #3, #4, #5, #6)
   - [ ] Create `frontend/src/features/holdings/index.tsx` - main holdings page
@@ -500,6 +500,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 1: Added Portfolio and Price types to frontend. Extended API client with portfolio.summary(), prices.update(), and prices.batchUpdate() methods. Added query keys for cache invalidation.
 - Task 2: Created usePortfolioSummary, useUpdatePrice, useBatchUpdatePrices hooks with TanStack Query. All hooks invalidate portfolio queries on success. Added 8 unit tests.
 - Task 3: Created staleness utilities: isPriceStale, getDaysSinceUpdate, hasAnyStalePrice. Default threshold 7 days. Added 16 unit tests with mocked time.
+- Task 4: Created 7 UI components: StalenessIndicator, StaleAlertBanner, PortfolioSummaryCard, PositionCard, PositionList, PriceUpdateModal, BatchPriceUpdateModal. All with tests (43 total).
 
 ### File List
 
@@ -510,3 +511,17 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/holdings/hooks/usePortfolio.test.tsx (created)
 - frontend/src/features/holdings/utils/staleness.ts (created)
 - frontend/src/features/holdings/utils/staleness.test.ts (created)
+- frontend/src/features/holdings/components/StalenessIndicator.tsx (created)
+- frontend/src/features/holdings/components/StalenessIndicator.test.tsx (created)
+- frontend/src/features/holdings/components/StaleAlertBanner.tsx (created)
+- frontend/src/features/holdings/components/StaleAlertBanner.test.tsx (created)
+- frontend/src/features/holdings/components/PortfolioSummaryCard.tsx (created)
+- frontend/src/features/holdings/components/PortfolioSummaryCard.test.tsx (created)
+- frontend/src/features/holdings/components/PositionCard.tsx (created)
+- frontend/src/features/holdings/components/PositionCard.test.tsx (created)
+- frontend/src/features/holdings/components/PositionList.tsx (created)
+- frontend/src/features/holdings/components/PositionList.test.tsx (created)
+- frontend/src/features/holdings/components/PriceUpdateModal.tsx (created)
+- frontend/src/features/holdings/components/PriceUpdateModal.test.tsx (created)
+- frontend/src/features/holdings/components/BatchPriceUpdateModal.tsx (created)
+- frontend/src/features/holdings/components/BatchPriceUpdateModal.test.tsx (created)
