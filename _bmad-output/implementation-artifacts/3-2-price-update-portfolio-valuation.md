@@ -47,11 +47,11 @@ so that **I know how much my investments are worth**.
   - [x] Add route tests in `backend/src/routes/prices.test.ts`
   - [x] Refactored to use cents (BigInt) instead of Decimal for price storage
 
-- [ ] Task 5: Create Portfolio Routes (AC: #2, #3)
-  - [ ] Create `backend/src/routes/portfolio.ts`
-  - [ ] Implement `GET /api/portfolio/summary` - get portfolio valuation with all position details
-  - [ ] Register routes in `backend/src/index.ts`
-  - [ ] Add route tests in `backend/src/routes/portfolio.test.ts`
+- [x] Task 5: Create Portfolio Routes (AC: #2, #3)
+  - [x] Create `backend/src/routes/portfolio.ts`
+  - [x] Implement `GET /api/portfolio/summary` - get portfolio valuation with all position details
+  - [x] Register routes in `backend/src/index.ts`
+  - [x] Add route tests in `backend/src/routes/portfolio.test.ts`
 
 - [ ] Task 6: Integration Testing
   - [ ] Test full flow: create asset → add holding → update price → get summary
@@ -723,6 +723,7 @@ N/A - Story file created, awaiting implementation
 - Task 2: Created Zod validation schemas for price operations. priceSchema rounds to 2 decimals, updatePriceSchema for single updates, batchUpdatePricesSchema for batch operations. 33 new tests added.
 - Task 3: Created portfolioService with getSummary method. Calculates position values (quantity × price), totalValue, handles null prices. 12 new tests added.
 - Task 4: Created priceService and price routes. Refactored from Decimal to BigInt (cents) for simpler type handling. API receives decimal prices, stores as cents internally. 280 total tests passing.
+- Task 5: Created portfolio routes with GET /api/portfolio/summary. Returns totalValue and positions with all asset details. 6 new route tests added. 286 total tests passing.
 
 ### File List
 
@@ -737,4 +738,6 @@ N/A - Story file created, awaiting implementation
 - backend/src/services/priceService.test.ts (new)
 - backend/src/routes/prices.ts (new)
 - backend/src/routes/prices.test.ts (new)
+- backend/src/routes/portfolio.ts (new)
+- backend/src/routes/portfolio.test.ts (new)
 - backend/src/index.ts (modified)
