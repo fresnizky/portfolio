@@ -49,9 +49,9 @@ So that **I can track my progress over time**.
   - [x] Implement `GET /api/snapshots/:id` endpoint
   - [x] Create `backend/src/routes/snapshots.test.ts`
 
-- [ ] Task 5: Register snapshots router (AC: #1, #2, #3)
-  - [ ] Modify `backend/src/index.ts` to import and use snapshots router
-  - [ ] Add route with authentication: `app.use('/api/snapshots', authMiddleware, snapshotsRouter)`
+- [x] Task 5: Register snapshots router (AC: #1, #2, #3)
+  - [x] Modify `backend/src/index.ts` to import and use snapshots router
+  - [x] Add route with authentication: `app.use('/api/snapshots', authMiddleware, snapshotsRouter)`
 
 - [ ] Task 6: Ensure all tests pass
   - [ ] Run `pnpm test` to verify all tests pass
@@ -554,6 +554,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 2**: Created validation schemas `snapshotQuerySchema` (from/to date filters) and `snapshotIdParamSchema`. 12 tests passing.
 - **Task 3**: Implemented snapshotService with create, list, getById methods. Handles one-snapshot-per-day constraint. 17 tests passing.
 - **Task 4**: Created snapshots router with POST, GET list, GET by ID endpoints. 13 route tests passing.
+- **Task 5**: Registered snapshots router in index.ts with authMiddleware.
 
 ### File List
 
@@ -565,3 +566,4 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `backend/src/services/snapshotService.test.ts` (new)
 - `backend/src/routes/snapshots.ts` (new)
 - `backend/src/routes/snapshots.test.ts` (new)
+- `backend/src/index.ts` (modified)
