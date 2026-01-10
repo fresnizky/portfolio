@@ -8,6 +8,7 @@ import authRouter from './routes/auth'
 import assetsRouter from './routes/assets'
 import holdingsRouter from './routes/holdings'
 import pricesRouter from './routes/prices'
+import portfolioRouter from './routes/portfolio'
 
 dotenv.config()
 
@@ -31,6 +32,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/assets', authMiddleware, assetsRouter)
 app.use('/api/holdings', authMiddleware, holdingsRouter)
 app.use('/api/prices', authMiddleware, pricesRouter)
+app.use('/api/portfolio', authMiddleware, portfolioRouter)
 
 // Centralized error handler (must be last)
 app.use(errorHandler)
