@@ -30,11 +30,11 @@ So that **I can track all my investment activity**.
   - [x] Add `transactions` query keys to `frontend/src/lib/queryKeys.ts`
   - [x] Unit test api methods
 
-- [ ] Task 2: Create TransactionCard component (AC: #2)
-  - [ ] Create `frontend/src/features/transactions/components/TransactionCard.tsx`
-  - [ ] Display: date (formatted), type badge (BUY green/SELL red), ticker, quantity, price, commission
-  - [ ] Calculate and display totalCost/totalProceeds: `(qty * price) ± commission`
-  - [ ] Co-locate test file `TransactionCard.test.tsx`
+- [x] Task 2: Create TransactionCard component (AC: #2)
+  - [x] Create `frontend/src/features/transactions/components/TransactionCard.tsx`
+  - [x] Display: date (formatted), type badge (BUY green/SELL red), ticker, quantity, price, commission
+  - [x] Calculate and display totalCost/totalProceeds: `(qty * price) ± commission`
+  - [x] Co-locate test file `TransactionCard.test.tsx`
 
 - [ ] Task 3: Create TransactionList component (AC: #1)
   - [ ] Create `frontend/src/features/transactions/components/TransactionList.tsx`
@@ -546,6 +546,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - **Task 1**: Added Transaction types (Transaction, TransactionType, TransactionListFilters, CreateTransactionInput) to api.ts types. Added transactions namespace with list() and create() methods to api client. Added transactions query keys factory. Added 12 unit tests covering list with/without filters, error handling, and create with BUY/SELL types.
+- **Task 2**: Created TransactionCard component displaying type badge (BUY green/SELL red), formatted date, ticker, asset name, quantity, price, commission, and total cost/proceeds. Added 11 unit tests.
 
 ### File List
 
@@ -553,4 +554,6 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `frontend/src/lib/api.ts` (modified)
 - `frontend/src/lib/queryKeys.ts` (modified)
 - `frontend/src/lib/api.test.ts` (modified)
+- `frontend/src/features/transactions/components/TransactionCard.tsx` (new)
+- `frontend/src/features/transactions/components/TransactionCard.test.tsx` (new)
 
