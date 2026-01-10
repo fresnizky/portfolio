@@ -55,13 +55,13 @@ So that **I can track all my investment activity**.
   - [x] Use existing Modal pattern from `frontend/src/components/common/Modal.tsx`
   - [x] On success: close modal, invalidate queries (transactions + portfolio summary)
 
-- [ ] Task 6: Create TransactionFilters component (AC: #4)
-  - [ ] Create `frontend/src/features/transactions/components/TransactionFilters.tsx`
-  - [ ] Asset select (dropdown with all user assets + "All" option)
-  - [ ] Type select (All, Buy, Sell)
-  - [ ] Date range inputs (from/to)
-  - [ ] Reset filters button
-  - [ ] onChange callback to parent
+- [x] Task 6: Create TransactionFilters component (AC: #4)
+  - [x] Create `frontend/src/features/transactions/components/TransactionFilters.tsx`
+  - [x] Asset select (dropdown with all user assets + "All" option)
+  - [x] Type select (All, Buy, Sell)
+  - [x] Date range inputs (from/to)
+  - [x] Reset filters button
+  - [x] onChange callback to parent
 
 - [ ] Task 7: Create TransactionSummary component (AC: #5)
   - [ ] Create `frontend/src/features/transactions/components/TransactionSummary.tsx`
@@ -550,6 +550,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 3**: Created TransactionList component with grid layout, loading skeleton (3 animated placeholders), and empty state. Added 5 unit tests.
 - **Task 4**: Created TransactionForm with React Hook Form + Zod validation. Fields: type, asset dropdown, date picker, quantity, price, commission. Created validation schema in validations/transaction.ts. Added 10 unit tests.
 - **Task 5**: Created CreateTransactionModal wrapping TransactionForm in Modal. Uses useMutation with query invalidation for transactions and portfolio. Added 5 unit tests.
+- **Task 6**: Created TransactionFilters with asset select, type select, date range inputs, and reset button. Reset button conditionally shown when filters active. Added 10 unit tests.
 
 ### File List
 
@@ -566,4 +567,6 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `frontend/src/features/transactions/components/TransactionForm.test.tsx` (new)
 - `frontend/src/features/transactions/components/CreateTransactionModal.tsx` (new)
 - `frontend/src/features/transactions/components/CreateTransactionModal.test.tsx` (new)
+- `frontend/src/features/transactions/components/TransactionFilters.tsx` (new)
+- `frontend/src/features/transactions/components/TransactionFilters.test.tsx` (new)
 
