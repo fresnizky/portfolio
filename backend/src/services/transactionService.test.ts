@@ -4,13 +4,16 @@ import { prisma } from '@/config/database'
 import { AppError } from '@/lib/errors'
 
 // Mock the database
-vi.mock('@/config/database', () => ({
-  prisma: {
+vi.mock('@/config/database', () => {
+  const mockPrisma = {
     asset: {
       findFirst: vi.fn(),
     },
     holding: {
       findFirst: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     },
     transaction: {
       create: vi.fn(),
@@ -18,8 +21,14 @@ vi.mock('@/config/database', () => ({
       findMany: vi.fn(),
       count: vi.fn(),
     },
-  },
-}))
+    $transaction: vi.fn(),
+  }
+  // Make $transaction execute the callback with the same prisma mock
+  mockPrisma.$transaction.mockImplementation((cb: (tx: typeof mockPrisma) => Promise<unknown>) =>
+    cb(mockPrisma)
+  )
+  return { prisma: mockPrisma }
+})
 
 const userId = 'user-123'
 const assetId = 'asset-123'
@@ -235,6 +244,8 @@ describe('transactionService', () => {
     it('should store transaction with uppercase type', async () => {
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
       vi.mocked(prisma.transaction.create).mockResolvedValue(createMockTransaction() as never)
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
+      vi.mocked(prisma.holding.create).mockResolvedValue(mockHolding as never)
 
       await transactionService.create(userId, {
         type: 'buy',
@@ -250,6 +261,129 @@ describe('transactionService', () => {
           data: expect.objectContaining({ type: 'BUY' }),
         })
       )
+    })
+
+    it('should use prisma.$transaction for atomicity', async () => {
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(createMockTransaction() as never)
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(mockHolding as never)
+      vi.mocked(prisma.holding.update).mockResolvedValue(mockHolding as never)
+
+      await transactionService.create(userId, {
+        type: 'buy',
+        assetId,
+        date: '2026-01-10T10:00:00.000Z',
+        quantity: 10,
+        price: 100,
+        commission: 0,
+      })
+
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    it('should increase holding quantity on buy with existing holding', async () => {
+      const existingHolding = {
+        ...mockHolding,
+        quantity: { toString: () => '10' },
+      }
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(createMockTransaction() as never)
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(existingHolding as never)
+      vi.mocked(prisma.holding.update).mockResolvedValue(existingHolding as never)
+
+      await transactionService.create(userId, {
+        type: 'buy',
+        assetId,
+        date: '2026-01-10T10:00:00.000Z',
+        quantity: 5,
+        price: 100,
+        commission: 0,
+      })
+
+      expect(prisma.holding.update).toHaveBeenCalledWith({
+        where: { assetId },
+        data: { quantity: 15 }, // 10 + 5
+      })
+    })
+
+    it('should decrease holding quantity on sell', async () => {
+      const existingHolding = {
+        ...mockHolding,
+        quantity: { toString: () => '10' },
+      }
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
+      vi.mocked(prisma.holding.findFirst).mockResolvedValue(existingHolding as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(
+        createMockTransaction({ type: 'SELL' }) as never
+      )
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(existingHolding as never)
+      vi.mocked(prisma.holding.update).mockResolvedValue(existingHolding as never)
+
+      await transactionService.create(userId, {
+        type: 'sell',
+        assetId,
+        date: '2026-01-10T10:00:00.000Z',
+        quantity: 3,
+        price: 100,
+        commission: 0,
+      })
+
+      expect(prisma.holding.update).toHaveBeenCalledWith({
+        where: { assetId },
+        data: { quantity: 7 }, // 10 - 3
+      })
+    })
+
+    it('should create new holding on first buy', async () => {
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(createMockTransaction() as never)
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(null)
+      vi.mocked(prisma.holding.create).mockResolvedValue(mockHolding as never)
+
+      await transactionService.create(userId, {
+        type: 'buy',
+        assetId,
+        date: '2026-01-10T10:00:00.000Z',
+        quantity: 5,
+        price: 100,
+        commission: 0,
+      })
+
+      expect(prisma.holding.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          assetId,
+          quantity: 5,
+        },
+      })
+    })
+
+    it('should set holding to zero when selling all units (not delete)', async () => {
+      const existingHolding = {
+        ...mockHolding,
+        quantity: { toString: () => '5' },
+      }
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
+      vi.mocked(prisma.holding.findFirst).mockResolvedValue(existingHolding as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(
+        createMockTransaction({ type: 'SELL' }) as never
+      )
+      vi.mocked(prisma.holding.findUnique).mockResolvedValue(existingHolding as never)
+      vi.mocked(prisma.holding.update).mockResolvedValue(existingHolding as never)
+
+      await transactionService.create(userId, {
+        type: 'sell',
+        assetId,
+        date: '2026-01-10T10:00:00.000Z',
+        quantity: 5,
+        price: 100,
+        commission: 0,
+      })
+
+      expect(prisma.holding.update).toHaveBeenCalledWith({
+        where: { assetId },
+        data: { quantity: 0 }, // Should be 0, not deleted
+      })
     })
   })
 

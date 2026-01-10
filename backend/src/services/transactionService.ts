@@ -38,7 +38,7 @@ function formatTransaction(tx: {
 
 export const transactionService = {
   /**
-   * Create a new transaction (buy or sell)
+   * Create a new transaction (buy or sell) with atomic holding update
    * @param userId - The ID of the user
    * @param input - Transaction data
    * @returns The created transaction
@@ -76,23 +76,55 @@ export const transactionService = {
         ? baseAmountCents + commissionCents
         : baseAmountCents - commissionCents
 
-    const transaction = await prisma.transaction.create({
-      data: {
-        type: input.type.toUpperCase() as 'BUY' | 'SELL',
-        date: new Date(input.date),
-        quantity: input.quantity,
-        priceCents,
-        commissionCents,
-        totalCents,
-        userId,
-        assetId: input.assetId,
-      },
-      include: {
-        asset: { select: { ticker: true, name: true } },
-      },
+    // Atomic transaction: create transaction record + update holding
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the transaction record
+      const transaction = await tx.transaction.create({
+        data: {
+          type: input.type.toUpperCase() as 'BUY' | 'SELL',
+          date: new Date(input.date),
+          quantity: input.quantity,
+          priceCents,
+          commissionCents,
+          totalCents,
+          userId,
+          assetId: input.assetId,
+        },
+        include: {
+          asset: { select: { ticker: true, name: true } },
+        },
+      })
+
+      // Update or create holding
+      const existingHolding = await tx.holding.findUnique({
+        where: { assetId: input.assetId },
+      })
+
+      if (existingHolding) {
+        // Update existing holding
+        const currentQty = Number(existingHolding.quantity.toString())
+        const newQty =
+          input.type === 'buy' ? currentQty + input.quantity : currentQty - input.quantity
+
+        await tx.holding.update({
+          where: { assetId: input.assetId },
+          data: { quantity: newQty },
+        })
+      } else {
+        // Create new holding (only for BUY - SELL already validated above)
+        await tx.holding.create({
+          data: {
+            userId,
+            assetId: input.assetId,
+            quantity: input.quantity,
+          },
+        })
+      }
+
+      return transaction
     })
 
-    return formatTransaction(transaction)
+    return formatTransaction(result)
   },
 
   /**
