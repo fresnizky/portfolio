@@ -25,11 +25,11 @@ so that **I know how much my investments are worth**.
   - [x] Run `pnpm prisma migrate dev` to create migration
   - [x] Run `pnpm prisma generate` to update client types
 
-- [ ] Task 2: Create Price Zod Validation Schemas (AC: #1, #4)
-  - [ ] Create `backend/src/validations/price.ts`
-  - [ ] Define `updatePriceSchema` with price validation (positive, 2 decimals)
-  - [ ] Define `batchUpdatePricesSchema` for array of {assetId, price}
-  - [ ] Define `priceParamsSchema` for route params validation
+- [x] Task 2: Create Price Zod Validation Schemas (AC: #1, #4)
+  - [x] Create `backend/src/validations/price.ts`
+  - [x] Define `updatePriceSchema` with price validation (positive, 2 decimals)
+  - [x] Define `batchUpdatePricesSchema` for array of {assetId, price}
+  - [x] Define `priceParamsSchema` for route params validation
 
 - [ ] Task 3: Create Portfolio Service (AC: #2, #3)
   - [ ] Create `backend/src/services/portfolioService.ts`
@@ -719,8 +719,11 @@ N/A - Story file created, awaiting implementation
 ### Completion Notes List
 
 - Task 1: Added currentPrice (Decimal 18,2) and priceUpdatedAt (DateTime?) fields to Asset model. Migration 20260109220727_add_price_fields created and applied. All 206 existing tests pass.
+- Task 2: Created Zod validation schemas for price operations. priceSchema rounds to 2 decimals, updatePriceSchema for single updates, batchUpdatePricesSchema for batch operations. 33 new tests added.
 
 ### File List
 
 - backend/prisma/schema.prisma (modified)
 - backend/prisma/migrations/20260109220727_add_price_fields/migration.sql (new)
+- backend/src/validations/price.ts (new)
+- backend/src/validations/price.test.ts (new)
