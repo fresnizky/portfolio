@@ -1,6 +1,6 @@
 # Story 6.2: Evolution Chart & Historical View
 
-Status: review
+Status: done
 
 ## Story
 
