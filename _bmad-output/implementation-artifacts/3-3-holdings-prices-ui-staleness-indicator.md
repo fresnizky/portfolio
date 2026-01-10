@@ -53,12 +53,12 @@ so that **I can quickly update my portfolio each week**.
   - [x] Create `PortfolioSummaryCard.tsx` - shows total portfolio value
   - [x] Add tests for each component
 
-- [ ] Task 5: Create Holdings Page (AC: #1, #2, #3, #4, #5, #6)
-  - [ ] Create `frontend/src/features/holdings/index.tsx` - main holdings page
-  - [ ] Integrate all components
-  - [ ] Add route to `frontend/src/router.tsx`
-  - [ ] Add navigation link in Layout
-  - [ ] Add page-level tests
+- [x] Task 5: Create Holdings Page (AC: #1, #2, #3, #4, #5, #6)
+  - [x] Create `frontend/src/features/holdings/index.tsx` - main holdings page
+  - [x] Integrate all components
+  - [x] Add route to `frontend/src/router.tsx`
+  - [x] Add navigation link in Layout
+  - [x] Add page-level tests
 
 - [ ] Task 6: Integration Testing
   - [ ] Verify API integration with mock server
@@ -501,6 +501,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 2: Created usePortfolioSummary, useUpdatePrice, useBatchUpdatePrices hooks with TanStack Query. All hooks invalidate portfolio queries on success. Added 8 unit tests.
 - Task 3: Created staleness utilities: isPriceStale, getDaysSinceUpdate, hasAnyStalePrice. Default threshold 7 days. Added 16 unit tests with mocked time.
 - Task 4: Created 7 UI components: StalenessIndicator, StaleAlertBanner, PortfolioSummaryCard, PositionCard, PositionList, PriceUpdateModal, BatchPriceUpdateModal. All with tests (43 total).
+- Task 5: Created HoldingsPage integrating all components. Added route and nav link. 10 page-level tests.
 
 ### File List
 
@@ -525,3 +526,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/holdings/components/PriceUpdateModal.test.tsx (created)
 - frontend/src/features/holdings/components/BatchPriceUpdateModal.tsx (created)
 - frontend/src/features/holdings/components/BatchPriceUpdateModal.test.tsx (created)
+- frontend/src/features/holdings/index.tsx (created)
+- frontend/src/features/holdings/index.test.tsx (created)
+- frontend/src/router.tsx (modified)
+- frontend/src/components/layout/Layout.tsx (modified)

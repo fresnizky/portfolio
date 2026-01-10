@@ -4,6 +4,7 @@ import { useLogout } from '@/features/auth/hooks/useLogout'
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/portfolio', label: 'Portfolio' },
+  { to: '/holdings', label: 'Holdings & Prices' },
 ]
 
 export function Layout() {
