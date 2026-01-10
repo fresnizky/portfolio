@@ -85,4 +85,38 @@ export const authService = {
       token,
     }
   },
+
+  /**
+   * Change user password
+   * @param userId - User ID
+   * @param currentPassword - Current password (plaintext)
+   * @param newPassword - New password (plaintext)
+   * @returns Success indicator
+   * @throws AppError with code UNAUTHORIZED if current password is incorrect
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean }> {
+    // Find user
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    })
+
+    // Verify current password
+    const isValidPassword = await verifyPassword(currentPassword, user.passwordHash)
+    if (!isValidPassword) {
+      throw Errors.unauthorized('Current password is incorrect')
+    }
+
+    // Hash new password and update
+    const newPasswordHash = await hashPassword(newPassword)
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newPasswordHash },
+    })
+
+    return { success: true }
+  },
 }

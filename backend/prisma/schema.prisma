@@ -15,6 +15,8 @@ model User {
   passwordHash        String
   onboardingCompleted Boolean  @default(false)
   onboardingSkipped   Boolean  @default(false)
+  rebalanceThreshold  Decimal  @default(5.0)  // Default 5% deviation threshold for rebalance alerts
+  priceAlertDays      Int      @default(7)    // Default 7 days for price staleness alerts
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 

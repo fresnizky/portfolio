@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { authService } from '@/services/authService'
-import { registerSchema, loginSchema } from '@/validations/auth'
+import { registerSchema, loginSchema, changePasswordSchema } from '@/validations/auth'
 import { validate } from '@/middleware/validate'
 import { authRateLimiter } from '@/middleware/rateLimiter'
 import { authMiddleware } from '@/middleware/auth'
@@ -54,6 +54,29 @@ router.get(
   authMiddleware,
   (req: Request, res: Response) => {
     res.status(200).json({ data: req.user })
+  }
+)
+
+/**
+ * PUT /api/auth/password
+ * Change user password
+ */
+router.put(
+  '/password',
+  authMiddleware,
+  validate(changePasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { currentPassword, newPassword } = req.body
+      const result = await authService.changePassword(
+        req.user!.id,
+        currentPassword,
+        newPassword
+      )
+      res.json({ data: result, message: 'Password changed successfully' })
+    } catch (error) {
+      next(error)
+    }
   }
 )
 
