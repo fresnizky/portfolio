@@ -34,4 +34,12 @@ export const queryKeys = {
     detail: (id: string) =>
       [...queryKeys.snapshots.all, 'detail', id] as const,
   },
+  onboarding: {
+    all: ['onboarding'] as const,
+    status: () => [...queryKeys.onboarding.all, 'status'] as const,
+  },
+  holdings: {
+    all: ['holdings'] as const,
+    list: () => [...queryKeys.holdings.all, 'list'] as const,
+  },
 }

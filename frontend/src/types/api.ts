@@ -216,3 +216,41 @@ export interface SnapshotListResponse {
   snapshots: Snapshot[]
   total: number
 }
+
+// Onboarding Types
+export interface OnboardingStatus {
+  completed: boolean
+  skipped: boolean
+}
+
+export interface BatchAssetCreate {
+  ticker: string
+  name: string
+  category: AssetCategory
+}
+
+export interface BatchTargetUpdate {
+  assetId: string
+  targetPercentage: number
+}
+
+export interface BatchHoldingCreate {
+  assetId: string
+  quantity: number
+  price?: number
+}
+
+export interface Holding {
+  id: string
+  assetId: string
+  quantity: string
+  createdAt: string
+  updatedAt: string
+  asset: {
+    id: string
+    ticker: string
+    name: string
+    category: AssetCategory
+    currentPriceCents?: string | null
+  }
+}
