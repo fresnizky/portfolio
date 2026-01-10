@@ -1,6 +1,6 @@
 # Story 5.1: Dashboard Summary API
 
-Status: review
+Status: done
 
 ## Story
 
