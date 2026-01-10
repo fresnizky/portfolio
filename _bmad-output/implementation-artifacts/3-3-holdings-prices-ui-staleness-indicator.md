@@ -36,12 +36,12 @@ so that **I can quickly update my portfolio each week**.
   - [x] Implement `useBatchUpdatePrices()` mutation hook
   - [x] Add unit tests in `frontend/src/features/holdings/hooks/usePortfolio.test.ts`
 
-- [ ] Task 3: Create Staleness Helper Utilities (AC: #2, #3, #6)
-  - [ ] Create `frontend/src/features/holdings/utils/staleness.ts`
-  - [ ] Implement `isPriceStale(priceUpdatedAt: string | null, thresholdDays?: number): boolean`
-  - [ ] Implement `getDaysSinceUpdate(priceUpdatedAt: string | null): number | null`
-  - [ ] Implement `hasAnyStalePrice(positions: Position[]): boolean`
-  - [ ] Add unit tests in `frontend/src/features/holdings/utils/staleness.test.ts`
+- [x] Task 3: Create Staleness Helper Utilities (AC: #2, #3, #6)
+  - [x] Create `frontend/src/features/holdings/utils/staleness.ts`
+  - [x] Implement `isPriceStale(priceUpdatedAt: string | null, thresholdDays?: number): boolean`
+  - [x] Implement `getDaysSinceUpdate(priceUpdatedAt: string | null): number | null`
+  - [x] Implement `hasAnyStalePrice(positions: Position[]): boolean`
+  - [x] Add unit tests in `frontend/src/features/holdings/utils/staleness.test.ts`
 
 - [ ] Task 4: Create UI Components (AC: #1, #2, #3, #4, #5, #6)
   - [ ] Create `StalenessIndicator.tsx` - shows green checkmark or yellow warning
@@ -499,6 +499,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - Task 1: Added Portfolio and Price types to frontend. Extended API client with portfolio.summary(), prices.update(), and prices.batchUpdate() methods. Added query keys for cache invalidation.
 - Task 2: Created usePortfolioSummary, useUpdatePrice, useBatchUpdatePrices hooks with TanStack Query. All hooks invalidate portfolio queries on success. Added 8 unit tests.
+- Task 3: Created staleness utilities: isPriceStale, getDaysSinceUpdate, hasAnyStalePrice. Default threshold 7 days. Added 16 unit tests with mocked time.
 
 ### File List
 
@@ -507,3 +508,5 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/lib/queryKeys.ts (modified)
 - frontend/src/features/holdings/hooks/usePortfolio.ts (created)
 - frontend/src/features/holdings/hooks/usePortfolio.test.tsx (created)
+- frontend/src/features/holdings/utils/staleness.ts (created)
+- frontend/src/features/holdings/utils/staleness.test.ts (created)
