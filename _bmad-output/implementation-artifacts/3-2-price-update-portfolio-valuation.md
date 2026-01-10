@@ -31,12 +31,12 @@ so that **I know how much my investments are worth**.
   - [x] Define `batchUpdatePricesSchema` for array of {assetId, price}
   - [x] Define `priceParamsSchema` for route params validation
 
-- [ ] Task 3: Create Portfolio Service (AC: #2, #3)
-  - [ ] Create `backend/src/services/portfolioService.ts`
-  - [ ] Implement `getSummary(userId)` - calculates value per asset and total portfolio value
-  - [ ] Add calculations: value = quantity × currentPrice
-  - [ ] Include priceUpdatedAt with each asset
-  - [ ] Add unit tests in `backend/src/services/portfolioService.test.ts`
+- [x] Task 3: Create Portfolio Service (AC: #2, #3)
+  - [x] Create `backend/src/services/portfolioService.ts`
+  - [x] Implement `getSummary(userId)` - calculates value per asset and total portfolio value
+  - [x] Add calculations: value = quantity × currentPrice
+  - [x] Include priceUpdatedAt with each asset
+  - [x] Add unit tests in `backend/src/services/portfolioService.test.ts`
 
 - [ ] Task 4: Create Price Routes (AC: #1, #4)
   - [ ] Create `backend/src/routes/prices.ts`
@@ -720,6 +720,7 @@ N/A - Story file created, awaiting implementation
 
 - Task 1: Added currentPrice (Decimal 18,2) and priceUpdatedAt (DateTime?) fields to Asset model. Migration 20260109220727_add_price_fields created and applied. All 206 existing tests pass.
 - Task 2: Created Zod validation schemas for price operations. priceSchema rounds to 2 decimals, updatePriceSchema for single updates, batchUpdatePricesSchema for batch operations. 33 new tests added.
+- Task 3: Created portfolioService with getSummary method. Calculates position values (quantity × price), totalValue, handles null prices. 12 new tests added.
 
 ### File List
 
@@ -727,3 +728,5 @@ N/A - Story file created, awaiting implementation
 - backend/prisma/migrations/20260109220727_add_price_fields/migration.sql (new)
 - backend/src/validations/price.ts (new)
 - backend/src/validations/price.test.ts (new)
+- backend/src/services/portfolioService.ts (new)
+- backend/src/services/portfolioService.test.ts (new)
