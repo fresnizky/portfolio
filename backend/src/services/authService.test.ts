@@ -8,7 +8,9 @@ vi.mock('@/config/database', () => ({
   prisma: {
     user: {
       findUnique: vi.fn(),
+      findUniqueOrThrow: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
   },
 }))
@@ -133,6 +135,54 @@ describe('authService', () => {
         expect((error as AppError).message).not.toContain('not found')
         expect((error as AppError).message).not.toContain('does not exist')
       }
+    })
+  })
+
+  describe('changePassword', () => {
+    it('should change password with valid current password', async () => {
+      const mockUser = createMockUser()
+      vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(mockUser)
+      vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
+
+      const passwordModule = await import('@/lib/password')
+      vi.spyOn(passwordModule, 'verifyPassword').mockResolvedValue(true)
+      vi.spyOn(passwordModule, 'hashPassword').mockResolvedValue('$2b$10$newhash')
+
+      const result = await authService.changePassword('user-123', 'oldpassword', 'newpassword')
+
+      expect(result).toEqual({ success: true })
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-123' },
+        data: { passwordHash: '$2b$10$newhash' },
+      })
+    })
+
+    it('should throw unauthorized error for incorrect current password', async () => {
+      const mockUser = createMockUser()
+      vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(mockUser)
+
+      const passwordModule = await import('@/lib/password')
+      vi.spyOn(passwordModule, 'verifyPassword').mockResolvedValue(false)
+
+      await expect(authService.changePassword('user-123', 'wrongpassword', 'newpassword'))
+        .rejects.toMatchObject({
+          statusCode: 401,
+          code: 'UNAUTHORIZED',
+        })
+    })
+
+    it('should hash the new password before storing', async () => {
+      const mockUser = createMockUser()
+      vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(mockUser)
+      vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
+
+      const passwordModule = await import('@/lib/password')
+      vi.spyOn(passwordModule, 'verifyPassword').mockResolvedValue(true)
+
+      await authService.changePassword('user-123', 'oldpassword', 'newpassword')
+
+      const updateCall = vi.mocked(prisma.user.update).mock.calls[0][0]
+      expect(updateCall.data.passwordHash).toMatch(/^\$2[aby]?\$/)
     })
   })
 })

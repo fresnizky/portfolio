@@ -1,11 +1,19 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { dashboardService } from './dashboardService'
 import { portfolioService } from './portfolioService'
+import { settingsService } from './settingsService'
 
 // Mock portfolioService
 vi.mock('./portfolioService', () => ({
   portfolioService: {
     getSummary: vi.fn(),
+  },
+}))
+
+// Mock settingsService
+vi.mock('./settingsService', () => ({
+  settingsService: {
+    getSettings: vi.fn(),
   },
 }))
 
@@ -41,6 +49,12 @@ describe('dashboardService', () => {
     // Default: freeze time to 2026-01-10
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-01-10T12:00:00.000Z'))
+
+    // Default mock for settings - returns defaults (5% threshold, 7 days)
+    vi.mocked(settingsService.getSettings).mockResolvedValue({
+      rebalanceThreshold: '5',
+      priceAlertDays: 7,
+    })
   })
 
   afterEach(() => {
@@ -411,7 +425,37 @@ describe('dashboardService', () => {
       expect(portfolioService.getSummary).toHaveBeenCalledTimes(1)
     })
 
-    it('should use default thresholds when not provided', async () => {
+    it('should use user settings when no thresholds provided', async () => {
+      // Configure custom user settings
+      vi.mocked(settingsService.getSettings).mockResolvedValue({
+        rebalanceThreshold: '10',  // 10% threshold
+        priceAlertDays: 14,        // 14 days stale
+      })
+
+      // Price 8 days old (would be stale with default 7, but not with 14)
+      const eightDaysAgo = new Date('2026-01-02T10:00:00.000Z')
+
+      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+        totalValue: '10000.00',
+        positions: [
+          createMockPosition({
+            assetId: 'asset-1',
+            ticker: 'VOO',
+            value: '5200.00', // 52% actual, -8% deviation (would trigger at 5%, not at 10%)
+            targetPercentage: '60.00',
+            priceUpdatedAt: eightDaysAgo,
+          }),
+        ],
+      })
+
+      const result = await dashboardService.getDashboard(userId)
+
+      // Neither alert should trigger with user's custom thresholds
+      expect(result.alerts).toHaveLength(0)
+      expect(settingsService.getSettings).toHaveBeenCalledWith(userId)
+    })
+
+    it('should use default thresholds from user settings when not provided', async () => {
       // Price 6 days old (below 7 day default)
       const sixDaysAgo = new Date('2026-01-04T10:00:00.000Z')
 
@@ -432,6 +476,31 @@ describe('dashboardService', () => {
 
       // Neither alert should trigger with defaults
       expect(result.alerts).toHaveLength(0)
+    })
+
+    it('should NOT call settingsService when both thresholds are provided', async () => {
+      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+        totalValue: '10000.00',
+        positions: [],
+      })
+
+      await dashboardService.getDashboard(userId, {
+        deviationPct: 5,
+        staleDays: 7,
+      })
+
+      expect(settingsService.getSettings).not.toHaveBeenCalled()
+    })
+
+    it('should call settingsService when only one threshold is provided', async () => {
+      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+        totalValue: '10000.00',
+        positions: [],
+      })
+
+      await dashboardService.getDashboard(userId, { deviationPct: 5 })
+
+      expect(settingsService.getSettings).toHaveBeenCalledWith(userId)
     })
   })
 })

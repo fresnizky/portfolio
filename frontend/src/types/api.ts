@@ -254,3 +254,28 @@ export interface Holding {
     currentPriceCents?: string | null
   }
 }
+
+// Settings Types
+export interface UserSettings {
+  rebalanceThreshold: string  // Decimal as string from API
+  priceAlertDays: number
+}
+
+export interface UpdateSettingsInput {
+  rebalanceThreshold?: number
+  priceAlertDays?: number
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string
+  newPassword: string
+}
+
+export interface ExportData {
+  exportedAt: string
+  user: { email: string }
+  assets: Asset[]
+  holdings: Holding[]
+  transactions: Transaction[]
+  snapshots: Snapshot[]
+}

@@ -42,4 +42,8 @@ export const queryKeys = {
     all: ['holdings'] as const,
     list: () => [...queryKeys.holdings.all, 'list'] as const,
   },
+  settings: {
+    all: ['settings'] as const,
+    get: () => [...queryKeys.settings.all, 'get'] as const,
+  },
 }

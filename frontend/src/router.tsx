@@ -6,6 +6,7 @@ import { HoldingsPage } from '@/features/holdings'
 import { TransactionsPage } from '@/features/transactions'
 import EvolutionPage from '@/features/evolution'
 import { OnboardingPage } from '@/features/onboarding'
+import { SettingsPage } from '@/features/settings'
 import { ProtectedRoute } from '@/components/common/ProtectedRoute'
 import { NotFound } from '@/components/common/NotFound'
 import { Layout } from '@/components/layout/Layout'
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
           {
             path: '/evolution',
             element: <EvolutionPage />,
+          },
+          {
+            path: '/settings',
+            element: <SettingsPage />,
           },
         ],
       },

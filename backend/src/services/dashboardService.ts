@@ -1,4 +1,5 @@
 import { portfolioService } from './portfolioService'
+import { settingsService } from './settingsService'
 import type {
   DashboardResponse,
   DashboardPosition,
@@ -6,16 +7,22 @@ import type {
   DashboardThresholds,
 } from '@/validations/dashboard'
 
-const DEFAULT_THRESHOLDS: DashboardThresholds = {
-  deviationPct: 5,
-  staleDays: 7,
-}
-
 export const dashboardService = {
   async getDashboard(
     userId: string,
-    thresholds: DashboardThresholds = DEFAULT_THRESHOLDS
+    thresholds?: Partial<DashboardThresholds>
   ): Promise<DashboardResponse> {
+    // If thresholds not provided, fetch from user settings
+    let effectiveThresholds: DashboardThresholds
+    if (thresholds?.deviationPct !== undefined && thresholds?.staleDays !== undefined) {
+      effectiveThresholds = thresholds as DashboardThresholds
+    } else {
+      const settings = await settingsService.getSettings(userId)
+      effectiveThresholds = {
+        deviationPct: thresholds?.deviationPct ?? parseFloat(settings.rebalanceThreshold),
+        staleDays: thresholds?.staleDays ?? settings.priceAlertDays,
+      }
+    }
     // Reuse existing portfolioService for base data
     const summary = await portfolioService.getSummary(userId)
 
@@ -39,7 +46,7 @@ export const dashboardService = {
         const daysSinceUpdate = Math.floor(
           (now.getTime() - new Date(pos.priceUpdatedAt).getTime()) / (1000 * 60 * 60 * 24)
         )
-        if (daysSinceUpdate >= thresholds.staleDays) {
+        if (daysSinceUpdate >= effectiveThresholds.staleDays) {
           alerts.push({
             type: 'stale_price',
             assetId: pos.assetId,
@@ -62,7 +69,7 @@ export const dashboardService = {
 
       // Check for rebalance alert (only for positions with target)
       // AC says "deviates more than", so use > not >=
-      if (pos.targetPercentage !== null && Math.abs(deviation) > thresholds.deviationPct) {
+      if (pos.targetPercentage !== null && Math.abs(deviation) > effectiveThresholds.deviationPct) {
         const direction = deviation > 0 ? 'overweight' : 'underweight'
         alerts.push({
           type: 'rebalance_needed',

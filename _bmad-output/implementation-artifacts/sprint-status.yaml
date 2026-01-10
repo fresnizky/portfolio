@@ -80,6 +80,6 @@ development_status:
   epic-6: in-progress
   6-1-portfolio-snapshots-api: done
   6-2-evolution-chart-historical-view: done
-  6-3-onboarding-wizard: review
-  6-4-settings-preferences-management: backlog
+  6-3-onboarding-wizard: done
+  6-4-settings-preferences-management: review
   epic-6-retrospective: optional

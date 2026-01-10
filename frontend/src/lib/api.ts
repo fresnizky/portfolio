@@ -22,6 +22,10 @@ import type {
   BatchTargetUpdate,
   BatchHoldingCreate,
   Holding,
+  UserSettings,
+  UpdateSettingsInput,
+  ChangePasswordInput,
+  ExportData,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -91,6 +95,18 @@ export const api = {
         },
       })
       return handleResponse<AuthMeResponse>(res)
+    },
+
+    changePassword: async (input: ChangePasswordInput): Promise<{ success: boolean }> => {
+      const res = await fetch(`${API_URL}/auth/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<{ success: boolean }>(res)
     },
   },
 
@@ -380,6 +396,55 @@ export const api = {
         body: JSON.stringify({ holdings }),
       })
       return handleResponse<Holding[]>(res)
+    },
+  },
+
+  settings: {
+    get: async (): Promise<UserSettings> => {
+      const res = await fetch(`${API_URL}/settings`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<UserSettings>(res)
+    },
+
+    update: async (input: UpdateSettingsInput): Promise<UserSettings> => {
+      const res = await fetch(`${API_URL}/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(input),
+      })
+      return handleResponse<UserSettings>(res)
+    },
+
+    exportJson: async (): Promise<ExportData> => {
+      const res = await fetch(`${API_URL}/settings/export/json`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<ExportData>(res)
+    },
+
+    exportCsv: async (): Promise<Blob> => {
+      const res = await fetch(`${API_URL}/settings/export/csv`, {
+        headers: getAuthHeaders(),
+      })
+      if (!res.ok) {
+        const json = await res.json()
+        throw new ApiError(
+          json.error || 'UNKNOWN_ERROR',
+          json.message || 'An unexpected error occurred',
+          json.details
+        )
+      }
+      return res.blob()
     },
   },
 }
