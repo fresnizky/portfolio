@@ -20,6 +20,7 @@ model User {
   assets       Asset[]
   holdings     Holding[]
   transactions Transaction[]
+  snapshots    PortfolioSnapshot[]
 }
 
 enum AssetCategory {
@@ -91,4 +92,35 @@ model Transaction {
   @@index([userId])
   @@index([assetId])
   @@index([date])
+}
+
+model PortfolioSnapshot {
+  id              String          @id @default(cuid())
+  date            DateTime        @db.Date
+  totalValueCents BigInt
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assets          SnapshotAsset[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model SnapshotAsset {
+  id         String            @id @default(cuid())
+  snapshotId String
+  snapshot   PortfolioSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  assetId    String
+  ticker     String
+  name       String
+  quantity   Decimal           @db.Decimal(18, 8)
+  priceCents BigInt
+  valueCents BigInt
+  percentage Decimal           @db.Decimal(5, 2)
+
+  @@unique([snapshotId, assetId])
+  @@index([snapshotId])
 }
