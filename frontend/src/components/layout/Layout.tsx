@@ -5,6 +5,7 @@ const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/holdings', label: 'Holdings & Prices' },
+  { to: '/transactions', label: 'Transactions' },
 ]
 
 export function Layout() {

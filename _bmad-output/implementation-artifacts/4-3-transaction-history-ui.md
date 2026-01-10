@@ -1,6 +1,6 @@
 # Story 4.3: Transaction History UI
 
-Status: in-progress
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -68,22 +68,22 @@ So that **I can track all my investment activity**.
   - [x] Display: Total Invested (sum of BUY totalCosts), Total Withdrawn (sum of SELL totalProceeds)
   - [x] Calculate from transaction list data
 
-- [ ] Task 8: Create useTransactions hook (AC: #1, #3, #4)
-  - [ ] Create `frontend/src/features/transactions/hooks/useTransactions.ts`
-  - [ ] `useTransactions(filters)` - TanStack Query for list with filter params
-  - [ ] `useCreateTransaction()` - useMutation + invalidateQueries
-  - [ ] Co-locate test file
+- [x] Task 8: Create useTransactions hook (AC: #1, #3, #4)
+  - [x] Create `frontend/src/features/transactions/hooks/useTransactions.ts`
+  - [x] `useTransactions(filters)` - TanStack Query for list with filter params
+  - [x] `useCreateTransaction()` - useMutation + invalidateQueries
+  - [x] Co-locate test file
 
-- [ ] Task 9: Create TransactionsPage and integrate (AC: #1-5)
-  - [ ] Create `frontend/src/features/transactions/index.tsx`
-  - [ ] Compose: TransactionFilters + TransactionSummary + TransactionList + "Add Transaction" button + CreateTransactionModal
-  - [ ] Manage filter state with useState
-  - [ ] Pass filters to useTransactions hook
+- [x] Task 9: Create TransactionsPage and integrate (AC: #1-5)
+  - [x] Create `frontend/src/features/transactions/index.tsx`
+  - [x] Compose: TransactionFilters + TransactionSummary + TransactionList + "Add Transaction" button + CreateTransactionModal
+  - [x] Manage filter state with useState
+  - [x] Pass filters to useTransactions hook
 
-- [ ] Task 10: Add route and navigation (AC: #1)
-  - [ ] Add `/transactions` route to `frontend/src/router.tsx`
-  - [ ] Add "Transactions" nav item to `frontend/src/components/layout/Sidebar.tsx` or Header
-  - [ ] Verify navigation works from all pages
+- [x] Task 10: Add route and navigation (AC: #1)
+  - [x] Add `/transactions` route to `frontend/src/router.tsx`
+  - [x] Add "Transactions" nav item to `frontend/src/components/layout/Sidebar.tsx` or Header
+  - [x] Verify navigation works from all pages
 
 ## Dev Notes
 
@@ -551,6 +551,10 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - **Task 4**: Created TransactionForm with React Hook Form + Zod validation. Fields: type, asset dropdown, date picker, quantity, price, commission. Created validation schema in validations/transaction.ts. Added 10 unit tests.
 - **Task 5**: Created CreateTransactionModal wrapping TransactionForm in Modal. Uses useMutation with query invalidation for transactions and portfolio. Added 5 unit tests.
 - **Task 6**: Created TransactionFilters with asset select, type select, date range inputs, and reset button. Reset button conditionally shown when filters active. Added 10 unit tests.
+- **Task 7**: Created TransactionSummary displaying Total Invested and Total Withdrawn. Added 7 unit tests.
+- **Task 8**: Created useTransactions and useCreateTransaction hooks with TanStack Query. Added 5 unit tests.
+- **Task 9**: Created TransactionsPage composing all components with filter state management. Added 8 unit tests.
+- **Task 10**: Added /transactions route and navigation link to Layout.
 
 ### File List
 
@@ -569,4 +573,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `frontend/src/features/transactions/components/CreateTransactionModal.test.tsx` (new)
 - `frontend/src/features/transactions/components/TransactionFilters.tsx` (new)
 - `frontend/src/features/transactions/components/TransactionFilters.test.tsx` (new)
+- `frontend/src/features/transactions/components/TransactionSummary.tsx` (new)
+- `frontend/src/features/transactions/components/TransactionSummary.test.tsx` (new)
+- `frontend/src/features/transactions/hooks/useTransactions.ts` (new)
+- `frontend/src/features/transactions/hooks/useTransactions.test.tsx` (new)
+- `frontend/src/features/transactions/index.tsx` (new)
+- `frontend/src/features/transactions/index.test.tsx` (new)
+- `frontend/src/router.tsx` (modified)
+- `frontend/src/components/layout/Layout.tsx` (modified)
 
