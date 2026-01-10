@@ -1,6 +1,6 @@
 # Story 5.2: Dashboard UI with Distribution Visualization
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -54,19 +54,19 @@ So that **I can quickly understand my investment position**.
   - [x] Show side-by-side comparison of actual vs target percentage
   - [x] Use visual progress bar or dual-bar for comparison
 
-- [ ] Task 5: Update DashboardPage to use new components (AC: #1-6)
-  - [ ] Modify `frontend/src/features/dashboard/index.tsx`
-  - [ ] Replace placeholder content with real dashboard
-  - [ ] Layout: Summary card at top, chart + positions list below
-  - [ ] Add loading state
-  - [ ] Add error state with retry option
-  - [ ] Add empty state for users with no assets
+- [x] Task 5: Update DashboardPage to use new components (AC: #1-6)
+  - [x] Modify `frontend/src/features/dashboard/index.tsx`
+  - [x] Replace placeholder content with real dashboard
+  - [x] Layout: Summary card at top, chart + positions list below
+  - [x] Add loading state
+  - [x] Add error state with retry option
+  - [x] Add empty state for users with no assets
 
-- [ ] Task 6: Add tests (AC: #1-6)
-  - [ ] Create `frontend/src/features/dashboard/hooks/useDashboard.test.ts`
-  - [ ] Create `frontend/src/features/dashboard/components/PortfolioSummaryCard.test.tsx`
-  - [ ] Create `frontend/src/features/dashboard/components/AllocationChart.test.tsx`
-  - [ ] Create `frontend/src/features/dashboard/components/PositionsList.test.tsx`
+- [x] Task 6: Add tests (AC: #1-6)
+  - [x] Create `frontend/src/features/dashboard/hooks/useDashboard.test.ts`
+  - [x] Create `frontend/src/features/dashboard/components/PortfolioSummaryCard.test.tsx`
+  - [x] Create `frontend/src/features/dashboard/components/AllocationChart.test.tsx`
+  - [x] Create `frontend/src/features/dashboard/components/PositionsList.test.tsx`
 
 ## Dev Notes
 
@@ -408,6 +408,8 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 2: Created PortfolioSummaryCard component with formatCurrency utility. 5 tests passing.
 - Task 3: Created AllocationChart component with Recharts donut chart. 3 tests passing.
 - Task 4: Created PositionsList component with deviation color coding. 7 tests passing.
+- Task 5: Updated DashboardPage with all components integrated. 5 tests passing.
+- Task 6: All tests created during implementation. Total: 24 new tests.
 
 ### File List
 
@@ -420,5 +422,8 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/dashboard/components/AllocationChart.test.tsx (NEW)
 - frontend/src/features/dashboard/components/PositionsList.tsx (NEW)
 - frontend/src/features/dashboard/components/PositionsList.test.tsx (NEW)
+- frontend/src/features/dashboard/index.tsx (MODIFIED)
+- frontend/src/features/dashboard/index.test.tsx (NEW)
 - frontend/package.json (MODIFIED - added recharts, react-is)
+- _bmad-output/implementation-artifacts/sprint-status.yaml (MODIFIED)
 

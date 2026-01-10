@@ -72,7 +72,7 @@ development_status:
   # Epic 5: Dashboard & Alerts
   epic-5: in-progress
   5-1-dashboard-summary-api: done
-  5-2-dashboard-ui-distribution-visualization: in-progress
+  5-2-dashboard-ui-distribution-visualization: review
   5-3-alerts-panel-attention-required-view: backlog
   epic-5-retrospective: optional
 
