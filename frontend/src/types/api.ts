@@ -145,3 +145,45 @@ export interface CreateTransactionInput {
   price: number
   commission?: number
 }
+
+// Dashboard Types
+export type AlertType = 'stale_price' | 'rebalance_needed'
+export type AlertSeverity = 'warning' | 'info'
+
+export interface DashboardAlert {
+  type: AlertType
+  assetId: string
+  ticker: string
+  message: string
+  severity: AlertSeverity
+  data?: {
+    daysOld?: number
+    deviation?: string
+    direction?: 'overweight' | 'underweight'
+  }
+}
+
+export interface DashboardPosition {
+  assetId: string
+  ticker: string
+  name: string
+  category: AssetCategory
+  quantity: string
+  currentPrice: string | null
+  value: string
+  targetPercentage: string | null
+  actualPercentage: string
+  deviation: string
+  priceUpdatedAt: string | null
+}
+
+export interface DashboardResponse {
+  totalValue: string
+  positions: DashboardPosition[]
+  alerts: DashboardAlert[]
+}
+
+export interface DashboardParams {
+  deviationThreshold?: number
+  staleDays?: number
+}
