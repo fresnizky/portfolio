@@ -30,11 +30,11 @@ So that **I can quickly understand my investment position**.
   - [x] Fetch from `api.dashboard.get()`
   - [x] Return typed `DashboardResponse` data
 
-- [ ] Task 2: Create PortfolioSummaryCard component (AC: #1)
-  - [ ] Create `frontend/src/features/dashboard/components/PortfolioSummaryCard.tsx`
-  - [ ] Display total portfolio value prominently (large font, formatted currency)
-  - [ ] Show loading skeleton state
-  - [ ] Format value with `formatCurrency()` from lib/formatters.ts
+- [x] Task 2: Create PortfolioSummaryCard component (AC: #1)
+  - [x] Create `frontend/src/features/dashboard/components/PortfolioSummaryCard.tsx`
+  - [x] Display total portfolio value prominently (large font, formatted currency)
+  - [x] Show loading skeleton state
+  - [x] Format value with `formatCurrency()` from lib/formatters.ts
 
 - [ ] Task 3: Create AllocationChart component (AC: #2)
   - [ ] Create `frontend/src/features/dashboard/components/AllocationChart.tsx`
@@ -405,9 +405,13 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Created useDashboard hook with TanStack Query integration. 4 tests passing.
+- Task 2: Created PortfolioSummaryCard component with formatCurrency utility. 5 tests passing.
 
 ### File List
 
 - frontend/src/features/dashboard/hooks/useDashboard.ts (NEW)
 - frontend/src/features/dashboard/hooks/useDashboard.test.tsx (NEW)
+- frontend/src/lib/formatters.ts (NEW)
+- frontend/src/features/dashboard/components/PortfolioSummaryCard.tsx (NEW)
+- frontend/src/features/dashboard/components/PortfolioSummaryCard.test.tsx (NEW)
 
