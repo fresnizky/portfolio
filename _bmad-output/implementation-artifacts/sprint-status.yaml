@@ -58,7 +58,7 @@ development_status:
   # Epic 3: Holdings & Price Management
   epic-3: in-progress
   3-1-holdings-management-api: done
-  3-2-price-update-portfolio-valuation: in-progress
+  3-2-price-update-portfolio-valuation: done
   3-3-holdings-prices-ui-staleness-indicator: backlog
   epic-3-retrospective: optional
 
