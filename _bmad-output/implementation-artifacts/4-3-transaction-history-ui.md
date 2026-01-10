@@ -63,10 +63,10 @@ So that **I can track all my investment activity**.
   - [x] Reset filters button
   - [x] onChange callback to parent
 
-- [ ] Task 7: Create TransactionSummary component (AC: #5)
-  - [ ] Create `frontend/src/features/transactions/components/TransactionSummary.tsx`
-  - [ ] Display: Total Invested (sum of BUY totalCosts), Total Withdrawn (sum of SELL totalProceeds)
-  - [ ] Calculate from transaction list data
+- [x] Task 7: Create TransactionSummary component (AC: #5)
+  - [x] Create `frontend/src/features/transactions/components/TransactionSummary.tsx`
+  - [x] Display: Total Invested (sum of BUY totalCosts), Total Withdrawn (sum of SELL totalProceeds)
+  - [x] Calculate from transaction list data
 
 - [ ] Task 8: Create useTransactions hook (AC: #1, #3, #4)
   - [ ] Create `frontend/src/features/transactions/hooks/useTransactions.ts`
