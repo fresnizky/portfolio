@@ -118,7 +118,7 @@ export const holdingService = {
 
     // 2. Build transaction operations
     const now = new Date()
-    const operations: Parameters<typeof prisma.$transaction>[0] = []
+    const operations: ReturnType<typeof prisma.holding.upsert | typeof prisma.asset.update>[] = []
 
     for (const { assetId, quantity, price } of holdings) {
       // Upsert holding
