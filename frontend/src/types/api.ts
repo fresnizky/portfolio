@@ -108,3 +108,40 @@ export interface BatchUpdatePricesResponse {
     priceUpdatedAt: string
   }>
 }
+
+// Transaction Types
+export type TransactionType = 'BUY' | 'SELL'
+
+export interface Transaction {
+  id: string
+  type: TransactionType
+  date: string // ISO 8601
+  quantity: string // Decimal from Prisma as string
+  priceCents: string // BigInt as string
+  commissionCents: string // BigInt as string
+  totalCents: string // BigInt as string
+  assetId: string
+  userId: string
+  createdAt: string
+  updatedAt: string
+  asset: {
+    ticker: string
+    name: string
+  }
+}
+
+export interface TransactionListFilters {
+  assetId?: string
+  type?: 'buy' | 'sell'
+  fromDate?: string
+  toDate?: string
+}
+
+export interface CreateTransactionInput {
+  type: 'buy' | 'sell'
+  assetId: string
+  date: string
+  quantity: number
+  price: number
+  commission?: number
+}

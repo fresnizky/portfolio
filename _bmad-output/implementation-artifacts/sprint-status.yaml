@@ -63,10 +63,10 @@ development_status:
   epic-3-retrospective: optional
 
   # Epic 4: Transaction Recording
-  epic-4: in-progress
+  epic-4: done
   4-1-transaction-recording-api: done
   4-2-automatic-holdings-update-transaction: done
-  4-3-transaction-history-ui: backlog
+  4-3-transaction-history-ui: done
   epic-4-retrospective: optional
 
   # Epic 5: Dashboard & Alerts
