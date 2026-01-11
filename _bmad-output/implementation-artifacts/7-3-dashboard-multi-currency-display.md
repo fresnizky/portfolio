@@ -35,10 +35,10 @@ So that **I can understand my total portfolio value in a single currency regardl
   - [x] Add refresh button that calls exchange rate endpoint
   - [x] Write tests
 
-- [ ] Task 3: Frontend - Update PortfolioSummaryCard for multi-currency (AC: #1)
-  - [ ] Modify `PortfolioSummaryCard.tsx` to accept `displayCurrency` prop
-  - [ ] Format currency with correct symbol based on `displayCurrency`
-  - [ ] Update tests
+- [x] Task 3: Frontend - Update PortfolioSummaryCard for multi-currency (AC: #1)
+  - [x] Modify `PortfolioSummaryCard.tsx` to accept `displayCurrency` prop
+  - [x] Format currency with correct symbol based on `displayCurrency`
+  - [x] Update tests
 
 - [ ] Task 4: Frontend - Update PositionsList for dual-value display (AC: #3)
   - [ ] Modify `PositionsList.tsx` to show original and converted values
