@@ -360,10 +360,42 @@ See `_bmad-output/project-context.md` for:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+- No debug issues encountered during implementation
+
 ### Completion Notes List
 
+- Migration `20260111162314_add_currency_to_asset` applied successfully
+- All existing assets default to USD via Prisma `@default(USD)`
+- Backend tests: 505 passing (64 new currency validation tests)
+- Frontend tests: 407 passing (updated 3 test files for currency field)
+- Currency dropdown added to AssetForm with labels "USD - Dólar" and "ARS - Peso Argentino"
+- Currency indicator displayed in AssetCard as "(USD)" or "(ARS)"
+- Onboarding Step1AssetSetup updated with currency field
+- PR #22 created: https://github.com/fresnizky/portfolio/pull/22
+
 ### File List
+
+**Backend (Modified):**
+- `backend/prisma/schema.prisma` - Added Currency enum and field to Asset model
+- `backend/prisma/migrations/20260111162314_add_currency_to_asset/migration.sql` - New migration
+- `backend/src/validations/asset.ts` - Added currencySchema and currency to schemas
+- `backend/src/validations/asset.test.ts` - Added currency validation tests
+- `backend/src/services/assetService.ts` - Updated batchCreate type signature
+
+**Frontend (Modified):**
+- `frontend/src/types/api.ts` - Added Currency type and updated interfaces
+- `frontend/src/validations/asset.ts` - Added currencySchema
+- `frontend/src/features/portfolio/components/AssetForm.tsx` - Added currency dropdown
+- `frontend/src/features/portfolio/components/AssetForm.test.tsx` - Updated tests
+- `frontend/src/features/portfolio/components/AssetCard.tsx` - Added currency display
+- `frontend/src/features/portfolio/components/CreateAssetModal.test.tsx` - Updated tests
+- `frontend/src/features/portfolio/index.test.tsx` - Updated tests
+- `frontend/src/features/onboarding/components/Step1AssetSetup.tsx` - Added currency field
+
+**Documentation (Modified):**
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` - Updated story status
+- `_bmad-output/implementation-artifacts/7-1-currency-field-on-asset-model.md` - This file
