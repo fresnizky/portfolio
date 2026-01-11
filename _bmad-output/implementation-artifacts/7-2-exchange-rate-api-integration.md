@@ -1,6 +1,6 @@
 # Story 7.2: Exchange Rate API Integration
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -22,60 +22,60 @@ So that **I can see my portfolio value in my preferred currency (USD or ARS)**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Backend - Create ExchangeRate model in Prisma (AC: #1, #2)
-  - [ ] Add ExchangeRate model to `backend/prisma/schema.prisma`
-  - [ ] Fields: id, baseCurrency, quoteCurrency, rate, source, fetchedAt, createdAt
-  - [ ] Run migration: `npx prisma migrate dev --name add_exchange_rate`
-  - [ ] Run `npx prisma generate`
+- [x] Task 1: Backend - Create ExchangeRate model in Prisma (AC: #1, #2)
+  - [x] Add ExchangeRate model to `backend/prisma/schema.prisma`
+  - [x] Fields: id, baseCurrency, quoteCurrency, rate, source, fetchedAt, createdAt
+  - [x] Run migration: `npx prisma migrate dev --name add_exchange_rate`
+  - [x] Run `npx prisma generate`
 
-- [ ] Task 2: Backend - Create exchange rate service (AC: #1, #2, #5)
-  - [ ] Create `backend/src/services/exchangeRateService.ts`
-  - [ ] Implement `getRate(base: Currency, quote: Currency): Promise<ExchangeRate>`
-  - [ ] Implement `fetchFromApi(): Promise<number>` - fetch from Bluelytics or similar
-  - [ ] Implement `getCachedOrFetch()` with 1-hour TTL
-  - [ ] Implement `preloadRates()` for startup
-  - [ ] Handle API failures gracefully (use last known rate)
-  - [ ] Write tests for service
+- [x] Task 2: Backend - Create exchange rate service (AC: #1, #2, #5)
+  - [x] Create `backend/src/services/exchangeRateService.ts`
+  - [x] Implement `getRate(base: Currency, quote: Currency): Promise<ExchangeRate>`
+  - [x] Implement `fetchFromApi(): Promise<number>` - fetch from Bluelytics or similar
+  - [x] Implement `getCachedOrFetch()` with 1-hour TTL
+  - [x] Implement `preloadRates()` for startup
+  - [x] Handle API failures gracefully (use last known rate)
+  - [x] Write tests for service
 
-- [ ] Task 3: Backend - Create exchange rate validation schemas (AC: #1)
-  - [ ] Create `backend/src/validations/exchangeRate.ts`
-  - [ ] Define `exchangeRateResponseSchema`
-  - [ ] Export types
+- [x] Task 3: Backend - Create exchange rate validation schemas (AC: #1)
+  - [x] Create `backend/src/validations/exchangeRate.ts`
+  - [x] Define `exchangeRateResponseSchema`
+  - [x] Export types
 
-- [ ] Task 4: Backend - Create exchange rate route (AC: #4)
-  - [ ] Create `backend/src/routes/exchangeRates.ts`
-  - [ ] GET `/api/exchange-rates/current` - returns current USD/ARS rate
-  - [ ] Register route in `backend/src/app.ts`
-  - [ ] Write route tests
+- [x] Task 4: Backend - Create exchange rate route (AC: #4)
+  - [x] Create `backend/src/routes/exchangeRates.ts`
+  - [x] GET `/api/exchange-rates/current` - returns current USD/ARS rate
+  - [x] Register route in `backend/src/index.ts`
+  - [x] Write route tests
 
-- [ ] Task 5: Backend - Update portfolio service for multi-currency (AC: #3)
-  - [ ] Modify `portfolioService.getSummary()` to accept optional `displayCurrency`
-  - [ ] Convert all position values to display currency using exchange rate
-  - [ ] Return converted values alongside original values
-  - [ ] Write tests
+- [x] Task 5: Backend - Update portfolio service for multi-currency (AC: #3)
+  - [x] Modify `portfolioService.getSummary()` to accept optional `displayCurrency`
+  - [x] Convert all position values to display currency using exchange rate
+  - [x] Return converted values alongside original values
+  - [x] Write tests
 
-- [ ] Task 6: Backend - Update dashboard service for multi-currency (AC: #3)
-  - [ ] Modify `dashboardService.getDashboard()` to use converted values
-  - [ ] Include exchange rate info in response
-  - [ ] Write tests
+- [x] Task 6: Backend - Update dashboard service for multi-currency (AC: #3)
+  - [x] Modify `dashboardService.getDashboard()` to use converted values
+  - [x] Include exchange rate info in response
+  - [x] Write tests
 
-- [ ] Task 7: Backend - Preload rates on startup (AC: #5)
-  - [ ] Add `exchangeRateService.preloadRates()` call in `backend/src/index.ts`
-  - [ ] Log success/failure of rate preload
+- [x] Task 7: Backend - Preload rates on startup (AC: #5)
+  - [x] Add `exchangeRateService.preloadRates()` call in `backend/src/index.ts`
+  - [x] Log success/failure of rate preload
 
-- [ ] Task 8: Frontend - Add ExchangeRate type (AC: #4)
-  - [ ] Add `ExchangeRate` interface to `frontend/src/types/api.ts`
-  - [ ] Add `getExchangeRate()` to API client
+- [x] Task 8: Frontend - Add ExchangeRate type (AC: #4)
+  - [x] Add `ExchangeRate` interface to `frontend/src/types/api.ts`
+  - [x] Add `getExchangeRate()` to API client
 
-- [ ] Task 9: Frontend - Create exchange rate hook (AC: #4)
-  - [ ] Create `frontend/src/hooks/useExchangeRate.ts`
-  - [ ] Use TanStack Query with appropriate refetch interval
-  - [ ] Handle loading/error states
+- [x] Task 9: Frontend - Create exchange rate hook (AC: #4)
+  - [x] Create `frontend/src/features/exchange-rates/hooks/useExchangeRate.ts`
+  - [x] Use TanStack Query with appropriate staleTime
+  - [x] Handle loading/error states
 
-- [ ] Task 10: Run all tests and ensure passing
-  - [ ] Run `pnpm test` in backend
-  - [ ] Run `pnpm test` in frontend
-  - [ ] Fix any failing tests
+- [x] Task 10: Run all tests and ensure passing
+  - [x] Run `pnpm test` in backend (527 tests passed)
+  - [x] Run `pnpm test` in frontend (407 tests passed)
+  - [x] Fix any failing tests
 
 ## Dev Notes
 
@@ -561,10 +561,44 @@ See `_bmad-output/project-context.md` for:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+N/A
+
 ### Completion Notes List
 
+- All 10 tasks completed successfully
+- Backend tests: 527 passed
+- Frontend tests: 407 passed
+- Exchange rate fetching from Bluelytics API implemented with 1-hour cache TTL
+- Graceful fallback to cached rate when API fails
+- Multi-currency conversion support added to portfolio and dashboard services
+- Frontend hook and types added for exchange rate consumption
+
 ### File List
+
+Created:
+- backend/prisma/migrations/20260111172322_add_exchange_rate/migration.sql
+- backend/src/services/exchangeRateService.ts
+- backend/src/services/exchangeRateService.test.ts
+- backend/src/routes/exchangeRates.ts
+- backend/src/routes/exchangeRates.test.ts
+- backend/src/validations/exchangeRate.ts
+- frontend/src/features/exchange-rates/hooks/useExchangeRate.ts
+- frontend/src/features/exchange-rates/index.ts
+
+Modified:
+- backend/prisma/schema.prisma
+- backend/src/index.ts
+- backend/src/services/portfolioService.ts
+- backend/src/services/portfolioService.test.ts
+- backend/src/services/dashboardService.ts
+- backend/src/services/dashboardService.test.ts
+- backend/src/routes/dashboard.ts
+- backend/src/routes/dashboard.test.ts
+- backend/src/validations/dashboard.ts
+- frontend/src/types/api.ts
+- frontend/src/lib/api.ts
+- frontend/src/lib/queryKeys.ts
