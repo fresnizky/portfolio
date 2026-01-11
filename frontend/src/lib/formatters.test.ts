@@ -13,6 +13,23 @@ describe('formatCurrency', () => {
   it('should handle zero', () => {
     expect(formatCurrency(0)).toBe('$0.00')
   })
+
+  it('should default to USD', () => {
+    expect(formatCurrency(1500)).toBe('$1,500.00')
+  })
+
+  it('should format ARS correctly', () => {
+    // Intl.NumberFormat may use non-breaking space, so we check pattern
+    expect(formatCurrency(1500, 'ARS')).toMatch(/ARS\s*1,500\.00/)
+  })
+
+  it('should format large ARS values correctly', () => {
+    expect(formatCurrency(1000000, 'ARS')).toMatch(/ARS\s*1,000,000\.00/)
+  })
+
+  it('should handle string input with currency', () => {
+    expect(formatCurrency('1234.56', 'ARS')).toMatch(/ARS\s*1,234\.56/)
+  })
 })
 
 describe('formatPercentage', () => {

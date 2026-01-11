@@ -186,6 +186,7 @@ export interface DashboardPosition {
 
 export interface ExchangeRateInfo {
   usdToArs: number
+  fetchedAt: string
   isStale: boolean
 }
 
