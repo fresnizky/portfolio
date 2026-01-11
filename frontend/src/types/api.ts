@@ -20,12 +20,14 @@ export interface ListResponse<T> {
 
 // Asset Types
 export type AssetCategory = 'ETF' | 'FCI' | 'CRYPTO' | 'CASH'
+export type Currency = 'USD' | 'ARS'
 
 export interface Asset {
   id: string
   ticker: string
   name: string
   category: AssetCategory
+  currency: Currency
   targetPercentage: string  // Decimal from Prisma comes as string
   createdAt: string
   updatedAt: string
@@ -36,6 +38,7 @@ export interface CreateAssetInput {
   ticker: string
   name: string
   category: AssetCategory
+  currency?: Currency  // defaults to USD on backend
   targetPercentage?: number
 }
 
@@ -43,6 +46,7 @@ export interface UpdateAssetInput {
   ticker?: string
   name?: string
   category?: AssetCategory
+  currency?: Currency
   targetPercentage?: number
 }
 
@@ -227,6 +231,7 @@ export interface BatchAssetCreate {
   ticker: string
   name: string
   category: AssetCategory
+  currency?: Currency  // defaults to USD on backend
 }
 
 export interface BatchTargetUpdate {

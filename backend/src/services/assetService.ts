@@ -1,6 +1,6 @@
 import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
-import type { CreateAssetInput, UpdateAssetInput } from '@/validations/asset'
+import type { CreateAssetInput, UpdateAssetInput, AssetCategory, Currency } from '@/validations/asset'
 
 /** Target percentages maximum allowed sum (100%) */
 const TARGET_SUM_MAX = 100
@@ -163,7 +163,7 @@ export const assetService = {
    */
   async batchCreate(
     userId: string,
-    assets: Array<{ ticker: string; name: string; category: string }>
+    assets: Array<{ ticker: string; name: string; category: AssetCategory; currency?: Currency }>
   ) {
     // 1. Check for duplicate tickers within the batch
     const tickers = assets.map(a => a.ticker)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createAssetSchema, updateAssetSchema, assetCategorySchema, listAssetsQuerySchema, assetIdParamSchema, targetPercentageSchema, batchUpdateTargetsSchema } from './asset'
+import { createAssetSchema, updateAssetSchema, assetCategorySchema, currencySchema, listAssetsQuerySchema, assetIdParamSchema, targetPercentageSchema, batchUpdateTargetsSchema } from './asset'
 
 describe('assetCategorySchema', () => {
   it('accepts valid categories', () => {
@@ -16,8 +16,29 @@ describe('assetCategorySchema', () => {
   })
 })
 
+describe('currencySchema', () => {
+  it('accepts valid currency USD', () => {
+    expect(currencySchema.parse('USD')).toBe('USD')
+  })
+
+  it('accepts valid currency ARS', () => {
+    expect(currencySchema.parse('ARS')).toBe('ARS')
+  })
+
+  it('rejects invalid currency', () => {
+    expect(() => currencySchema.parse('EUR')).toThrow()
+    expect(() => currencySchema.parse('BTC')).toThrow()
+    expect(() => currencySchema.parse('')).toThrow()
+  })
+
+  it('rejects lowercase currency (case sensitive)', () => {
+    expect(() => currencySchema.parse('usd')).toThrow()
+    expect(() => currencySchema.parse('ars')).toThrow()
+  })
+})
+
 describe('createAssetSchema', () => {
-  it('validates valid asset data', () => {
+  it('validates valid asset data with default currency', () => {
     const result = createAssetSchema.parse({
       ticker: 'voo',
       name: 'Vanguard S&P 500 ETF',
@@ -28,7 +49,41 @@ describe('createAssetSchema', () => {
       ticker: 'VOO', // transformed to uppercase
       name: 'Vanguard S&P 500 ETF',
       category: 'ETF',
+      currency: 'USD', // default
     })
+  })
+
+  it('accepts explicit currency USD', () => {
+    const result = createAssetSchema.parse({
+      ticker: 'VOO',
+      name: 'Vanguard S&P 500 ETF',
+      category: 'ETF',
+      currency: 'USD',
+    })
+
+    expect(result.currency).toBe('USD')
+  })
+
+  it('accepts explicit currency ARS', () => {
+    const result = createAssetSchema.parse({
+      ticker: 'CEDEAR',
+      name: 'CEDEAR Example',
+      category: 'ETF',
+      currency: 'ARS',
+    })
+
+    expect(result.currency).toBe('ARS')
+  })
+
+  it('rejects invalid currency', () => {
+    expect(() =>
+      createAssetSchema.parse({
+        ticker: 'VOO',
+        name: 'Vanguard S&P 500 ETF',
+        category: 'ETF',
+        currency: 'EUR',
+      })
+    ).toThrow()
   })
 
   it('transforms ticker to uppercase', () => {
@@ -179,6 +234,27 @@ describe('updateAssetSchema', () => {
     expect(() =>
       updateAssetSchema.parse({ category: 'INVALID' })
     ).toThrow()
+  })
+
+  it('allows updating currency to USD', () => {
+    const result = updateAssetSchema.parse({ currency: 'USD' })
+    expect(result.currency).toBe('USD')
+  })
+
+  it('allows updating currency to ARS', () => {
+    const result = updateAssetSchema.parse({ currency: 'ARS' })
+    expect(result.currency).toBe('ARS')
+  })
+
+  it('rejects invalid currency in update', () => {
+    expect(() =>
+      updateAssetSchema.parse({ currency: 'EUR' })
+    ).toThrow()
+  })
+
+  it('allows update without currency', () => {
+    const result = updateAssetSchema.parse({ name: 'New Name' })
+    expect(result.currency).toBeUndefined()
   })
 })
 

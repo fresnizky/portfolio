@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const assetCategorySchema = z.enum(['ETF', 'FCI', 'CRYPTO', 'CASH'])
+export const currencySchema = z.enum(['USD', 'ARS'])
 
 // Schema for asset form (without targetPercentage - managed via TargetEditor)
 export const assetFormSchema = z.object({
@@ -14,6 +15,7 @@ export const assetFormSchema = z.object({
     .min(1, 'Name is required')
     .max(100, 'Name must be 100 characters or less'),
   category: assetCategorySchema,
+  currency: currencySchema.default('USD'),
 })
 
 export type AssetFormData = z.infer<typeof assetFormSchema>
