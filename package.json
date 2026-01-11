@@ -1,13 +1,30 @@
 {
   "name": "portfolio",
   "version": "1.0.0",
-  "description": "",
+  "description": "Portfolio Tracker - Investment tracking application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "pnpm test:e2e",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:setup": "docker compose -f docker-compose.test.yml up -d && cd backend && pnpm prisma migrate deploy",
+    "test:e2e:cleanup": "docker compose -f docker-compose.test.yml down -v",
+    "test:e2e:report": "playwright show-report"
   },
-  "keywords": [],
+  "keywords": [
+    "portfolio",
+    "tracker",
+    "investment"
+  ],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.12.3"
+  "packageManager": "pnpm@10.12.3",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.21"
+  }
 }
