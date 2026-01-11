@@ -26,6 +26,7 @@ import type {
   UpdateSettingsInput,
   ChangePasswordInput,
   ExportData,
+  ExchangeRateResponse,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -268,6 +269,9 @@ export const api = {
       if (params?.staleDays !== undefined) {
         searchParams.append('staleDays', params.staleDays.toString())
       }
+      if (params?.displayCurrency !== undefined) {
+        searchParams.append('displayCurrency', params.displayCurrency)
+      }
 
       const queryString = searchParams.toString()
       const url = queryString
@@ -445,6 +449,18 @@ export const api = {
         )
       }
       return res.blob()
+    },
+  },
+
+  exchangeRates: {
+    getCurrent: async (): Promise<ExchangeRateResponse> => {
+      const res = await fetch(`${API_URL}/exchange-rates/current`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<ExchangeRateResponse>(res)
     },
   },
 }

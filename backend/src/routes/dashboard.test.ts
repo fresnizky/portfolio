@@ -95,8 +95,8 @@ describe('dashboard routes', () => {
       expect(response.body.data.positions).toHaveLength(1)
       expect(response.body.data.alerts).toHaveLength(1)
       expect(dashboardService.getDashboard).toHaveBeenCalledWith('user-123', {
-        deviationPct: 5,
-        staleDays: 7,
+        thresholds: { deviationPct: 5, staleDays: 7 },
+        displayCurrency: undefined,
       })
     })
 
@@ -158,8 +158,8 @@ describe('dashboard routes', () => {
 
       expect(response.status).toBe(200)
       expect(dashboardService.getDashboard).toHaveBeenCalledWith('user-123', {
-        deviationPct: 10,
-        staleDays: 7,
+        thresholds: { deviationPct: 10, staleDays: 7 },
+        displayCurrency: undefined,
       })
     })
 
@@ -175,8 +175,8 @@ describe('dashboard routes', () => {
 
       expect(response.status).toBe(200)
       expect(dashboardService.getDashboard).toHaveBeenCalledWith('user-123', {
-        deviationPct: 5,
-        staleDays: 14,
+        thresholds: { deviationPct: 5, staleDays: 14 },
+        displayCurrency: undefined,
       })
     })
 
@@ -195,8 +195,8 @@ describe('dashboard routes', () => {
 
       expect(response.status).toBe(200)
       expect(dashboardService.getDashboard).toHaveBeenCalledWith('user-123', {
-        deviationPct: 3,
-        staleDays: 3,
+        thresholds: { deviationPct: 3, staleDays: 3 },
+        displayCurrency: undefined,
       })
     })
 
