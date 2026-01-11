@@ -1,0 +1,31 @@
+# Docker Compose para E2E Tests
+# Levanta una base de datos separada para tests
+#
+# Uso:
+#   docker compose -f docker-compose.test.yml up -d
+#   pnpm test:e2e
+#   docker compose -f docker-compose.test.yml down -v  # Limpia todo
+#
+# O con el script:
+#   pnpm test:e2e:setup   # Levanta DB + migra
+#   pnpm test:e2e         # Ejecuta tests
+#   pnpm test:e2e:cleanup # Limpia
+
+services:
+  db-test:
+    image: postgres:18
+    container_name: portfolio_db_test
+    ports:
+      - "${PORT_DB_TEST:-10013}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-portfolio_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-portfolio_pass}
+      - POSTGRES_DB=portfolio_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-portfolio_user} -d portfolio_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    # No persistimos datos - cada run es limpio
+    tmpfs:
+      - /var/lib/postgresql/data
