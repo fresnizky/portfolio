@@ -27,13 +27,13 @@ So that **I can understand my total portfolio value in a single currency regardl
   - [x] Add `ExchangeRateInfo` interface
   - [x] Update `DashboardPosition` to include `originalValue`, `originalCurrency`, `displayValue`
 
-- [ ] Task 2: Frontend - Create ExchangeRateIndicator component (AC: #2, #4, #5)
-  - [ ] Create `frontend/src/features/dashboard/components/ExchangeRateIndicator.tsx`
-  - [ ] Display current USD/ARS rate
-  - [ ] Display last updated time (relative format: "2 min ago")
-  - [ ] Show warning badge when `isStale` is true
-  - [ ] Add refresh button that calls exchange rate endpoint
-  - [ ] Write tests
+- [x] Task 2: Frontend - Create ExchangeRateIndicator component (AC: #2, #4, #5)
+  - [x] Create `frontend/src/features/dashboard/components/ExchangeRateIndicator.tsx`
+  - [x] Display current USD/ARS rate
+  - [x] Display last updated time (relative format: "2 min ago")
+  - [x] Show warning badge when `isStale` is true
+  - [x] Add refresh button that calls exchange rate endpoint
+  - [x] Write tests
 
 - [ ] Task 3: Frontend - Update PortfolioSummaryCard for multi-currency (AC: #1)
   - [ ] Modify `PortfolioSummaryCard.tsx` to accept `displayCurrency` prop
@@ -458,9 +458,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Added `fetchedAt` to `ExchangeRateInfo` interface in both backend and frontend. Backend was missing this field which is required for ExchangeRateIndicator to show relative time ("2 min ago"). Types from story 7-2 already included `displayCurrency`, `exchangeRate`, `originalValue`, `originalCurrency` in dashboard response.
+- Task 2: Created ExchangeRateIndicator component with inline SVG icons (RefreshIcon, AlertTriangleIcon), relative time display using date-fns with Spanish locale, stale warning badge, and refresh button with loading state. 8 tests written covering all scenarios.
 
 ### File List
 
 - `backend/src/services/portfolioService.ts` (MODIFIED)
 - `backend/src/services/portfolioService.test.ts` (MODIFIED)
 - `frontend/src/types/api.ts` (MODIFIED)
+- `frontend/src/features/dashboard/components/ExchangeRateIndicator.tsx` (CREATE)
+- `frontend/src/features/dashboard/components/ExchangeRateIndicator.test.tsx` (CREATE)
