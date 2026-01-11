@@ -11,7 +11,10 @@ describe('PositionsList', () => {
     category: 'ETF',
     quantity: '10',
     currentPrice: '450.00',
+    originalValue: '4500.00',
+    originalCurrency: 'USD',
     value: '4500.00',
+    displayCurrency: 'USD',
     targetPercentage: '50.00',
     actualPercentage: '45.00',
     deviation: '-5.00',
@@ -75,5 +78,41 @@ describe('PositionsList', () => {
     render(<PositionsList positions={positions} />)
 
     expect(screen.getByText('—')).toBeInTheDocument()
+  })
+
+  it('should show only display value when currencies match', () => {
+    const positions = [
+      createPosition({
+        originalValue: '1000.00',
+        originalCurrency: 'USD',
+        value: '1000.00',
+        displayCurrency: 'USD',
+      }),
+    ]
+    render(<PositionsList positions={positions} />)
+
+    // Should show the value once
+    expect(screen.getByText('$1,000.00')).toBeInTheDocument()
+    // Should not show the original value in parentheses
+    expect(screen.queryByText('($1,000.00)')).not.toBeInTheDocument()
+  })
+
+  it('should show both values when currencies differ', () => {
+    const positions = [
+      createPosition({
+        ticker: 'FCI-ARG',
+        name: 'FCI Argentina',
+        originalValue: '1000000.00',
+        originalCurrency: 'ARS',
+        value: '1000.00',
+        displayCurrency: 'USD',
+      }),
+    ]
+    render(<PositionsList positions={positions} />)
+
+    // Should show display value (converted to USD)
+    expect(screen.getByText('$1,000.00')).toBeInTheDocument()
+    // Should show original value in ARS in parentheses (may have non-breaking space)
+    expect(screen.getByText(/\(ARS\s*1,000,000\.00\)/)).toBeInTheDocument()
   })
 })

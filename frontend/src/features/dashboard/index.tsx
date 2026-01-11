@@ -14,7 +14,10 @@ export function DashboardPage() {
 
       <PortfolioSummaryCard
         totalValue={data?.totalValue ?? '0'}
+        displayCurrency={data?.displayCurrency ?? 'USD'}
+        exchangeRate={data?.exchangeRate ?? null}
         isLoading={isLoading}
+        onExchangeRateRefresh={() => refetch()}
       />
 
       {/* Alerts Panel - Prominent placement */}

@@ -47,8 +47,13 @@ export function PositionsList({ positions }: PositionsListProps) {
               </div>
               <div className="text-right">
                 <p className="font-medium text-gray-900">
-                  {formatCurrency(position.value)}
+                  {formatCurrency(position.value, position.displayCurrency)}
                 </p>
+                {position.originalCurrency !== position.displayCurrency && (
+                  <p className="text-xs text-gray-500">
+                    ({formatCurrency(position.originalValue, position.originalCurrency)})
+                  </p>
+                )}
                 <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${bg} ${text}`}>
                   {label}
                 </span>
