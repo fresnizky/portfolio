@@ -1,6 +1,6 @@
 # Story 7.1: Currency Field on Asset Model
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
