@@ -1,5 +1,6 @@
 import { portfolioService } from './portfolioService'
 import { settingsService } from './settingsService'
+import { Currency } from '@prisma/client'
 import type {
   DashboardResponse,
   DashboardPosition,
@@ -7,11 +8,18 @@ import type {
   DashboardThresholds,
 } from '@/validations/dashboard'
 
+export interface DashboardOptions {
+  thresholds?: Partial<DashboardThresholds>
+  displayCurrency?: Currency
+}
+
 export const dashboardService = {
   async getDashboard(
     userId: string,
-    thresholds?: Partial<DashboardThresholds>
+    options?: DashboardOptions
   ): Promise<DashboardResponse> {
+    const { thresholds, displayCurrency = 'USD' } = options ?? {}
+
     // If thresholds not provided, fetch from user settings
     let effectiveThresholds: DashboardThresholds
     if (thresholds?.deviationPct !== undefined && thresholds?.staleDays !== undefined) {
@@ -23,12 +31,23 @@ export const dashboardService = {
         staleDays: thresholds?.staleDays ?? settings.priceAlertDays,
       }
     }
-    // Reuse existing portfolioService for base data
-    const summary = await portfolioService.getSummary(userId)
+    // Reuse existing portfolioService for base data with displayCurrency
+    const summary = await portfolioService.getSummary(userId, displayCurrency)
 
     const totalValue = parseFloat(summary.totalValue)
     const alerts: DashboardAlert[] = []
     const now = new Date()
+
+    // Add stale exchange rate alert if applicable
+    if (summary.exchangeRate?.isStale) {
+      alerts.push({
+        type: 'stale_price',
+        assetId: 'exchange-rate',
+        ticker: 'USD/ARS',
+        message: 'Exchange rate may be outdated',
+        severity: 'warning',
+      })
+    }
 
     // Enrich positions with calculated fields
     const positions: DashboardPosition[] = summary.positions.map(pos => {
@@ -91,7 +110,10 @@ export const dashboardService = {
         category: pos.category,
         quantity: pos.quantity,
         currentPrice: pos.currentPrice,
+        originalValue: pos.originalValue,
+        originalCurrency: pos.originalCurrency,
         value: pos.value,
+        displayCurrency: pos.displayCurrency,
         targetPercentage: pos.targetPercentage,
         actualPercentage: actualPercentage.toFixed(2),
         deviation: deviation.toFixed(2),
@@ -101,6 +123,8 @@ export const dashboardService = {
 
     return {
       totalValue: summary.totalValue,
+      displayCurrency: summary.displayCurrency,
+      exchangeRate: summary.exchangeRate,
       positions,
       alerts,
     }

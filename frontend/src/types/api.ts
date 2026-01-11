@@ -174,15 +174,25 @@ export interface DashboardPosition {
   category: AssetCategory
   quantity: string
   currentPrice: string | null
+  originalValue: string
+  originalCurrency: Currency
   value: string
+  displayCurrency: Currency
   targetPercentage: string | null
   actualPercentage: string
   deviation: string
   priceUpdatedAt: string | null
 }
 
+export interface ExchangeRateInfo {
+  usdToArs: number
+  isStale: boolean
+}
+
 export interface DashboardResponse {
   totalValue: string
+  displayCurrency: Currency
+  exchangeRate: ExchangeRateInfo | null
   positions: DashboardPosition[]
   alerts: DashboardAlert[]
 }
@@ -190,6 +200,7 @@ export interface DashboardResponse {
 export interface DashboardParams {
   deviationThreshold?: number
   staleDays?: number
+  displayCurrency?: Currency
 }
 
 // Snapshot Types
@@ -283,4 +294,14 @@ export interface ExportData {
   holdings: Holding[]
   transactions: Transaction[]
   snapshots: Snapshot[]
+}
+
+// Exchange Rate Types
+export interface ExchangeRateResponse {
+  baseCurrency: Currency
+  quoteCurrency: Currency
+  rate: number
+  fetchedAt: string
+  isStale: boolean
+  source: string
 }

@@ -14,6 +14,8 @@ import dashboardRouter from './routes/dashboard'
 import snapshotsRouter from './routes/snapshots'
 import onboardingRouter from './routes/onboarding'
 import settingsRouter from './routes/settings'
+import exchangeRatesRouter from './routes/exchangeRates'
+import { exchangeRateService } from './services/exchangeRateService'
 
 dotenv.config()
 
@@ -43,10 +45,13 @@ app.use('/api/dashboard', authMiddleware, dashboardRouter)
 app.use('/api/snapshots', authMiddleware, snapshotsRouter)
 app.use('/api/onboarding', authMiddleware, onboardingRouter)
 app.use('/api/settings', authMiddleware, settingsRouter)
+app.use('/api/exchange-rates', authMiddleware, exchangeRatesRouter)
 
 // Centralized error handler (must be last)
 app.use(errorHandler)
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`)
+  // Preload exchange rates on startup
+  await exchangeRateService.preloadRates()
 })

@@ -19,11 +19,14 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       })
     }
 
-    const { deviationThreshold, staleDays } = parseResult.data
+    const { deviationThreshold, staleDays, displayCurrency } = parseResult.data
 
     const dashboard = await dashboardService.getDashboard(req.user!.id, {
-      deviationPct: deviationThreshold ?? 5,
-      staleDays: staleDays ?? 7,
+      thresholds: {
+        deviationPct: deviationThreshold ?? 5,
+        staleDays: staleDays ?? 7,
+      },
+      displayCurrency,
     })
 
     res.json({ data: dashboard })

@@ -46,4 +46,8 @@ export const queryKeys = {
     all: ['settings'] as const,
     get: () => [...queryKeys.settings.all, 'get'] as const,
   },
+  exchangeRates: {
+    all: ['exchangeRates'] as const,
+    current: () => [...queryKeys.exchangeRates.all, 'current'] as const,
+  },
 }

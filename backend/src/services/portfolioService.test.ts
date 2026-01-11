@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { portfolioService } from './portfolioService'
 import { prisma } from '@/config/database'
-import type { Holding } from '@prisma/client'
+import type { Holding, Currency } from '@prisma/client'
 
 // Mock the database
 vi.mock('@/config/database', () => ({
@@ -11,6 +11,16 @@ vi.mock('@/config/database', () => ({
     },
   },
 }))
+
+// Mock the exchange rate service
+vi.mock('./exchangeRateService', () => ({
+  exchangeRateService: {
+    getRate: vi.fn(),
+    convert: vi.fn(),
+  },
+}))
+
+import { exchangeRateService } from './exchangeRateService'
 
 // Helper to create mock Prisma Decimal that works with Number()
 const createMockDecimal = (value: number) => ({
@@ -26,6 +36,7 @@ type HoldingWithAssetForSummary = Holding & {
     ticker: string
     name: string
     category: string
+    currency: Currency
     targetPercentage: ReturnType<typeof createMockDecimal> | null
     currentPriceCents: bigint | null
     priceUpdatedAt: Date | null
@@ -39,6 +50,7 @@ const createMockHoldingWithAsset = (
     ticker?: string
     name?: string
     category?: string
+    currency?: Currency
     targetPercentage?: number | null
     currentPriceCents?: bigint | null
     priceUpdatedAt?: Date | null
@@ -55,6 +67,7 @@ const createMockHoldingWithAsset = (
     ticker: assetOverrides.ticker ?? 'VOO',
     name: assetOverrides.name ?? 'Vanguard S&P 500 ETF',
     category: assetOverrides.category ?? 'ETF',
+    currency: assetOverrides.currency ?? 'USD',
     targetPercentage:
       assetOverrides.targetPercentage !== undefined
         ? assetOverrides.targetPercentage !== null
@@ -84,6 +97,8 @@ describe('portfolioService', () => {
 
       expect(result).toEqual({
         totalValue: '0.00',
+        displayCurrency: 'USD',
+        exchangeRate: null,
         positions: [],
       })
     })
@@ -164,6 +179,7 @@ describe('portfolioService', () => {
           ticker: 'VOO',
           name: 'Vanguard S&P 500 ETF',
           category: 'ETF',
+          currency: 'USD',
           targetPercentage: 60,
           currentPriceCents: BigInt(45075), // $450.75
           priceUpdatedAt,
@@ -181,7 +197,10 @@ describe('portfolioService', () => {
         category: 'ETF',
         quantity: '10.5',
         currentPrice: '450.75',
+        originalValue: '4732.88',
+        originalCurrency: 'USD',
         value: '4732.88',
+        displayCurrency: 'USD',
         targetPercentage: '60.00',
         priceUpdatedAt,
       })
@@ -270,6 +289,7 @@ describe('portfolioService', () => {
               ticker: true,
               name: true,
               category: true,
+              currency: true,
               targetPercentage: true,
               currentPriceCents: true,
               priceUpdatedAt: true,
@@ -322,6 +342,117 @@ describe('portfolioService', () => {
       expect(result.positions[1].value).toBe('0.00')
       // Total should only include priced position
       expect(result.totalValue).toBe('4507.50')
+    })
+
+    it('should convert ARS values to USD when display currency is USD', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'VOO',
+          currency: 'USD',
+          currentPriceCents: BigInt(10000), // $100
+        }),
+        createMockHoldingWithAsset(1000, {
+          id: 'asset-2',
+          ticker: 'FCI-ARG',
+          currency: 'ARS',
+          currentPriceCents: BigInt(100000), // 1000 ARS
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+      vi.mocked(exchangeRateService.getRate).mockResolvedValue({
+        rate: 1000,
+        fetchedAt: new Date(),
+        isStale: false,
+        source: 'bluelytics',
+      })
+      vi.mocked(exchangeRateService.convert).mockResolvedValue({
+        converted: 1000, // 1000000 ARS / 1000 = 1000 USD
+        rate: 0.001,
+        isStale: false,
+      })
+
+      const result = await portfolioService.getSummary(userId, 'USD')
+
+      expect(result.displayCurrency).toBe('USD')
+      expect(result.exchangeRate).toEqual({ usdToArs: 1000, isStale: false })
+      // ARS position converted to USD
+      expect(result.positions[1].originalValue).toBe('1000000.00')
+      expect(result.positions[1].originalCurrency).toBe('ARS')
+      expect(result.positions[1].value).toBe('1000.00')
+      expect(result.positions[1].displayCurrency).toBe('USD')
+    })
+
+    it('should not fetch exchange rate when all assets are in same currency', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'VOO',
+          currency: 'USD',
+          currentPriceCents: BigInt(10000),
+        }),
+        createMockHoldingWithAsset(5, {
+          id: 'asset-2',
+          ticker: 'GLD',
+          currency: 'USD',
+          currentPriceCents: BigInt(5000),
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+
+      const result = await portfolioService.getSummary(userId, 'USD')
+
+      expect(exchangeRateService.getRate).not.toHaveBeenCalled()
+      expect(result.exchangeRate).toBeNull()
+    })
+
+    it('should return originalValue same as value when no conversion needed', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'VOO',
+          currency: 'USD',
+          currentPriceCents: BigInt(10000),
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+
+      const result = await portfolioService.getSummary(userId, 'USD')
+
+      expect(result.positions[0].originalValue).toBe('1000.00')
+      expect(result.positions[0].value).toBe('1000.00')
+    })
+
+    it('should handle exchange rate fetch failure gracefully', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'VOO',
+          currency: 'USD',
+          currentPriceCents: BigInt(10000),
+        }),
+        createMockHoldingWithAsset(1000, {
+          id: 'asset-2',
+          ticker: 'FCI-ARG',
+          currency: 'ARS',
+          currentPriceCents: BigInt(100000),
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+      vi.mocked(exchangeRateService.getRate).mockRejectedValue(
+        new Error('API unavailable')
+      )
+
+      const result = await portfolioService.getSummary(userId, 'USD')
+
+      // Should return null exchange rate when fetch fails
+      expect(result.exchangeRate).toBeNull()
+      // Values should remain unconverted
+      expect(result.positions[1].value).toBe('1000000.00')
     })
   })
 })

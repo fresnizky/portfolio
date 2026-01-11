@@ -28,7 +28,10 @@ const createMockPosition = (overrides: {
   category?: string
   quantity?: string
   currentPrice?: string | null
+  originalValue?: string
+  originalCurrency?: string
   value?: string
+  displayCurrency?: string
   targetPercentage?: string | null
   priceUpdatedAt?: Date | null
 } = {}) => ({
@@ -38,9 +41,25 @@ const createMockPosition = (overrides: {
   category: overrides.category !== undefined ? overrides.category : 'ETF',
   quantity: overrides.quantity !== undefined ? overrides.quantity : '10',
   currentPrice: overrides.currentPrice !== undefined ? overrides.currentPrice : '450.75',
+  originalValue: overrides.originalValue !== undefined ? overrides.originalValue : overrides.value !== undefined ? overrides.value : '4507.50',
+  originalCurrency: overrides.originalCurrency !== undefined ? overrides.originalCurrency : 'USD',
   value: overrides.value !== undefined ? overrides.value : '4507.50',
+  displayCurrency: overrides.displayCurrency !== undefined ? overrides.displayCurrency : 'USD',
   targetPercentage: overrides.targetPercentage !== undefined ? overrides.targetPercentage : '60.00',
   priceUpdatedAt: overrides.priceUpdatedAt !== undefined ? overrides.priceUpdatedAt : new Date('2026-01-09T15:30:00.000Z'),
+})
+
+// Helper to create mock portfolio summary
+const createMockSummary = (overrides: {
+  totalValue?: string
+  displayCurrency?: string
+  exchangeRate?: { usdToArs: number; isStale: boolean } | null
+  positions?: ReturnType<typeof createMockPosition>[]
+} = {}) => ({
+  totalValue: overrides.totalValue !== undefined ? overrides.totalValue : '0.00',
+  displayCurrency: overrides.displayCurrency !== undefined ? overrides.displayCurrency : 'USD',
+  exchangeRate: overrides.exchangeRate !== undefined ? overrides.exchangeRate : null,
+  positions: overrides.positions !== undefined ? overrides.positions : [],
 })
 
 describe('dashboardService', () => {
@@ -63,7 +82,7 @@ describe('dashboardService', () => {
 
   describe('getDashboard', () => {
     it('should calculate actualPercentage correctly', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -79,7 +98,7 @@ describe('dashboardService', () => {
             targetPercentage: '40.00',
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -90,7 +109,7 @@ describe('dashboardService', () => {
     })
 
     it('should calculate deviation correctly', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -106,7 +125,7 @@ describe('dashboardService', () => {
             targetPercentage: '40.00', // 40% target
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -119,7 +138,7 @@ describe('dashboardService', () => {
     it('should generate stale_price alert when price > 7 days old', async () => {
       const oldDate = new Date('2026-01-01T10:00:00.000Z') // 9 days ago
 
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -130,7 +149,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: oldDate,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -148,7 +167,7 @@ describe('dashboardService', () => {
     it('should NOT generate stale_price alert when price is recent', async () => {
       const recentDate = new Date('2026-01-08T10:00:00.000Z') // 2 days ago
 
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -159,7 +178,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: recentDate,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -168,7 +187,7 @@ describe('dashboardService', () => {
     })
 
     it('should generate rebalance_needed alert when deviation > 5%', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -184,7 +203,7 @@ describe('dashboardService', () => {
             targetPercentage: '40.00', // 40% target → +6% deviation
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -213,7 +232,7 @@ describe('dashboardService', () => {
     })
 
     it('should NOT generate rebalance alert when deviation = threshold exactly', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -223,7 +242,7 @@ describe('dashboardService', () => {
             targetPercentage: '60.00', // 60% target → exactly -5% deviation
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -233,7 +252,7 @@ describe('dashboardService', () => {
     })
 
     it('should NOT generate rebalance alert when deviation < threshold', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -249,7 +268,7 @@ describe('dashboardService', () => {
             targetPercentage: '40.00', // 40% target → +2% deviation (below 5%)
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -258,22 +277,24 @@ describe('dashboardService', () => {
     })
 
     it('should handle empty portfolio (totalValue = 0)', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '0.00',
         positions: [],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
       expect(result).toEqual({
         totalValue: '0.00',
+        displayCurrency: 'USD',
+        exchangeRate: null,
         positions: [],
         alerts: [],
       })
     })
 
     it('should handle positions with zero value (actualPercentage = 0)', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -291,7 +312,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: null,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -304,7 +325,7 @@ describe('dashboardService', () => {
     })
 
     it('should handle assets with null targetPercentage', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -314,7 +335,7 @@ describe('dashboardService', () => {
             targetPercentage: null,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -329,7 +350,7 @@ describe('dashboardService', () => {
     it('should respect custom thresholds', async () => {
       const oldDate = new Date('2026-01-07T10:00:00.000Z') // 3 days ago
 
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -340,12 +361,11 @@ describe('dashboardService', () => {
             priceUpdatedAt: oldDate,
           }),
         ],
-      })
+      }))
 
       // Use lower thresholds: 2% deviation, 2 days stale
       const result = await dashboardService.getDashboard(userId, {
-        deviationPct: 2,
-        staleDays: 2,
+        thresholds: { deviationPct: 2, staleDays: 2 },
       })
 
       // Should trigger both alerts with custom thresholds
@@ -360,7 +380,7 @@ describe('dashboardService', () => {
     })
 
     it('should handle price with no timestamp (treat as stale)', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -372,7 +392,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: null,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -382,7 +402,7 @@ describe('dashboardService', () => {
     })
 
     it('should NOT generate stale alert for asset with null price', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '0.00',
         positions: [
           createMockPosition({
@@ -394,7 +414,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: null,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -403,25 +423,25 @@ describe('dashboardService', () => {
     })
 
     it('should return totalValue from portfolioService', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '12345.67',
         positions: [],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
       expect(result.totalValue).toBe('12345.67')
     })
 
-    it('should call portfolioService.getSummary with correct userId', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+    it('should call portfolioService.getSummary with correct userId and displayCurrency', async () => {
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '0.00',
         positions: [],
-      })
+      }))
 
       await dashboardService.getDashboard('user-456')
 
-      expect(portfolioService.getSummary).toHaveBeenCalledWith('user-456')
+      expect(portfolioService.getSummary).toHaveBeenCalledWith('user-456', 'USD')
       expect(portfolioService.getSummary).toHaveBeenCalledTimes(1)
     })
 
@@ -435,7 +455,7 @@ describe('dashboardService', () => {
       // Price 8 days old (would be stale with default 7, but not with 14)
       const eightDaysAgo = new Date('2026-01-02T10:00:00.000Z')
 
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -446,7 +466,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: eightDaysAgo,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -459,7 +479,7 @@ describe('dashboardService', () => {
       // Price 6 days old (below 7 day default)
       const sixDaysAgo = new Date('2026-01-04T10:00:00.000Z')
 
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
           createMockPosition({
@@ -470,7 +490,7 @@ describe('dashboardService', () => {
             priceUpdatedAt: sixDaysAgo,
           }),
         ],
-      })
+      }))
 
       const result = await dashboardService.getDashboard(userId)
 
@@ -479,26 +499,25 @@ describe('dashboardService', () => {
     })
 
     it('should NOT call settingsService when both thresholds are provided', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [],
-      })
+      }))
 
       await dashboardService.getDashboard(userId, {
-        deviationPct: 5,
-        staleDays: 7,
+        thresholds: { deviationPct: 5, staleDays: 7 },
       })
 
       expect(settingsService.getSettings).not.toHaveBeenCalled()
     })
 
     it('should call settingsService when only one threshold is provided', async () => {
-      vi.mocked(portfolioService.getSummary).mockResolvedValue({
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [],
-      })
+      }))
 
-      await dashboardService.getDashboard(userId, { deviationPct: 5 })
+      await dashboardService.getDashboard(userId, { thresholds: { deviationPct: 5 } })
 
       expect(settingsService.getSettings).toHaveBeenCalledWith(userId)
     })
