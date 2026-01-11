@@ -1,6 +1,6 @@
 # Story 7.1: Currency Field on Asset Model
 
-Status: review
+Status: done
 
 ## Story
 
@@ -20,53 +20,53 @@ So that **the system knows which assets are in USD vs ARS**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Backend - Add Currency enum and field to Prisma schema (AC: #4)
-  - [ ] Add `Currency` enum with values `USD`, `ARS` to `backend/prisma/schema.prisma`
-  - [ ] Add `currency Currency @default(USD)` field to Asset model
-  - [ ] Run migration: `npx prisma migrate dev --name add_currency_to_asset`
-  - [ ] Run `npx prisma generate` to update client types
+- [x] Task 1: Backend - Add Currency enum and field to Prisma schema (AC: #4)
+  - [x] Add `Currency` enum with values `USD`, `ARS` to `backend/prisma/schema.prisma`
+  - [x] Add `currency Currency @default(USD)` field to Asset model
+  - [x] Run migration: `npx prisma migrate dev --name add_currency_to_asset`
+  - [x] Run `npx prisma generate` to update client types
 
-- [ ] Task 2: Backend - Update asset validation schemas (AC: #1, #2)
-  - [ ] Add `currencySchema` to `backend/src/validations/asset.ts`
-  - [ ] Add `currency` to `createAssetSchema` (required, default USD)
-  - [ ] Add `currency` to `updateAssetSchema` (optional)
-  - [ ] Write tests for validation
+- [x] Task 2: Backend - Update asset validation schemas (AC: #1, #2)
+  - [x] Add `currencySchema` to `backend/src/validations/asset.ts`
+  - [x] Add `currency` to `createAssetSchema` (required, default USD)
+  - [x] Add `currency` to `updateAssetSchema` (optional)
+  - [x] Write tests for validation
 
-- [ ] Task 3: Backend - Update asset service (AC: #1, #2)
-  - [ ] Update `assetService.create()` to accept currency
-  - [ ] Update `assetService.update()` to accept currency
-  - [ ] Update `assetService.createBatch()` for onboarding
-  - [ ] Write tests for service methods
+- [x] Task 3: Backend - Update asset service (AC: #1, #2)
+  - [x] Update `assetService.create()` to accept currency
+  - [x] Update `assetService.update()` to accept currency
+  - [x] Update `assetService.createBatch()` for onboarding
+  - [x] Write tests for service methods
 
-- [ ] Task 4: Frontend - Add Currency type and update interfaces (AC: all)
-  - [ ] Add `Currency` type to `frontend/src/types/api.ts`
-  - [ ] Add `currency` field to `Asset` interface
-  - [ ] Add `currency` field to `CreateAssetInput` interface
-  - [ ] Add `currency` field to `UpdateAssetInput` interface
+- [x] Task 4: Frontend - Add Currency type and update interfaces (AC: all)
+  - [x] Add `Currency` type to `frontend/src/types/api.ts`
+  - [x] Add `currency` field to `Asset` interface
+  - [x] Add `currency` field to `CreateAssetInput` interface
+  - [x] Add `currency` field to `UpdateAssetInput` interface
 
-- [ ] Task 5: Frontend - Update asset validation schema (AC: #1, #2)
-  - [ ] Add `currencySchema` to `frontend/src/validations/asset.ts`
-  - [ ] Add `currency` to `assetFormSchema`
+- [x] Task 5: Frontend - Update asset validation schema (AC: #1, #2)
+  - [x] Add `currencySchema` to `frontend/src/validations/asset.ts`
+  - [x] Add `currency` to `assetFormSchema`
 
-- [ ] Task 6: Frontend - Update AssetForm component (AC: #1, #2)
-  - [ ] Add `currencies` array with labels
-  - [ ] Add currency Select dropdown after category field
-  - [ ] Set default value to 'USD'
-  - [ ] Write tests
+- [x] Task 6: Frontend - Update AssetForm component (AC: #1, #2)
+  - [x] Add `currencies` array with labels
+  - [x] Add currency Select dropdown after category field
+  - [x] Set default value to 'USD'
+  - [x] Write tests
 
-- [ ] Task 7: Frontend - Update AssetCard component (AC: #3)
-  - [ ] Add currency display next to price/value
-  - [ ] Add optional styling for currency badge
-  - [ ] Write tests
+- [x] Task 7: Frontend - Update AssetCard component (AC: #3)
+  - [x] Add currency display next to price/value
+  - [x] Add optional styling for currency badge
+  - [x] Write tests
 
-- [ ] Task 8: Frontend - Update onboarding to include currency (AC: #1)
-  - [ ] Check if onboarding asset form needs currency field
-  - [ ] Update if necessary
+- [x] Task 8: Frontend - Update onboarding to include currency (AC: #1)
+  - [x] Check if onboarding asset form needs currency field
+  - [x] Update if necessary
 
-- [ ] Task 9: Run all tests and ensure passing
-  - [ ] Run `pnpm test` in backend
-  - [ ] Run `pnpm test` in frontend
-  - [ ] Fix any failing tests
+- [x] Task 9: Run all tests and ensure passing
+  - [x] Run `pnpm test` in backend
+  - [x] Run `pnpm test` in frontend
+  - [x] Fix any failing tests
 
 ## Dev Notes
 
