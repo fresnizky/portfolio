@@ -13,6 +13,7 @@ const centsToNumber = (cents: bigint | null): number | null => {
 
 export interface ExchangeRateInfo {
   usdToArs: number
+  fetchedAt: string
   isStale: boolean
 }
 
@@ -55,8 +56,8 @@ export const portfolioService = {
     let exchangeRateInfo: ExchangeRateInfo | null = null
     if (hasMixedCurrencies) {
       try {
-        const { rate, isStale } = await exchangeRateService.getRate('USD', 'ARS')
-        exchangeRateInfo = { usdToArs: rate, isStale }
+        const { rate, fetchedAt, isStale } = await exchangeRateService.getRate('USD', 'ARS')
+        exchangeRateInfo = { usdToArs: rate, fetchedAt: fetchedAt.toISOString(), isStale }
       } catch {
         // If exchange rate fails and we have mixed currencies, we can't convert
         // Return values in original currencies with a warning

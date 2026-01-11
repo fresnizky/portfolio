@@ -376,7 +376,8 @@ describe('portfolioService', () => {
       const result = await portfolioService.getSummary(userId, 'USD')
 
       expect(result.displayCurrency).toBe('USD')
-      expect(result.exchangeRate).toEqual({ usdToArs: 1000, isStale: false })
+      expect(result.exchangeRate).toMatchObject({ usdToArs: 1000, isStale: false })
+      expect(result.exchangeRate?.fetchedAt).toBeDefined()
       // ARS position converted to USD
       expect(result.positions[1].originalValue).toBe('1000000.00')
       expect(result.positions[1].originalCurrency).toBe('ARS')
