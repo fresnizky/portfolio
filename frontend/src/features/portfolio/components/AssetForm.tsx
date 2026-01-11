@@ -1,13 +1,18 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { assetFormSchema, type AssetFormData } from '@/validations/asset'
-import type { Asset, AssetCategory } from '@/types/api'
+import type { Asset, AssetCategory, Currency } from '@/types/api'
 
 const categories: { value: AssetCategory; label: string }[] = [
   { value: 'ETF', label: 'ETF' },
   { value: 'FCI', label: 'FCI' },
   { value: 'CRYPTO', label: 'Crypto' },
   { value: 'CASH', label: 'Cash' },
+]
+
+const currencies: { value: Currency; label: string }[] = [
+  { value: 'USD', label: 'USD - Dólar' },
+  { value: 'ARS', label: 'ARS - Peso Argentino' },
 ]
 
 interface AssetFormProps {
@@ -32,11 +37,13 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
           ticker: asset.ticker,
           name: asset.name,
           category: asset.category,
+          currency: asset.currency,
         }
       : {
           ticker: '',
           name: '',
           category: 'ETF',
+          currency: 'USD',
         },
   })
 
@@ -117,6 +124,29 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
         {errors.category && (
           <p className="mt-1 text-sm text-red-600" role="alert">
             {errors.category.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+          Moneda
+        </label>
+        <select
+          id="currency"
+          {...register('currency')}
+          disabled={isSubmitting}
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+        >
+          {currencies.map((curr) => (
+            <option key={curr.value} value={curr.value}>
+              {curr.label}
+            </option>
+          ))}
+        </select>
+        {errors.currency && (
+          <p className="mt-1 text-sm text-red-600" role="alert">
+            {errors.currency.message}
           </p>
         )}
       </div>

@@ -24,6 +24,7 @@ const mockAssets: Asset[] = [
     ticker: 'VOO',
     name: 'Vanguard S&P 500 ETF',
     category: 'ETF',
+    currency: 'USD',
     targetPercentage: '60.00',
     createdAt: '2026-01-07T00:00:00.000Z',
     updatedAt: '2026-01-07T00:00:00.000Z',
@@ -34,6 +35,7 @@ const mockAssets: Asset[] = [
     ticker: 'BND',
     name: 'Vanguard Total Bond ETF',
     category: 'ETF',
+    currency: 'USD',
     targetPercentage: '40.00',
     createdAt: '2026-01-07T00:00:00.000Z',
     updatedAt: '2026-01-07T00:00:00.000Z',
@@ -121,6 +123,7 @@ describe('PortfolioPage Integration', () => {
         ticker: 'BTC',
         name: 'Bitcoin',
         category: 'CRYPTO',
+        currency: 'USD',
         targetPercentage: '0.00',
         createdAt: '2026-01-07T00:00:00.000Z',
         updatedAt: '2026-01-07T00:00:00.000Z',
@@ -152,6 +155,7 @@ describe('PortfolioPage Integration', () => {
           ticker: 'BTC',
           name: 'Bitcoin',
           category: 'CRYPTO',
+          currency: 'USD',
           targetPercentage: 0,
         })
       })

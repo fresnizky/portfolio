@@ -1,4 +1,4 @@
-# generated: 2026-01-06
+# generated: 2026-01-11
 # project: Portfolio Tracker
 # project_key: portfolio
 # tracking_system: file-system
@@ -33,7 +33,7 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2026-01-06
+generated: 2026-01-11
 project: Portfolio Tracker
 project_key: portfolio
 tracking_system: file-system
@@ -77,9 +77,27 @@ development_status:
   epic-5-retrospective: optional
 
   # Epic 6: Historical Evolution & Onboarding
-  epic-6: in-progress
+  epic-6: done
   6-1-portfolio-snapshots-api: done
   6-2-evolution-chart-historical-view: done
   6-3-onboarding-wizard: done
-  6-4-settings-preferences-management: review
+  6-4-settings-preferences-management: done
   epic-6-retrospective: optional
+
+  # Epic 7: Multi-Currency Support
+  epic-7: in-progress
+  7-1-currency-field-on-asset-model: done
+  7-2-exchange-rate-api-integration: backlog
+  7-3-dashboard-multi-currency-display: backlog
+  7-4-evolution-chart-currency-toggle: backlog
+  7-5-exchange-rate-settings-preferences: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: Bugfixes & Improvements
+  epic-8: backlog
+  8-1-fix-mobile-login-failed-to-fetch: backlog
+  8-2-fix-onboarding-detection-existing-assets: backlog
+  8-3-fix-transaction-date-format-validation: backlog
+  8-4-fix-btc-decimal-precision: backlog
+  8-5-improve-mobile-font-size: backlog
+  epic-8-retrospective: optional

@@ -73,6 +73,7 @@ describe('CreateAssetModal', () => {
       ticker: 'BTC',
       name: 'Bitcoin',
       category: 'CRYPTO',
+      currency: 'USD',
       targetPercentage: '0.00',
       createdAt: '2026-01-07T00:00:00.000Z',
       updatedAt: '2026-01-07T00:00:00.000Z',
@@ -93,6 +94,7 @@ describe('CreateAssetModal', () => {
         ticker: 'BTC',
         name: 'Bitcoin',
         category: 'CRYPTO',
+        currency: 'USD',
         targetPercentage: 0,
       })
       expect(mockOnClose).toHaveBeenCalled()

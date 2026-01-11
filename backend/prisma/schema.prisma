@@ -39,11 +39,17 @@ enum TransactionType {
   SELL
 }
 
+enum Currency {
+  USD
+  ARS
+}
+
 model Asset {
   id               String        @id @default(cuid())
   ticker           String
   name             String
   category         AssetCategory
+  currency         Currency      @default(USD)
   targetPercentage Decimal       @default(0)
   currentPriceCents BigInt?
   priceUpdatedAt   DateTime?

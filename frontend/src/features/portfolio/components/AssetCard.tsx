@@ -24,6 +24,7 @@ export function AssetCard({ asset, onEdit, onDelete }: AssetCardProps) {
             {asset.category}
           </span>
           <span className="text-sm font-medium text-gray-500">{asset.ticker}</span>
+          <span className="text-xs text-gray-400">({asset.currency})</span>
         </div>
         <div className="flex gap-1">
           <button

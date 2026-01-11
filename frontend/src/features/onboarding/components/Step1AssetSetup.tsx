@@ -1,12 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import type { BatchAssetCreate, AssetCategory } from '@/types/api'
+import type { BatchAssetCreate, AssetCategory, Currency } from '@/types/api'
 
 const assetSchema = z.object({
   ticker: z.string().min(1, 'Ticker requerido').max(10).transform(v => v.toUpperCase()),
   name: z.string().min(1, 'Nombre requerido'),
   category: z.enum(['ETF', 'FCI', 'CRYPTO', 'CASH']),
+  currency: z.enum(['USD', 'ARS']).default('USD'),
 })
 
 type AssetFormData = z.infer<typeof assetSchema>
@@ -25,7 +26,7 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
     formState: { errors },
   } = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
-    defaultValues: { ticker: '', name: '', category: 'ETF' },
+    defaultValues: { ticker: '', name: '', category: 'ETF', currency: 'USD' },
   })
 
   const onSubmit = (data: AssetFormData) => {
@@ -38,7 +39,7 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
       {/* Asset Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="font-medium text-gray-900 mb-4">Agregar activo</h3>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <div>
             <label className="text-sm text-gray-600">Ticker</label>
             <input
@@ -73,6 +74,16 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
               <option value="CASH">Cash</option>
             </select>
           </div>
+          <div>
+            <label className="text-sm text-gray-600">Moneda</label>
+            <select
+              {...register('currency')}
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="USD">USD</option>
+              <option value="ARS">ARS</option>
+            </select>
+          </div>
         </div>
         <button
           type="submit"
@@ -97,6 +108,7 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
                   <span className="mx-2 text-gray-400">-</span>
                   <span className="text-gray-700">{asset.name}</span>
                   <span className="ml-2 text-xs text-gray-500">({asset.category})</span>
+                  <span className="ml-1 text-xs text-gray-400">{asset.currency || 'USD'}</span>
                 </div>
                 <button
                   onClick={() => onRemove(asset.tempId)}
