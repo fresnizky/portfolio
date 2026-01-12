@@ -237,6 +237,7 @@ export interface SnapshotListResponse {
 export interface OnboardingStatus {
   completed: boolean
   skipped: boolean
+  hasExistingData: boolean
 }
 
 export interface BatchAssetCreate {

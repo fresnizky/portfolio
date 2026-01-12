@@ -1,5 +1,5 @@
 ---
-description: 'Execute a story on a feature branch with task checkpoints, commits after each task, and PR creation on completion'
+description: 'Execute a story by implementing tasks/subtasks, writing tests, validating, and updating the story file per acceptance criteria'
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

@@ -39,6 +39,7 @@ describe('Onboarding Routes', () => {
       vi.mocked(onboardingService.getStatus).mockResolvedValue({
         completed: false,
         skipped: false,
+        hasExistingData: false,
       })
 
       const response = await request(app)
@@ -49,6 +50,7 @@ describe('Onboarding Routes', () => {
         data: {
           completed: false,
           skipped: false,
+          hasExistingData: false,
         },
       })
       expect(onboardingService.getStatus).toHaveBeenCalledWith('user-123')
@@ -58,12 +60,28 @@ describe('Onboarding Routes', () => {
       vi.mocked(onboardingService.getStatus).mockResolvedValue({
         completed: true,
         skipped: false,
+        hasExistingData: false,
       })
 
       const response = await request(app)
         .get('/api/onboarding/status')
         .expect(200)
 
+      expect(response.body.data.completed).toBe(true)
+    })
+
+    it('should return hasExistingData true when user has assets', async () => {
+      vi.mocked(onboardingService.getStatus).mockResolvedValue({
+        completed: true,
+        skipped: false,
+        hasExistingData: true,
+      })
+
+      const response = await request(app)
+        .get('/api/onboarding/status')
+        .expect(200)
+
+      expect(response.body.data.hasExistingData).toBe(true)
       expect(response.body.data.completed).toBe(true)
     })
   })
@@ -73,6 +91,7 @@ describe('Onboarding Routes', () => {
       vi.mocked(onboardingService.markCompleted).mockResolvedValue({
         completed: true,
         skipped: false,
+        hasExistingData: true,
       })
 
       const response = await request(app)
@@ -83,6 +102,7 @@ describe('Onboarding Routes', () => {
         data: {
           completed: true,
           skipped: false,
+          hasExistingData: true,
         },
         message: 'Onboarding completed',
       })
@@ -95,6 +115,7 @@ describe('Onboarding Routes', () => {
       vi.mocked(onboardingService.markSkipped).mockResolvedValue({
         completed: false,
         skipped: true,
+        hasExistingData: false,
       })
 
       const response = await request(app)
@@ -105,6 +126,7 @@ describe('Onboarding Routes', () => {
         data: {
           completed: false,
           skipped: true,
+          hasExistingData: false,
         },
         message: 'Onboarding skipped',
       })

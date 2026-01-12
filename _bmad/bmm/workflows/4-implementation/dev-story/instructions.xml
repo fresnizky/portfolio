@@ -134,114 +134,7 @@
     <action if="incomplete task or subtask requirements ambiguous">ASK user to clarify or HALT</action>
   </step>
 
-  <step n="2" goal="Verify git state and create feature branch">
-    <critical>MUST verify clean git state and create feature branch before any implementation</critical>
-
-    <action>Run `git status` to check current repository state</action>
-    <action>Run `git branch --show-current` to get current branch name</action>
-
-    <check if="there are uncommitted changes">
-      <output>⚠️ **Uncommitted changes detected**
-
-        There are uncommitted changes in the working directory.
-        These must be handled before starting a new story.
-      </output>
-      <ask>How would you like to proceed?
-        1. Stash changes and continue
-        2. Commit changes first
-        3. Abort and handle manually
-      </ask>
-
-      <check if="user chooses '1'">
-        <action>Run `git stash push -m "WIP before story {{story_key}}"`</action>
-        <output>✅ Changes stashed</output>
-      </check>
-
-      <check if="user chooses '2'">
-        <action>HALT - User should commit changes first</action>
-      </check>
-
-      <check if="user chooses '3'">
-        <action>HALT - User will handle manually</action>
-      </check>
-    </check>
-
-    <action>Detect default branch name (main or master) by running `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'`</action>
-    <action>If detection fails, assume 'main' as default branch</action>
-    <action>Store detected branch as {{default_branch}}</action>
-
-    <check if="current branch is NOT {{default_branch}}">
-      <output>⚠️ **Not on default branch**
-
-        Current branch: {{current_branch}}
-        Expected: {{default_branch}}
-
-        You should be on the default branch before starting a new story.
-      </output>
-      <ask>Switch to {{default_branch}} branch? [yes/no]</ask>
-
-      <check if="user confirms">
-        <action>Run `git checkout {{default_branch}}`</action>
-        <action>Run `git pull origin {{default_branch}}` to ensure up-to-date</action>
-        <output>✅ Switched to {{default_branch}} and pulled latest changes</output>
-      </check>
-
-      <check if="user declines">
-        <output>⚠️ Continuing on current branch: {{current_branch}}</output>
-      </check>
-    </check>
-
-    <check if="current branch IS {{default_branch}}">
-      <action>Run `git pull origin {{default_branch}}` to ensure up-to-date</action>
-      <output>✅ On {{default_branch}} branch, pulled latest changes</output>
-    </check>
-
-    <!-- Create feature branch for this story -->
-    <action>Generate feature branch name from story_key: feature/{{story_key}}</action>
-    <action>Store branch name as {{feature_branch}}</action>
-
-    <action>Check if branch already exists: `git branch --list {{feature_branch}}`</action>
-
-    <check if="feature branch already exists">
-      <output>🔄 Feature branch already exists: {{feature_branch}}</output>
-      <ask>Switch to existing branch or create a new one?
-        1. Switch to existing branch
-        2. Delete and recreate branch
-        3. Use a different branch name
-      </ask>
-
-      <check if="user chooses '1'">
-        <action>Run `git checkout {{feature_branch}}`</action>
-        <output>✅ Switched to existing branch: {{feature_branch}}</output>
-      </check>
-
-      <check if="user chooses '2'">
-        <action>Run `git branch -D {{feature_branch}}`</action>
-        <action>Run `git checkout -b {{feature_branch}}`</action>
-        <output>✅ Recreated feature branch: {{feature_branch}}</output>
-      </check>
-
-      <check if="user chooses '3'">
-        <ask>Enter new branch name:</ask>
-        <action>Store user input as {{feature_branch}}</action>
-        <action>Run `git checkout -b {{feature_branch}}`</action>
-        <output>✅ Created feature branch: {{feature_branch}}</output>
-      </check>
-    </check>
-
-    <check if="feature branch does NOT exist">
-      <action>Run `git checkout -b {{feature_branch}}`</action>
-      <output>✅ Created and switched to feature branch: {{feature_branch}}</output>
-    </check>
-
-    <output>🌿 **Git Setup Complete**
-      - Default branch: {{default_branch}}
-      - Feature branch: {{feature_branch}}
-      - Ready to start implementation
-    </output>
-  </step>
-
-  <step n="3" goal="Load project context and story information">
+  <step n="2" goal="Load project context and story information">
     <critical>Load all available context to inform implementation</critical>
 
     <action>Load {project_context} for coding standards and project-wide patterns (if exists)</action>
@@ -254,7 +147,7 @@
     </output>
   </step>
 
-  <step n="4" goal="Detect review continuation and extract review context">
+  <step n="3" goal="Detect review continuation and extract review context">
     <critical>Determine if this is a fresh start or continuation after code review</critical>
 
     <action>Check if "Senior Developer Review (AI)" section exists in the story file</action>
@@ -294,7 +187,7 @@
     </check>
   </step>
 
-  <step n="5" goal="Mark story in-progress" tag="sprint-status">
+  <step n="4" goal="Mark story in-progress" tag="sprint-status">
     <check if="{{sprint_status}} file exists">
       <action>Load the FULL file: {{sprint_status}}</action>
       <action>Read all development_status entries to find {{story_key}}</action>
@@ -328,7 +221,7 @@
     </check>
   </step>
 
-  <step n="6" goal="Implement task following red-green-refactor cycle">
+  <step n="5" goal="Implement task following red-green-refactor cycle">
     <critical>FOLLOW THE STORY FILE TASKS/SUBTASKS SEQUENCE EXACTLY AS WRITTEN - NO DEVIATION</critical>
 
     <action>Review the current task/subtask from the story file - this is your authoritative implementation guide</action>
@@ -355,16 +248,18 @@
 
     <critical>NEVER implement anything not mapped to a specific task/subtask in the story file</critical>
     <critical>NEVER proceed to next task until current task/subtask is complete AND tests pass</critical>
+    <critical>Execute continuously without pausing until all tasks/subtasks are complete or explicit HALT condition</critical>
+    <critical>Do NOT propose to pause for review until Step 9 completion gates are satisfied</critical>
   </step>
 
-  <step n="7" goal="Author comprehensive tests">
+  <step n="6" goal="Author comprehensive tests">
     <action>Create unit tests for business logic and core functionality introduced/changed by the task</action>
     <action>Add integration tests for component interactions specified in story requirements</action>
     <action>Include end-to-end tests for critical user flows when story requirements demand them</action>
     <action>Cover edge cases and error handling scenarios identified in story Dev Notes</action>
   </step>
 
-  <step n="8" goal="Run validations and tests">
+  <step n="7" goal="Run validations and tests">
     <action>Determine how to run tests for this repo (infer test framework from project structure)</action>
     <action>Run all existing tests to ensure no regressions</action>
     <action>Run the new tests to verify implementation correctness</action>
@@ -374,8 +269,7 @@
     <action if="new tests fail">STOP and fix before continuing - ensure implementation correctness</action>
   </step>
 
-  <step n="9" goal="Task checkpoint - user confirmation, commit, and push">
-    <critical>After each task completion, checkpoint with user before proceeding</critical>
+  <step n="8" goal="Validate and mark task complete ONLY when fully done">
     <critical>NEVER mark a task complete unless ALL conditions are met - NO LYING OR CHEATING</critical>
 
     <!-- VALIDATION GATES -->
@@ -399,99 +293,34 @@
       <action>Add to Dev Agent Record → Completion Notes: "✅ Resolved review finding [{{severity}}]: {{description}}"</action>
     </check>
 
-    <!-- CHECKPOINT: User confirmation before marking complete -->
-    <output>📋 **Task Checkpoint**
-
-      **Task:** {{current_task_description}}
-      **Status:** Implementation complete, tests passing
-
-      **Summary of changes:**
-      {{task_changes_summary}}
-
-      **Files modified:**
-      {{modified_files_list}}
-    </output>
-
-    <ask>✅ Is everything OK to mark this task as complete, commit, and push? [yes/no/review]
-
-      - **yes**: Mark task complete, commit changes, and push to remote
-      - **no**: Stop here to address issues
-      - **review**: Show more details about the changes
-    </ask>
-
-    <check if="user says 'review'">
-      <action>Show detailed diff of changes made for this task</action>
-      <action>Show test results summary</action>
-      <ask>After reviewing, proceed with commit? [yes/no]</ask>
-    </check>
-
-    <check if="user says 'no' OR user declines after review">
-      <output>🛑 **Checkpoint paused**
-
-        Task not marked complete. Please address any issues and let me know when to continue.
-      </output>
-      <action>HALT - Wait for user to address issues</action>
-    </check>
-
-    <check if="user says 'yes' OR user confirms after review">
-      <!-- MARK TASK COMPLETE -->
-      <action>Mark the task (and subtasks) checkbox with [x] in story file</action>
+    <!-- ONLY MARK COMPLETE IF ALL VALIDATION PASS -->
+    <check if="ALL validation gates pass AND tests ACTUALLY exist and pass">
+      <action>ONLY THEN mark the task (and subtasks) checkbox with [x]</action>
       <action>Update File List section with ALL new, modified, or deleted files (paths relative to repo root)</action>
       <action>Add completion notes to Dev Agent Record summarizing what was ACTUALLY implemented and tested</action>
-
-      <check if="review_continuation == true and {{resolved_review_items}} is not empty">
-        <action>Count total resolved review items in this session</action>
-        <action>Add Change Log entry: "Addressed code review findings - {{resolved_count}} items resolved (Date: {{date}})"</action>
-      </check>
-
-      <action>Save the story file</action>
-
-      <!-- COMMIT AND PUSH -->
-      <action>Run `git add -A` to stage all changes</action>
-      <action>Generate commit message: "feat({{story_key}}): {{task_short_description}}"</action>
-      <action>Run `git commit -m "{{commit_message}}"`</action>
-
-      <check if="commit fails">
-        <output>⚠️ Commit failed. Please check the error and resolve.</output>
-        <action>HALT - Wait for user to fix commit issue</action>
-      </check>
-
-      <action>Run `git push origin {{feature_branch}}`</action>
-
-      <check if="push fails">
-        <output>⚠️ Push failed. This might be due to:
-          - No upstream branch set
-          - Network issues
-          - Permission issues
-
-          Attempting to set upstream and push...
-        </output>
-        <action>Run `git push -u origin {{feature_branch}}`</action>
-
-        <check if="push still fails">
-          <output>❌ Push failed. Please resolve manually.</output>
-          <action>HALT - Wait for user to fix push issue</action>
-        </check>
-      </check>
-
-      <output>✅ **Task Complete**
-        - Task marked complete in story file
-        - Changes committed: {{commit_message}}
-        - Pushed to: {{feature_branch}}
-      </output>
     </check>
 
-    <!-- DETERMINE NEXT STEP -->
+    <check if="ANY validation fails">
+      <action>DO NOT mark task complete - fix issues first</action>
+      <action>HALT if unable to fix validation failures</action>
+    </check>
+
+    <check if="review_continuation == true and {{resolved_review_items}} is not empty">
+      <action>Count total resolved review items in this session</action>
+      <action>Add Change Log entry: "Addressed code review findings - {{resolved_count}} items resolved (Date: {{date}})"</action>
+    </check>
+
+    <action>Save the story file</action>
     <action>Determine if more incomplete tasks remain</action>
     <action if="more tasks remain">
-      <goto step="6">Next task</goto>
+      <goto step="5">Next task</goto>
     </action>
     <action if="no tasks remain">
-      <goto step="10">Completion</goto>
+      <goto step="9">Completion</goto>
     </action>
   </step>
 
-  <step n="10" goal="Story completion, final push, and PR creation" tag="sprint-status">
+  <step n="9" goal="Story completion and mark for review" tag="sprint-status">
     <action>Verify ALL tasks and subtasks are marked [x] (re-scan the story document now)</action>
     <action>Run the full regression suite (do not skip)</action>
     <action>Confirm File List includes every changed file</action>
@@ -512,22 +341,6 @@
       - Change Log includes summary of changes
       - Only permitted story sections were modified
     </action>
-
-    <!-- Verify all changes are pushed -->
-    <action>Run `git status` to check for uncommitted changes</action>
-
-    <check if="there are uncommitted changes">
-      <action>Run `git add -A`</action>
-      <action>Run `git commit -m "feat({{story_key}}): final updates and story completion"`</action>
-      <action>Run `git push origin {{feature_branch}}`</action>
-    </check>
-
-    <action>Run `git log origin/{{feature_branch}}..HEAD` to verify all commits are pushed</action>
-
-    <check if="there are unpushed commits">
-      <action>Run `git push origin {{feature_branch}}`</action>
-      <output>✅ All commits pushed to remote</output>
-    </check>
 
     <!-- Mark story ready for review - sprint status conditional -->
     <check if="{sprint_status} file exists AND {{current_sprint_status}} != 'no-sprint-tracking'">
@@ -550,50 +363,6 @@
       </output>
     </check>
 
-    <!-- CREATE PULL REQUEST -->
-    <output>🔄 **Creating Pull Request**
-
-      Branch: {{feature_branch}} → {{default_branch}}
-    </output>
-
-    <action>Generate PR title: "feat({{story_key}}): {{story_title}}"</action>
-    <action>Generate PR body with:
-      - Story summary from story file
-      - List of acceptance criteria
-      - Summary of changes made
-      - List of files changed
-      - Testing notes
-    </action>
-
-    <action>Run `gh pr create --base {{default_branch}} --head {{feature_branch}} --title "{{pr_title}}" --body "{{pr_body}}"`</action>
-
-    <check if="PR creation fails due to gh not installed">
-      <output>⚠️ GitHub CLI (gh) not installed or not authenticated.
-
-        Please create PR manually:
-        - Branch: {{feature_branch}}
-        - Base: {{default_branch}}
-        - Title: {{pr_title}}
-
-        Or install gh CLI: https://cli.github.com/
-      </output>
-    </check>
-
-    <check if="PR creation fails for other reason">
-      <output>⚠️ PR creation failed: {{error_message}}
-
-        Please create PR manually from: {{feature_branch}} → {{default_branch}}
-      </output>
-    </check>
-
-    <check if="PR created successfully">
-      <action>Extract PR URL from command output</action>
-      <output>✅ **Pull Request Created**
-
-        🔗 {{pr_url}}
-      </output>
-    </check>
-
     <!-- Final validation gates -->
     <action if="any task is incomplete">HALT - Complete remaining tasks before marking ready for review</action>
     <action if="regression failures exist">HALT - Fix regression issues before completing</action>
@@ -601,28 +370,13 @@
     <action if="definition-of-done validation fails">HALT - Address DoD failures before completing</action>
   </step>
 
-  <step n="11" goal="Completion communication and user support">
+  <step n="10" goal="Completion communication and user support">
     <action>Execute the enhanced definition-of-done checklist using the validation framework</action>
     <action>Prepare a concise summary in Dev Agent Record → Completion Notes</action>
 
     <action>Communicate to {user_name} that story implementation is complete and ready for review</action>
     <action>Summarize key accomplishments: story ID, story key, title, key changes made, tests added, files modified</action>
     <action>Provide the story file path and current status (now "review")</action>
-    <action>Provide the PR URL for easy access</action>
-
-    <output>🎉 **Story Complete!**
-
-      **Story:** {{story_key}} - {{story_title}}
-      **Status:** review
-      **Branch:** {{feature_branch}}
-      **PR:** {{pr_url}}
-
-      **Summary:**
-      - {{total_tasks_completed}} tasks completed
-      - {{total_files_changed}} files changed
-      - {{total_tests_added}} tests added
-      - All acceptance criteria satisfied
-    </output>
 
     <action>Based on {user_skill_level}, ask if user needs any explanations about:
       - What was implemented and how it works
@@ -639,9 +393,11 @@
 
     <action>Once explanations are complete (or user indicates no questions), suggest logical next steps</action>
     <action>Recommended next steps (flexible based on project setup):
-      - Review the PR and merge when ready
-      - Run `code-review` workflow for AI peer review
-      - Continue with next story in sprint
+      - Review the implemented story and test the changes
+      - Verify all acceptance criteria are met
+      - Ensure deployment readiness if applicable
+      - Run `code-review` workflow for peer review
+      - Optional: Run TEA `*automate` to expand guardrail tests
     </action>
 
     <output>💡 **Tip:** For best results, run `code-review` using a **different** LLM than the one that implemented this story.</output>
