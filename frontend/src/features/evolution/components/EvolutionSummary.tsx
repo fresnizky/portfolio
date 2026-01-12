@@ -1,8 +1,10 @@
 import { formatCurrency, formatPercentage, formatDate } from '@/lib/formatters'
-import type { Snapshot } from '@/types/api'
+import type { Snapshot, Currency } from '@/types/api'
 
 interface EvolutionSummaryProps {
   snapshots: Snapshot[]
+  displayCurrency?: Currency
+  exchangeRate?: number | null
 }
 
 export function EvolutionSummary({ snapshots }: EvolutionSummaryProps) {

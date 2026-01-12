@@ -7,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import type { Snapshot } from '@/types/api'
+import type { Snapshot, Currency } from '@/types/api'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
 interface ChartDataPoint {
@@ -20,6 +20,8 @@ interface ChartDataPoint {
 interface EvolutionChartProps {
   snapshots: Snapshot[]
   isLoading?: boolean
+  displayCurrency?: Currency
+  exchangeRate?: number | null
 }
 
 interface CustomTooltipProps {
@@ -39,7 +41,10 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   )
 }
 
-export function EvolutionChart({ snapshots, isLoading }: EvolutionChartProps) {
+export function EvolutionChart({
+  snapshots,
+  isLoading,
+}: EvolutionChartProps) {
   // Transform snapshots to chart data (sorted by date asc for chart)
   const data: ChartDataPoint[] = [...snapshots]
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

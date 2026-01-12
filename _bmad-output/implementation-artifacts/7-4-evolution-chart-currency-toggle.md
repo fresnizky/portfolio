@@ -31,11 +31,11 @@ So that **I can analyze my portfolio growth in my preferred currency**.
   - [x] Selected state: `bg-blue-500 text-white`
   - [x] Write tests
 
-- [ ] Task 2: Add displayCurrency state to EvolutionPage (AC: #5, #6)
-  - [ ] Add `displayCurrency` state with useState, default 'USD'
-  - [ ] Pass `displayCurrency` to EvolutionChart
-  - [ ] Pass `displayCurrency` to EvolutionSummary
-  - [ ] Pass `displayCurrency` and `onCurrencyChange` to CurrencyToggle
+- [x] Task 2: Add displayCurrency state to EvolutionPage (AC: #5, #6)
+  - [x] Add `displayCurrency` state with useState, default 'USD'
+  - [x] Pass `displayCurrency` to EvolutionChart
+  - [x] Pass `displayCurrency` to EvolutionSummary
+  - [x] Pass `displayCurrency` and `onCurrencyChange` to CurrencyToggle
 
 - [ ] Task 3: Update useSnapshots hook to fetch exchange rate (AC: #2)
   - [ ] Modify hook to also fetch current exchange rate via useExchangeRate
@@ -566,9 +566,14 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Created CurrencyToggle component with USD/ARS toggle matching DateRangeSelector styling. 5 tests covering render, highlight states, and onChange behavior.
+- Task 2: Added displayCurrency state to EvolutionPage, integrated useExchangeRate hook, passed props to child components. 3 new tests for currency persistence.
 
 ### File List
 
 - frontend/src/features/evolution/components/CurrencyToggle.tsx (created)
 - frontend/src/features/evolution/components/CurrencyToggle.test.tsx (created)
+- frontend/src/features/evolution/index.tsx (modified)
+- frontend/src/features/evolution/index.test.tsx (modified)
+- frontend/src/features/evolution/components/EvolutionChart.tsx (modified - interface)
+- frontend/src/features/evolution/components/EvolutionSummary.tsx (modified - interface)
 

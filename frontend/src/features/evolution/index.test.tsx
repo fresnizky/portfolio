@@ -11,6 +11,9 @@ vi.mock('@/lib/api', () => ({
     snapshots: {
       list: vi.fn(),
     },
+    exchangeRates: {
+      getCurrent: vi.fn(),
+    },
   },
 }))
 
@@ -48,6 +51,15 @@ describe('EvolutionPage', () => {
       },
     })
     vi.clearAllMocks()
+    // Default mock for exchange rate
+    vi.mocked(api.exchangeRates.getCurrent).mockResolvedValue({
+      baseCurrency: 'USD',
+      quoteCurrency: 'ARS',
+      rate: 1100,
+      fetchedAt: '2026-01-12T00:00:00.000Z',
+      isStale: false,
+      source: 'test',
+    })
   })
 
   const mockSnapshotsResponse: SnapshotListResponse = {
@@ -164,5 +176,51 @@ describe('EvolutionPage', () => {
       expect(screen.getByText('$10,000.00')).toBeInTheDocument()
       expect(screen.getByText('$12,000.00')).toBeInTheDocument()
     })
+  })
+
+  it('should render currency toggle with USD and ARS options', async () => {
+    vi.mocked(api.snapshots.list).mockResolvedValue(mockSnapshotsResponse)
+
+    render(<EvolutionPage />, { wrapper: createWrapper() })
+
+    expect(screen.getByText('USD')).toBeInTheDocument()
+    expect(screen.getByText('ARS')).toBeInTheDocument()
+  })
+
+  it('should have USD selected by default', async () => {
+    vi.mocked(api.snapshots.list).mockResolvedValue(mockSnapshotsResponse)
+
+    render(<EvolutionPage />, { wrapper: createWrapper() })
+
+    const usdButton = screen.getByText('USD')
+    expect(usdButton).toHaveClass('bg-blue-500')
+  })
+
+  it('should persist currency selection when changing date range', async () => {
+    const user = userEvent.setup()
+    vi.mocked(api.snapshots.list).mockResolvedValue(mockSnapshotsResponse)
+    vi.mocked(api.exchangeRates.getCurrent).mockResolvedValue({
+      baseCurrency: 'USD',
+      quoteCurrency: 'ARS',
+      rate: 1100,
+      fetchedAt: '2026-01-12T00:00:00.000Z',
+      isStale: false,
+      source: 'test',
+    })
+
+    render(<EvolutionPage />, { wrapper: createWrapper() })
+
+    // Select ARS
+    await user.click(screen.getByText('ARS'))
+
+    // Verify ARS is selected
+    const arsButton = screen.getByText('ARS')
+    expect(arsButton).toHaveClass('bg-blue-500')
+
+    // Change date range
+    await user.click(screen.getByText('1M'))
+
+    // ARS should still be selected (currency persists)
+    expect(screen.getByText('ARS')).toHaveClass('bg-blue-500')
   })
 })
