@@ -33,9 +33,9 @@ So that **I can see when the rate was last updated and refresh it if I suspect i
   - [x] Return refreshed rate or error
   - [x] Write tests
 
-- [ ] Task 2: Add refresh function to frontend API client (AC: #4)
-  - [ ] Add `api.exchangeRates.refresh()` method to `frontend/src/lib/api.ts`
-  - [ ] Add `RefreshExchangeRateResponse` type to `frontend/src/types/api.ts`
+- [x] Task 2: Add refresh function to frontend API client (AC: #4)
+  - [x] Add `api.exchangeRates.refresh()` method to `frontend/src/lib/api.ts`
+  - [x] Reuse existing `ExchangeRateResponse` type (same response format)
 
 - [ ] Task 3: Create useExchangeRateRefresh mutation hook (AC: #4, #5)
   - [ ] Create `frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.ts`
@@ -479,8 +479,10 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Completion Notes List
 
 - Task 1: Added POST /api/exchange-rates/refresh endpoint. Calls fetchFromApi() and saveRate(), returns fresh rate data. Added 3 unit tests.
+- Task 2: Added api.exchangeRates.refresh() method. Reuses existing ExchangeRateResponse type.
 
 ### File List
 
 - backend/src/routes/exchangeRates.ts (modified)
 - backend/src/routes/exchangeRates.test.ts (modified)
+- frontend/src/lib/api.ts (modified)

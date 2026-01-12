@@ -462,5 +462,16 @@ export const api = {
       })
       return handleResponse<ExchangeRateResponse>(res)
     },
+
+    refresh: async (): Promise<ExchangeRateResponse> => {
+      const res = await fetch(`${API_URL}/exchange-rates/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+      return handleResponse<ExchangeRateResponse>(res)
+    },
   },
 }
