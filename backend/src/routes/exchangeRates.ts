@@ -28,4 +28,28 @@ router.get('/current', async (req: Request, res: Response, next: NextFunction) =
   }
 })
 
+/**
+ * POST /api/exchange-rates/refresh
+ * Force refresh the exchange rate from external API
+ */
+router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const freshRate = await exchangeRateService.fetchFromApi()
+    await exchangeRateService.saveRate('USD', 'ARS', freshRate)
+
+    res.json({
+      data: {
+        baseCurrency: 'USD',
+        quoteCurrency: 'ARS',
+        rate: freshRate,
+        fetchedAt: new Date().toISOString(),
+        isStale: false,
+        source: 'bluelytics',
+      },
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 export default router

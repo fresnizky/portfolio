@@ -7,6 +7,8 @@ import exchangeRatesRouter from './exchangeRates'
 vi.mock('@/services/exchangeRateService', () => ({
   exchangeRateService: {
     getRate: vi.fn(),
+    fetchFromApi: vi.fn(),
+    saveRate: vi.fn(),
   },
 }))
 
@@ -105,6 +107,50 @@ describe('exchange-rates routes', () => {
       expect(response.status).toBe(500)
       expect(response.body.error).toBe('INTERNAL_ERROR')
       expect(response.body.message).toBe('Exchange rate unavailable')
+    })
+  })
+
+  describe('POST /api/exchange-rates/refresh', () => {
+    const postRefresh = () => request(app).post('/api/exchange-rates/refresh')
+
+    it('should refresh exchange rate from API', async () => {
+      const freshRate = 1105.5
+      vi.mocked(exchangeRateService.fetchFromApi).mockResolvedValue(freshRate)
+      vi.mocked(exchangeRateService.saveRate).mockResolvedValue()
+
+      const response = await postRefresh()
+
+      expect(response.status).toBe(200)
+      expect(exchangeRateService.fetchFromApi).toHaveBeenCalled()
+      expect(exchangeRateService.saveRate).toHaveBeenCalledWith('USD', 'ARS', freshRate)
+    })
+
+    it('should return fresh rate data', async () => {
+      const freshRate = 1105.5
+      vi.mocked(exchangeRateService.fetchFromApi).mockResolvedValue(freshRate)
+      vi.mocked(exchangeRateService.saveRate).mockResolvedValue()
+
+      const response = await postRefresh()
+
+      expect(response.status).toBe(200)
+      expect(response.body.data).toBeDefined()
+      expect(response.body.data.baseCurrency).toBe('USD')
+      expect(response.body.data.quoteCurrency).toBe('ARS')
+      expect(response.body.data.rate).toBe(freshRate)
+      expect(response.body.data.isStale).toBe(false)
+      expect(response.body.data.source).toBe('bluelytics')
+      expect(response.body.data.fetchedAt).toBeDefined()
+    })
+
+    it('should handle API failure gracefully', async () => {
+      vi.mocked(exchangeRateService.fetchFromApi).mockRejectedValue(
+        new Error('Bluelytics API error: 503')
+      )
+
+      const response = await postRefresh()
+
+      expect(response.status).toBe(500)
+      expect(response.body.error).toBeDefined()
     })
   })
 })
