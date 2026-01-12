@@ -17,6 +17,10 @@ vi.mock('@/lib/api', () => ({
     auth: {
       changePassword: vi.fn(),
     },
+    exchangeRates: {
+      getCurrent: vi.fn(),
+      refresh: vi.fn(),
+    },
   },
 }))
 
@@ -52,6 +56,15 @@ describe('SettingsPage', () => {
     vi.mocked(api.settings.get).mockResolvedValue({
       rebalanceThreshold: '5',
       priceAlertDays: 7,
+    })
+
+    vi.mocked(api.exchangeRates.getCurrent).mockResolvedValue({
+      baseCurrency: 'USD',
+      quoteCurrency: 'ARS',
+      rate: 1105.5,
+      fetchedAt: '2026-01-12T14:30:00.000Z',
+      isStale: false,
+      source: 'bluelytics',
     })
   })
 
@@ -94,5 +107,16 @@ describe('SettingsPage', () => {
     render(<SettingsPage />, { wrapper: createWrapper() })
 
     expect(screen.getByText(/test@example.com/i)).toBeInTheDocument()
+  })
+
+  it('should render exchange rate section', async () => {
+    render(<SettingsPage />, { wrapper: createWrapper() })
+
+    await waitFor(() => {
+      expect(screen.getByText('Tipo de Cambio')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText(/1 USD =/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /actualizar ahora/i })).toBeInTheDocument()
   })
 })

@@ -1,4 +1,5 @@
 import { SettingsForm } from './components/SettingsForm'
+import { ExchangeRateSection } from './components/ExchangeRateSection'
 import { ExportSection } from './components/ExportSection'
 import { AccountSection } from './components/AccountSection'
 
@@ -12,6 +13,11 @@ export function SettingsPage() {
         <section className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Preferencias de alertas</h2>
           <SettingsForm />
+        </section>
+
+        {/* Exchange Rate Section */}
+        <section className="bg-white rounded-lg shadow p-6">
+          <ExchangeRateSection />
         </section>
 
         {/* Data Export Section */}

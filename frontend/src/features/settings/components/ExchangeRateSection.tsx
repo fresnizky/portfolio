@@ -1,0 +1,122 @@
+import { useState } from 'react'
+import { useExchangeRate } from '@/features/exchange-rates/hooks/useExchangeRate'
+import { useExchangeRateRefresh } from '@/features/exchange-rates/hooks/useExchangeRateRefresh'
+import { formatCurrency, formatDate } from '@/lib/formatters'
+
+type RefreshStatus = 'idle' | 'success' | 'error'
+
+export function ExchangeRateSection() {
+  const { data: exchangeRate, isLoading, error } = useExchangeRate()
+  const refreshMutation = useExchangeRateRefresh()
+  const [refreshStatus, setRefreshStatus] = useState<RefreshStatus>('idle')
+
+  const handleRefresh = async () => {
+    setRefreshStatus('idle')
+    try {
+      await refreshMutation.mutateAsync()
+      setRefreshStatus('success')
+      setTimeout(() => setRefreshStatus('idle'), 3000)
+    } catch {
+      setRefreshStatus('error')
+      setTimeout(() => setRefreshStatus('idle'), 5000)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-6 bg-gray-200 rounded w-32" />
+        <div className="h-8 bg-gray-200 rounded w-48" />
+        <div className="h-4 bg-gray-200 rounded w-40" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-600">
+        Error al cargar tipo de cambio
+      </div>
+    )
+  }
+
+  if (!exchangeRate) {
+    return null
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Tipo de Cambio</h3>
+
+      {/* Current Rate */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">Cotizacion USD/ARS</p>
+          <p className="text-xl font-semibold">
+            1 USD = {formatCurrency(exchangeRate.rate, 'ARS')}
+          </p>
+        </div>
+
+        {exchangeRate.isStale && (
+          <div className="flex items-center gap-1 text-amber-600">
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <span className="text-sm">Desactualizado</span>
+          </div>
+        )}
+      </div>
+
+      {/* Metadata */}
+      <div className="text-sm text-gray-500 space-y-1">
+        <p>
+          Actualizado: {formatDate(exchangeRate.fetchedAt, 'full')}
+        </p>
+        <p>
+          Fuente: {exchangeRate.source === 'bluelytics' ? 'Bluelytics' : exchangeRate.source}
+        </p>
+      </div>
+
+      {/* Refresh Button */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleRefresh}
+          disabled={refreshMutation.isPending}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg
+            className={`h-4 w-4 ${refreshMutation.isPending ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          {refreshMutation.isPending ? 'Actualizando...' : 'Actualizar ahora'}
+        </button>
+
+        {refreshStatus === 'success' && (
+          <span className="text-sm text-green-600">Tipo de cambio actualizado</span>
+        )}
+        {refreshStatus === 'error' && (
+          <span className="text-sm text-red-600">No se pudo actualizar el tipo de cambio</span>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -70,6 +70,14 @@ describe('formatDate', () => {
     expect(result).toMatch(/15 ene/i)
     expect(result).toMatch(/2026/)
   })
+
+  it('should format date with full style including time', () => {
+    const result = formatDate('2026-01-15T14:30:00.000Z', 'full')
+    expect(result).toMatch(/15 ene/i)
+    expect(result).toMatch(/2026/)
+    // Time component (may vary by timezone)
+    expect(result).toMatch(/\d{2}:\d{2}/)
+  })
 })
 
 describe('formatGrowth', () => {
