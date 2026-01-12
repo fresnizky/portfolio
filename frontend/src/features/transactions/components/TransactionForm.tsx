@@ -40,8 +40,18 @@ export function TransactionForm({
     },
   })
 
+  // Convert YYYY-MM-DD (from date input) to ISO 8601 format before submission
+  // Backend expects ISO 8601 datetime (e.g., "2026-01-10T00:00:00.000Z")
+  const handleFormSubmit = (data: CreateTransactionFormData) => {
+    const isoDate = new Date(data.date + 'T00:00:00.000Z').toISOString()
+    onSubmit({
+      ...data,
+      date: isoDate,
+    })
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label htmlFor="type" className="block text-sm font-medium text-gray-700">
           Type

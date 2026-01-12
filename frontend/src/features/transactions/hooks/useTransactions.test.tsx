@@ -84,6 +84,54 @@ describe('useTransactions', () => {
       expect(api.transactions.list).toHaveBeenCalledWith(filters)
     })
 
+    it('should convert YYYY-MM-DD date filters to ISO 8601 format', async () => {
+      const filters = {
+        assetId: 'asset-1',
+        fromDate: '2026-01-01',
+        toDate: '2026-01-31',
+      }
+      const mockResponse = { transactions: [mockTransaction], total: 1 }
+      vi.mocked(api.transactions.list).mockResolvedValue(mockResponse)
+
+      const { result } = renderHook(() => useTransactions(filters), {
+        wrapper: createWrapper(),
+      })
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true)
+      })
+
+      // Verify dates are converted to ISO 8601 format
+      expect(api.transactions.list).toHaveBeenCalledWith({
+        assetId: 'asset-1',
+        fromDate: '2026-01-01T00:00:00.000Z',
+        toDate: '2026-01-31T00:00:00.000Z',
+      })
+    })
+
+    it('should not transform dates already in ISO 8601 format', async () => {
+      const filters = {
+        fromDate: '2026-01-01T00:00:00.000Z',
+        toDate: '2026-01-31T00:00:00.000Z',
+      }
+      const mockResponse = { transactions: [mockTransaction], total: 1 }
+      vi.mocked(api.transactions.list).mockResolvedValue(mockResponse)
+
+      const { result } = renderHook(() => useTransactions(filters), {
+        wrapper: createWrapper(),
+      })
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true)
+      })
+
+      // Dates should remain unchanged
+      expect(api.transactions.list).toHaveBeenCalledWith({
+        fromDate: '2026-01-01T00:00:00.000Z',
+        toDate: '2026-01-31T00:00:00.000Z',
+      })
+    })
+
     it('should handle fetch errors', async () => {
       vi.mocked(api.transactions.list).mockRejectedValue(new Error('Network error'))
 

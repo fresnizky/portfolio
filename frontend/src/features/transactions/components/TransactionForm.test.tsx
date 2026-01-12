@@ -88,7 +88,7 @@ describe('TransactionForm', () => {
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 
-  it('should submit form with valid BUY transaction data', async () => {
+  it('should submit form with valid BUY transaction data and convert date to ISO 8601', async () => {
     const user = userEvent.setup()
     render(
       <TransactionForm
@@ -115,7 +115,7 @@ describe('TransactionForm', () => {
       expect(calledWith).toEqual({
         type: 'buy',
         assetId: 'asset-1',
-        date: '2026-01-07',
+        date: '2026-01-07T00:00:00.000Z', // Form should convert YYYY-MM-DD to ISO 8601
         quantity: 10,
         price: 150,
         commission: 5,
@@ -123,7 +123,33 @@ describe('TransactionForm', () => {
     })
   })
 
-  it('should submit form with valid SELL transaction data', async () => {
+  it('should convert date input (YYYY-MM-DD) to ISO 8601 format on submit', async () => {
+    const user = userEvent.setup()
+    render(
+      <TransactionForm
+        assets={mockAssets}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+      />
+    )
+
+    await user.selectOptions(screen.getByLabelText('Asset'), 'asset-1')
+    await user.clear(screen.getByLabelText('Date'))
+    await user.type(screen.getByLabelText('Date'), '2026-12-25')
+    await user.type(screen.getByLabelText('Quantity'), '5')
+    await user.type(screen.getByLabelText(/Price per unit/), '100')
+
+    await user.click(screen.getByRole('button', { name: 'Record Transaction' }))
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalled()
+      const calledWith = mockOnSubmit.mock.calls[0][0]
+      // Verify date is converted from YYYY-MM-DD to ISO 8601 UTC format
+      expect(calledWith.date).toBe('2026-12-25T00:00:00.000Z')
+    })
+  })
+
+  it('should submit form with valid SELL transaction data and ISO 8601 date', async () => {
     const user = userEvent.setup()
     render(
       <TransactionForm
@@ -148,6 +174,7 @@ describe('TransactionForm', () => {
       expect(calledWith.type).toBe('sell')
       expect(calledWith.assetId).toBe('asset-2')
       expect(calledWith.quantity).toBe(5.5)
+      expect(calledWith.date).toBe('2026-01-08T00:00:00.000Z') // ISO 8601 format
     })
   })
 
