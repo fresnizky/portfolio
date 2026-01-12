@@ -29,10 +29,11 @@ describe('onboardingService', () => {
   })
 
   describe('getStatus', () => {
-    it('should return onboarding status for existing user', async () => {
+    it('should return onboarding status for existing user with no assets', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         onboardingCompleted: false,
         onboardingSkipped: false,
+        _count: { assets: 0 },
       } as ReturnType<typeof createMockUser>)
 
       const result = await onboardingService.getStatus('user-123')
@@ -40,13 +41,7 @@ describe('onboardingService', () => {
       expect(result).toEqual({
         completed: false,
         skipped: false,
-      })
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { id: 'user-123' },
-        select: {
-          onboardingCompleted: true,
-          onboardingSkipped: true,
-        },
+        hasExistingData: false,
       })
     })
 
@@ -54,6 +49,7 @@ describe('onboardingService', () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         onboardingCompleted: true,
         onboardingSkipped: false,
+        _count: { assets: 0 },
       } as ReturnType<typeof createMockUser>)
 
       const result = await onboardingService.getStatus('user-123')
@@ -61,6 +57,7 @@ describe('onboardingService', () => {
       expect(result).toEqual({
         completed: true,
         skipped: false,
+        hasExistingData: false,
       })
     })
 
@@ -68,6 +65,7 @@ describe('onboardingService', () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         onboardingCompleted: false,
         onboardingSkipped: true,
+        _count: { assets: 0 },
       } as ReturnType<typeof createMockUser>)
 
       const result = await onboardingService.getStatus('user-123')
@@ -75,6 +73,7 @@ describe('onboardingService', () => {
       expect(result).toEqual({
         completed: false,
         skipped: true,
+        hasExistingData: false,
       })
     })
 
@@ -86,6 +85,60 @@ describe('onboardingService', () => {
       expect(result).toEqual({
         completed: false,
         skipped: false,
+        hasExistingData: false,
+      })
+    })
+
+    it('should return hasExistingData true when user has assets', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        onboardingCompleted: false,
+        onboardingSkipped: false,
+        _count: { assets: 5 },
+      } as ReturnType<typeof createMockUser>)
+
+      const result = await onboardingService.getStatus('user-123')
+
+      expect(result).toEqual({
+        completed: true, // Should be true because user has existing data
+        skipped: false,
+        hasExistingData: true,
+      })
+    })
+
+    it('should return hasExistingData false when user has no assets', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        onboardingCompleted: false,
+        onboardingSkipped: false,
+        _count: { assets: 0 },
+      } as ReturnType<typeof createMockUser>)
+
+      const result = await onboardingService.getStatus('user-123')
+
+      expect(result).toEqual({
+        completed: false,
+        skipped: false,
+        hasExistingData: false,
+      })
+    })
+
+    it('should query for asset count in findUnique', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        onboardingCompleted: false,
+        onboardingSkipped: false,
+        _count: { assets: 0 },
+      } as ReturnType<typeof createMockUser>)
+
+      await onboardingService.getStatus('user-123')
+
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 'user-123' },
+        select: {
+          onboardingCompleted: true,
+          onboardingSkipped: true,
+          _count: {
+            select: { assets: true },
+          },
+        },
       })
     })
   })
@@ -95,6 +148,7 @@ describe('onboardingService', () => {
       vi.mocked(prisma.user.update).mockResolvedValue({
         onboardingCompleted: true,
         onboardingSkipped: false,
+        _count: { assets: 3 },
       } as ReturnType<typeof createMockUser>)
 
       const result = await onboardingService.markCompleted('user-123')
@@ -102,6 +156,7 @@ describe('onboardingService', () => {
       expect(result).toEqual({
         completed: true,
         skipped: false,
+        hasExistingData: true,
       })
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-123' },
@@ -112,6 +167,9 @@ describe('onboardingService', () => {
         select: {
           onboardingCompleted: true,
           onboardingSkipped: true,
+          _count: {
+            select: { assets: true },
+          },
         },
       })
     })
@@ -120,6 +178,7 @@ describe('onboardingService', () => {
       vi.mocked(prisma.user.update).mockResolvedValue({
         onboardingCompleted: true,
         onboardingSkipped: false,
+        _count: { assets: 0 },
       } as ReturnType<typeof createMockUser>)
 
       await onboardingService.markCompleted('user-123')
@@ -139,6 +198,7 @@ describe('onboardingService', () => {
       vi.mocked(prisma.user.update).mockResolvedValue({
         onboardingCompleted: false,
         onboardingSkipped: true,
+        _count: { assets: 0 },
       } as ReturnType<typeof createMockUser>)
 
       const result = await onboardingService.markSkipped('user-123')
@@ -146,6 +206,7 @@ describe('onboardingService', () => {
       expect(result).toEqual({
         completed: false,
         skipped: true,
+        hasExistingData: false,
       })
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-123' },
@@ -155,6 +216,9 @@ describe('onboardingService', () => {
         select: {
           onboardingCompleted: true,
           onboardingSkipped: true,
+          _count: {
+            select: { assets: true },
+          },
         },
       })
     })
@@ -163,11 +227,13 @@ describe('onboardingService', () => {
       vi.mocked(prisma.user.update).mockResolvedValue({
         onboardingCompleted: true,
         onboardingSkipped: true,
+        _count: { assets: 2 },
       } as ReturnType<typeof createMockUser>)
 
       const result = await onboardingService.markSkipped('user-123')
 
       expect(result.completed).toBe(true)
+      expect(result.hasExistingData).toBe(true)
     })
   })
 })

@@ -16,21 +16,11 @@ validation-rules:
   - 'All implementation requirements from story Dev Notes must be satisfied'
   - 'Definition of Done checklist must pass completely'
   - 'Enhanced story context must contain sufficient technical guidance'
-  - 'All changes committed and pushed to feature branch'
-  - 'Pull request created for the feature branch'
 ---
 
 # 🎯 Enhanced Definition of Done Checklist
 
 **Critical validation:** Story is truly ready for review only when ALL items below are satisfied
-
-## 🌿 Git & Branch Management
-
-- [ ] **Feature Branch Created:** Work done on feature/{{story_key}} branch (not main/master)
-- [ ] **Clean Branch Start:** Started from up-to-date default branch
-- [ ] **All Tasks Committed:** Each completed task has its own commit
-- [ ] **All Changes Pushed:** No unpushed commits on feature branch
-- [ ] **PR Created:** Pull request exists for feature branch → default branch
 
 ## 📋 Context & Requirements Validation
 
@@ -42,7 +32,6 @@ validation-rules:
 ## ✅ Implementation Completion
 
 - [ ] **All Tasks Complete:** Every task and subtask marked complete with [x]
-- [ ] **User Checkpoints Passed:** User confirmed completion of each task before commit
 - [ ] **Acceptance Criteria Satisfaction:** Implementation satisfies EVERY Acceptance Criterion in the story
 - [ ] **No Ambiguous Implementation:** Clear, unambiguous implementation that meets story requirements
 - [ ] **Edge Cases Handled:** Error conditions and edge cases appropriately addressed
@@ -65,7 +54,6 @@ validation-rules:
 - [ ] **Change Log Updated:** Change Log includes clear summary of what changed and why
 - [ ] **Review Follow-ups:** All review follow-up tasks (marked [AI-Review]) completed and corresponding review items marked resolved (if applicable)
 - [ ] **Story Structure Compliance:** Only permitted sections of story file were modified
-- [ ] **Commit Messages:** Each commit has descriptive message following convention: feat(story-key): description
 
 ## 🔚 Final Status Verification
 
@@ -74,7 +62,6 @@ validation-rules:
 - [ ] **Quality Gates Passed:** All quality checks and validations completed successfully
 - [ ] **No HALT Conditions:** No blocking issues or incomplete work remaining
 - [ ] **User Communication Ready:** Implementation summary prepared for user review
-- [ ] **PR Ready for Review:** Pull request contains complete description and is ready for code review
 
 ## 🎯 Final Validation Output
 
@@ -82,13 +69,10 @@ validation-rules:
 Definition of Done: {{PASS/FAIL}}
 
 ✅ **Story Ready for Review:** {{story_key}}
-🌿 **Feature Branch:** {{feature_branch}}
-🔗 **Pull Request:** {{pr_url}}
 📊 **Completion Score:** {{completed_items}}/{{total_items}} items passed
 🔍 **Quality Gates:** {{quality_gates_status}}
 📋 **Test Results:** {{test_results_summary}}
 📝 **Documentation:** {{documentation_status}}
-💾 **Git Status:** All commits pushed, PR created
 ```
 
 **If FAIL:** List specific failures and required actions before story can be marked Ready for Review
