@@ -44,16 +44,30 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function EvolutionChart({
   snapshots,
   isLoading,
+  displayCurrency = 'USD',
+  exchangeRate,
 }: EvolutionChartProps) {
+  // Convert value based on currency
+  const convertValue = (usdValue: number): number => {
+    if (displayCurrency === 'ARS' && exchangeRate) {
+      return usdValue * exchangeRate
+    }
+    return usdValue
+  }
+
   // Transform snapshots to chart data (sorted by date asc for chart)
   const data: ChartDataPoint[] = [...snapshots]
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((s) => ({
-      date: s.date,
-      value: parseFloat(s.totalValue),
-      formattedDate: formatDate(s.date, 'medium'),
-      formattedValue: formatCurrency(s.totalValue),
-    }))
+    .map((s) => {
+      const usdValue = parseFloat(s.totalValue)
+      const displayValue = convertValue(usdValue)
+      return {
+        date: s.date,
+        value: displayValue,
+        formattedDate: formatDate(s.date, 'medium'),
+        formattedValue: formatCurrency(displayValue, displayCurrency),
+      }
+    })
 
   if (isLoading) {
     return <div className="h-80 animate-pulse bg-gray-200 rounded" />
@@ -77,7 +91,13 @@ export function EvolutionChart({
           stroke="#6b7280"
         />
         <YAxis
-          tickFormatter={(value) => formatCurrency(value).replace('$', '')}
+          tickFormatter={(value) => {
+            const formatted = formatCurrency(value, displayCurrency)
+            // Remove currency symbol for cleaner axis
+            return displayCurrency === 'USD'
+              ? formatted.replace('$', '')
+              : formatted.replace(/^[^\d]+/, '')
+          }}
           tick={{ fontSize: 12 }}
           stroke="#6b7280"
         />

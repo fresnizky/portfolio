@@ -37,17 +37,18 @@ So that **I can analyze my portfolio growth in my preferred currency**.
   - [x] Pass `displayCurrency` to EvolutionSummary
   - [x] Pass `displayCurrency` and `onCurrencyChange` to CurrencyToggle
 
-- [ ] Task 3: Update useSnapshots hook to fetch exchange rate (AC: #2)
-  - [ ] Modify hook to also fetch current exchange rate via useExchangeRate
-  - [ ] Return `exchangeRate` alongside `snapshots` data
-  - [ ] Handle loading state for both queries
+- [x] Task 3: Update useSnapshots hook to fetch exchange rate (AC: #2)
+  - [x] Modify hook to also fetch current exchange rate via useExchangeRate
+  - [x] Return `exchangeRate` alongside `snapshots` data
+  - [x] Handle loading state for both queries
+  - Note: Implemented via useExchangeRate directly in EvolutionPage (cleaner approach per Dev Notes)
 
-- [ ] Task 4: Update EvolutionChart for multi-currency (AC: #2, #3)
-  - [ ] Add `displayCurrency` and `exchangeRate` props
-  - [ ] Convert snapshot values when displayCurrency is ARS
-  - [ ] Update CustomTooltip to format with correct currency
-  - [ ] Update YAxis tickFormatter for correct currency
-  - [ ] Write tests
+- [x] Task 4: Update EvolutionChart for multi-currency (AC: #2, #3)
+  - [x] Add `displayCurrency` and `exchangeRate` props
+  - [x] Convert snapshot values when displayCurrency is ARS
+  - [x] Update CustomTooltip to format with correct currency
+  - [x] Update YAxis tickFormatter for correct currency
+  - [x] Write tests
 
 - [ ] Task 5: Update EvolutionSummary for multi-currency (AC: #4)
   - [ ] Add `displayCurrency` and `exchangeRate` props
@@ -567,6 +568,8 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - Task 1: Created CurrencyToggle component with USD/ARS toggle matching DateRangeSelector styling. 5 tests covering render, highlight states, and onChange behavior.
 - Task 2: Added displayCurrency state to EvolutionPage, integrated useExchangeRate hook, passed props to child components. 3 new tests for currency persistence.
+- Task 3: Exchange rate fetch implemented in Task 2 via useExchangeRate in EvolutionPage (cleaner than modifying useSnapshots).
+- Task 4: Updated EvolutionChart with convertValue function, currency-aware data transformation, tooltip and YAxis formatting. 4 new tests.
 
 ### File List
 
@@ -574,6 +577,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/evolution/components/CurrencyToggle.test.tsx (created)
 - frontend/src/features/evolution/index.tsx (modified)
 - frontend/src/features/evolution/index.test.tsx (modified)
-- frontend/src/features/evolution/components/EvolutionChart.tsx (modified - interface)
+- frontend/src/features/evolution/components/EvolutionChart.tsx (modified - multi-currency support)
+- frontend/src/features/evolution/components/EvolutionChart.test.tsx (modified - 4 new tests)
 - frontend/src/features/evolution/components/EvolutionSummary.tsx (modified - interface)
 
