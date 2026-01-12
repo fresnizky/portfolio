@@ -56,13 +56,13 @@ So that **I can analyze my portfolio growth in my preferred currency**.
   - [x] Use formatCurrency with displayCurrency parameter
   - [x] Write tests
 
-- [ ] Task 6: Update formatCurrency for proper ARS formatting (AC: #3, #4)
-  - [ ] Ensure ARS uses 'es-AR' locale for proper formatting ($ 1.500.000,00)
-  - [ ] Add tests for ARS formatting
+- [x] Task 6: Update formatCurrency for proper ARS formatting (AC: #3, #4)
+  - [x] Ensure ARS uses 'es-AR' locale for proper formatting ($ 1.500.000,00)
+  - [x] Add tests for ARS formatting
 
-- [ ] Task 7: Run all tests and ensure passing
-  - [ ] Run `pnpm test` in frontend
-  - [ ] Fix any failing tests
+- [x] Task 7: Run all tests and ensure passing
+  - [x] Run `pnpm test` in frontend
+  - [x] Fix any failing tests
 
 ## Dev Notes
 
@@ -571,6 +571,8 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 3: Exchange rate fetch implemented in Task 2 via useExchangeRate in EvolutionPage (cleaner than modifying useSnapshots).
 - Task 4: Updated EvolutionChart with convertValue function, currency-aware data transformation, tooltip and YAxis formatting. 4 new tests.
 - Task 5: Updated EvolutionSummary with convertValue, effectiveCurrency for fallback, all values now currency-aware. 4 new tests.
+- Task 6: Updated formatCurrency to use es-AR locale for ARS ($ 1.500.000,00 format). Updated related tests.
+- Task 7: All 440 tests passing.
 
 ### File List
 
@@ -582,4 +584,8 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/evolution/components/EvolutionChart.test.tsx (modified - 4 new tests)
 - frontend/src/features/evolution/components/EvolutionSummary.tsx (modified - multi-currency support)
 - frontend/src/features/evolution/components/EvolutionSummary.test.tsx (modified - 4 new tests)
+- frontend/src/lib/formatters.ts (modified - es-AR locale for ARS)
+- frontend/src/lib/formatters.test.ts (modified - updated ARS tests)
+- frontend/src/features/dashboard/components/PortfolioSummaryCard.test.tsx (modified - ARS format)
+- frontend/src/features/dashboard/components/PositionsList.test.tsx (modified - ARS format)
 

@@ -3,7 +3,8 @@ import { es } from 'date-fns/locale'
 
 export function formatCurrency(value: string | number, currency = 'USD'): string {
   const numValue = typeof value === 'string' ? parseFloat(value) : value
-  return new Intl.NumberFormat('en-US', {
+  const locale = currency === 'ARS' ? 'es-AR' : 'en-US'
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
