@@ -1,8 +1,26 @@
+import { useState } from 'react'
 import { useExchangeRate } from '@/features/exchange-rates/hooks/useExchangeRate'
+import { useExchangeRateRefresh } from '@/features/exchange-rates/hooks/useExchangeRateRefresh'
 import { formatCurrency, formatDate } from '@/lib/formatters'
+
+type RefreshStatus = 'idle' | 'success' | 'error'
 
 export function ExchangeRateSection() {
   const { data: exchangeRate, isLoading, error } = useExchangeRate()
+  const refreshMutation = useExchangeRateRefresh()
+  const [refreshStatus, setRefreshStatus] = useState<RefreshStatus>('idle')
+
+  const handleRefresh = async () => {
+    setRefreshStatus('idle')
+    try {
+      await refreshMutation.mutateAsync()
+      setRefreshStatus('success')
+      setTimeout(() => setRefreshStatus('idle'), 3000)
+    } catch {
+      setRefreshStatus('error')
+      setTimeout(() => setRefreshStatus('idle'), 5000)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -67,6 +85,37 @@ export function ExchangeRateSection() {
         <p>
           Fuente: {exchangeRate.source === 'bluelytics' ? 'Bluelytics' : exchangeRate.source}
         </p>
+      </div>
+
+      {/* Refresh Button */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleRefresh}
+          disabled={refreshMutation.isPending}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg
+            className={`h-4 w-4 ${refreshMutation.isPending ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          {refreshMutation.isPending ? 'Actualizando...' : 'Actualizar ahora'}
+        </button>
+
+        {refreshStatus === 'success' && (
+          <span className="text-sm text-green-600">Tipo de cambio actualizado</span>
+        )}
+        {refreshStatus === 'error' && (
+          <span className="text-sm text-red-600">No se pudo actualizar el tipo de cambio</span>
+        )}
       </div>
     </div>
   )

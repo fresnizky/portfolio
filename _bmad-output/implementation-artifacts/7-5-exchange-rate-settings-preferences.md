@@ -50,12 +50,12 @@ So that **I can see when the rate was last updated and refresh it if I suspect i
   - [x] Style to match existing Settings sections
   - [x] Write tests
 
-- [ ] Task 5: Add refresh button with loading state (AC: #4, #5, #6)
-  - [ ] Add "Actualizar ahora" button to ExchangeRateSection
-  - [ ] Show loading spinner during mutation
-  - [ ] Disable button during loading
-  - [ ] Show toast on success/error
-  - [ ] Write tests
+- [x] Task 5: Add refresh button with loading state (AC: #4, #5, #6)
+  - [x] Add "Actualizar ahora" button to ExchangeRateSection
+  - [x] Show loading spinner during mutation
+  - [x] Disable button during loading
+  - [x] Show inline status messages on success/error
+  - [x] Write tests
 
 - [ ] Task 6: Integrate ExchangeRateSection into Settings page (AC: #1)
   - [ ] Import ExchangeRateSection in `frontend/src/features/settings/index.tsx`
@@ -482,6 +482,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 2: Added api.exchangeRates.refresh() method. Reuses existing ExchangeRateResponse type.
 - Task 3: Created useExchangeRateRefresh hook with useMutation. Updates cache on success. Added 4 unit tests.
 - Task 4: Created ExchangeRateSection component with rate display, stale warning, metadata. Added 'full' format to formatDate. Added 8 tests.
+- Task 5: Added refresh button with loading spinner, disabled state, success/error messages. Added 6 tests.
 
 ### File List
 
