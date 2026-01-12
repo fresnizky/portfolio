@@ -37,11 +37,11 @@ So that **I can see when the rate was last updated and refresh it if I suspect i
   - [x] Add `api.exchangeRates.refresh()` method to `frontend/src/lib/api.ts`
   - [x] Reuse existing `ExchangeRateResponse` type (same response format)
 
-- [ ] Task 3: Create useExchangeRateRefresh mutation hook (AC: #4, #5)
-  - [ ] Create `frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.ts`
-  - [ ] Use TanStack Query useMutation
-  - [ ] Invalidate `queryKeys.exchangeRates.current()` on success
-  - [ ] Write tests
+- [x] Task 3: Create useExchangeRateRefresh mutation hook (AC: #4, #5)
+  - [x] Create `frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.ts`
+  - [x] Use TanStack Query useMutation
+  - [x] Invalidate `queryKeys.exchangeRates.current()` on success
+  - [x] Write tests
 
 - [ ] Task 4: Create ExchangeRateSection component (AC: #1, #2, #3)
   - [ ] Create `frontend/src/features/settings/components/ExchangeRateSection.tsx`
@@ -480,9 +480,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - Task 1: Added POST /api/exchange-rates/refresh endpoint. Calls fetchFromApi() and saveRate(), returns fresh rate data. Added 3 unit tests.
 - Task 2: Added api.exchangeRates.refresh() method. Reuses existing ExchangeRateResponse type.
+- Task 3: Created useExchangeRateRefresh hook with useMutation. Updates cache on success. Added 4 unit tests.
 
 ### File List
 
 - backend/src/routes/exchangeRates.ts (modified)
 - backend/src/routes/exchangeRates.test.ts (modified)
 - frontend/src/lib/api.ts (modified)
+- frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.ts (created)
+- frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.test.tsx (created)
