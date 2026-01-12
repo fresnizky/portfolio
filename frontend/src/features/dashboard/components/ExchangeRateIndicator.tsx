@@ -77,12 +77,12 @@ export function ExchangeRateIndicator({
   return (
     <div
       data-testid="exchange-rate-indicator"
-      className="flex items-center gap-2 text-sm text-gray-500"
+      className="flex items-center gap-2 text-base md:text-sm text-gray-500"
     >
       {exchangeRate.isStale && (
         <span
           data-testid="stale-badge"
-          className="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700"
+          className="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-sm md:text-xs text-yellow-700"
           title="El tipo de cambio puede estar desactualizado"
         >
           <AlertTriangleIcon className="h-3 w-3" />

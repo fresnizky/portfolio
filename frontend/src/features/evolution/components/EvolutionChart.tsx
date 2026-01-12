@@ -35,7 +35,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   const { formattedDate, formattedValue } = payload[0].payload
   return (
     <div className="bg-white border rounded-lg p-3 shadow-lg">
-      <p className="text-sm text-gray-500">{formattedDate}</p>
+      <p className="text-base md:text-sm text-gray-500">{formattedDate}</p>
       <p className="text-lg font-semibold">{formattedValue}</p>
     </div>
   )

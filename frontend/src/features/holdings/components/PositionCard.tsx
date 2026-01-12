@@ -30,11 +30,11 @@ export function PositionCard({ position, onUpdatePrice }: PositionCardProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${categoryStyles[position.category]}`}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-sm md:text-xs font-medium ${categoryStyles[position.category]}`}
           >
             {position.category}
           </span>
-          <span className="text-sm font-medium text-gray-500">{position.ticker}</span>
+          <span className="text-base md:text-sm font-medium text-gray-500">{position.ticker}</span>
         </div>
         <button
           onClick={() => onUpdatePrice(position)}
@@ -56,19 +56,19 @@ export function PositionCard({ position, onUpdatePrice }: PositionCardProps) {
 
       <div className="mt-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">Quantity</span>
+          <span className="text-base md:text-sm text-gray-500">Quantity</span>
           <span className="font-medium text-gray-900">{formatQuantity(position.quantity)}</span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">Price</span>
+          <span className="text-base md:text-sm text-gray-500">Price</span>
           <span className="font-medium text-gray-900">
             {position.currentPrice ? formatCurrency(position.currentPrice) : 'No price set'}
           </span>
         </div>
 
         <div className="flex items-center justify-between border-t border-gray-100 pt-2">
-          <span className="text-sm font-medium text-gray-500">Value</span>
+          <span className="text-base md:text-sm font-medium text-gray-500">Value</span>
           <span className="text-lg font-semibold text-gray-900">{formatCurrency(position.value)}</span>
         </div>
       </div>
