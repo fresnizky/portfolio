@@ -98,6 +98,6 @@ development_status:
   8-1-fix-mobile-login-failed-to-fetch: done
   8-2-fix-onboarding-detection-existing-assets: done
   8-3-fix-transaction-date-format-validation: done
-  8-4-fix-btc-decimal-precision: backlog
+  8-4-fix-btc-decimal-precision: done
   8-5-improve-mobile-font-size: backlog
   epic-8-retrospective: optional

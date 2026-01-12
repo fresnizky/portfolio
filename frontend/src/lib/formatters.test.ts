@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatCurrency, formatPercentage, formatDate, formatGrowth } from './formatters'
+import { formatCurrency, formatPercentage, formatDate, formatGrowth, formatQuantity } from './formatters'
 
 describe('formatCurrency', () => {
   it('should format number to currency string', () => {
@@ -107,5 +107,44 @@ describe('formatGrowth', () => {
     expect(result.absolute).toBe(0)
     expect(result.percentage).toBe(0)
     expect(result.isPositive).toBe(true)
+  })
+})
+
+describe('formatQuantity', () => {
+  it('should format integer quantities without decimals', () => {
+    expect(formatQuantity('10')).toBe('10')
+    expect(formatQuantity('100')).toBe('100')
+    expect(formatQuantity('0')).toBe('0')
+  })
+
+  it('should preserve 2 decimal precision', () => {
+    expect(formatQuantity('10.50')).toBe('10.50')
+    expect(formatQuantity('0.25')).toBe('0.25')
+  })
+
+  it('should preserve 4 decimal precision', () => {
+    expect(formatQuantity('0.0001')).toBe('0.0001')
+    expect(formatQuantity('1.2345')).toBe('1.2345')
+  })
+
+  it('should preserve 8 decimal precision for BTC/crypto', () => {
+    expect(formatQuantity('0.00000001')).toBe('0.00000001')
+    expect(formatQuantity('0.00012345')).toBe('0.00012345')
+    expect(formatQuantity('1.23456789')).toBe('1.23456789')
+  })
+
+  it('should handle trailing zeros correctly', () => {
+    expect(formatQuantity('1.10')).toBe('1.10')
+    expect(formatQuantity('0.50000000')).toBe('0.50000000')
+  })
+
+  it('should handle invalid input', () => {
+    expect(formatQuantity('')).toBe('0')
+    expect(formatQuantity('invalid')).toBe('0')
+  })
+
+  it('should limit precision to 8 decimals maximum', () => {
+    // Input has more than 8 decimals
+    expect(formatQuantity('0.123456789012')).toBe('0.12345679')
   })
 })

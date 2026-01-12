@@ -1,4 +1,5 @@
 import type { Transaction, TransactionType } from '@/types/api'
+import { formatQuantity } from '@/lib/formatters'
 
 const typeStyles: Record<TransactionType, string> = {
   BUY: 'bg-green-100 text-green-800',
@@ -13,12 +14,6 @@ function formatFromCents(cents: string): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value)
-}
-
-function formatQuantity(quantity: string): string {
-  const num = parseFloat(quantity)
-  if (Number.isInteger(num)) return num.toString()
-  return num.toFixed(Math.min(8, (quantity.split('.')[1] || '').length))
 }
 
 function formatDate(isoDate: string): string {

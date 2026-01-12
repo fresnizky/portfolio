@@ -47,3 +47,20 @@ export function formatGrowth(startValue: number, endValue: number): {
     isPositive: absolute >= 0,
   }
 }
+
+/**
+ * Format quantity with appropriate decimal precision
+ * Supports up to 8 decimals for crypto (satoshi precision)
+ * @param quantity - String representation of quantity from API
+ * @returns Formatted quantity string
+ */
+export function formatQuantity(quantity: string): string {
+  const num = parseFloat(quantity)
+  if (Number.isNaN(num)) return '0'
+  if (Number.isInteger(num)) return num.toString()
+
+  // Show actual precision up to 8 decimals
+  const decimalPart = quantity.split('.')[1] || ''
+  const precision = Math.min(8, decimalPart.length)
+  return num.toFixed(precision)
+}

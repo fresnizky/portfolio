@@ -73,7 +73,7 @@ export function Step3HoldingsSetup({
                     <input
                       type="number"
                       min="0"
-                      step="0.0001"
+                      step="any"
                       value={h.quantity || ''}
                       onChange={(e) => onSetHolding(
                         asset.tempId,

@@ -1,5 +1,6 @@
 import type { Position, AssetCategory } from '@/types/api'
 import { StalenessIndicator } from './StalenessIndicator'
+import { formatQuantity } from '@/lib/formatters'
 
 const categoryStyles: Record<AssetCategory, string> = {
   ETF: 'bg-blue-100 text-blue-800',
@@ -16,12 +17,6 @@ function formatCurrency(value: string | number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(num)
-}
-
-function formatQuantity(quantity: string): string {
-  const num = parseFloat(quantity)
-  if (Number.isInteger(num)) return num.toString()
-  return num.toFixed(Math.min(8, (quantity.split('.')[1] || '').length))
 }
 
 interface PositionCardProps {
