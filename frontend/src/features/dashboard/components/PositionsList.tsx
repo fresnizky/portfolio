@@ -43,24 +43,24 @@ export function PositionsList({ positions }: PositionsListProps) {
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-medium text-gray-900">{position.ticker}</p>
-                <p className="text-sm text-gray-500">{position.name}</p>
+                <p className="text-base md:text-sm text-gray-500">{position.name}</p>
               </div>
               <div className="text-right">
                 <p className="font-medium text-gray-900">
                   {formatCurrency(position.value, position.displayCurrency)}
                 </p>
                 {position.originalCurrency !== position.displayCurrency && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm md:text-xs text-gray-500">
                     ({formatCurrency(position.originalValue, position.originalCurrency)})
                   </p>
                 )}
-                <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${bg} ${text}`}>
+                <span className={`inline-block rounded-full px-2 py-0.5 text-sm md:text-xs font-medium ${bg} ${text}`}>
                   {label}
                 </span>
               </div>
             </div>
 
-            <div className="mt-2 flex items-center gap-4 text-sm">
+            <div className="mt-2 flex items-center gap-4 text-base md:text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-gray-500">Actual:</span>
                 <span className="font-medium">{formatPercentage(position.actualPercentage)}</span>

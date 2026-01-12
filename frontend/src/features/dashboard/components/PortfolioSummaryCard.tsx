@@ -20,7 +20,7 @@ export function PortfolioSummaryCard({
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-500">Total Portfolio Value</p>
+        <p className="text-base md:text-sm font-medium text-gray-500">Total Portfolio Value</p>
         <ExchangeRateIndicator
           exchangeRate={exchangeRate}
           onRefresh={onExchangeRateRefresh}

@@ -54,34 +54,34 @@ export function EvolutionSummary({
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
       <div className="bg-white border rounded-lg p-4">
-        <p className="text-sm text-gray-500">Valor inicial</p>
+        <p className="text-base md:text-sm text-gray-500">Valor inicial</p>
         <p className="text-xl font-semibold">
           {formatCurrency(startValue, effectiveCurrency)}
         </p>
-        <p className="text-xs text-gray-400">
+        <p className="text-sm md:text-xs text-gray-400">
           {formatDate(firstSnapshot.date, 'short')}
         </p>
       </div>
 
       <div className="bg-white border rounded-lg p-4">
-        <p className="text-sm text-gray-500">Valor actual</p>
+        <p className="text-base md:text-sm text-gray-500">Valor actual</p>
         <p className="text-xl font-semibold">
           {formatCurrency(endValue, effectiveCurrency)}
         </p>
-        <p className="text-xs text-gray-400">
+        <p className="text-sm md:text-xs text-gray-400">
           {formatDate(lastSnapshot.date, 'short')}
         </p>
       </div>
 
       <div className="bg-white border rounded-lg p-4">
-        <p className="text-sm text-gray-500">Cambio absoluto</p>
+        <p className="text-base md:text-sm text-gray-500">Cambio absoluto</p>
         <p className={`text-xl font-semibold ${changeColorClass}`}>
           {isPositive ? '+' : ''}{formatCurrency(absoluteChange, effectiveCurrency)}
         </p>
       </div>
 
       <div className="bg-white border rounded-lg p-4">
-        <p className="text-sm text-gray-500">Cambio porcentual</p>
+        <p className="text-base md:text-sm text-gray-500">Cambio porcentual</p>
         <p className={`text-xl font-semibold ${changeColorClass}`}>
           {isPositive ? '+' : ''}{formatPercentage(percentChange)}
         </p>

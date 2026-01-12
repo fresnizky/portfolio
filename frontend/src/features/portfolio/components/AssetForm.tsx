@@ -54,7 +54,7 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="ticker" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="ticker" className="block text-base md:text-sm font-medium text-gray-700">
           Ticker
         </label>
         <input
@@ -62,11 +62,11 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
           type="text"
           {...register('ticker')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm uppercase placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base uppercase placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           placeholder="VOO"
         />
         {errors.ticker && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.ticker.message}
           </p>
         )}
@@ -77,7 +77,7 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
                 <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
               </svg>
               <div className="ml-3">
-                <p className="text-sm text-amber-700">
+                <p className="text-base md:text-sm text-amber-700">
                   Changing the ticker may affect historical transaction records and portfolio calculations.
                 </p>
               </div>
@@ -87,7 +87,7 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
       </div>
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="name" className="block text-base md:text-sm font-medium text-gray-700">
           Name
         </label>
         <input
@@ -95,25 +95,25 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
           type="text"
           {...register('name')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           placeholder="Vanguard S&P 500 ETF"
         />
         {errors.name && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.name.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="category" className="block text-base md:text-sm font-medium text-gray-700">
           Category
         </label>
         <select
           id="category"
           {...register('category')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           {categories.map((cat) => (
             <option key={cat.value} value={cat.value}>
@@ -122,21 +122,21 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
           ))}
         </select>
         {errors.category && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.category.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="currency" className="block text-base md:text-sm font-medium text-gray-700">
           Moneda
         </label>
         <select
           id="currency"
           {...register('currency')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           {currencies.map((curr) => (
             <option key={curr.value} value={curr.value}>
@@ -145,7 +145,7 @@ export function AssetForm({ asset, onSubmit, onCancel, isSubmitting = false }: A
           ))}
         </select>
         {errors.currency && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.currency.message}
           </p>
         )}

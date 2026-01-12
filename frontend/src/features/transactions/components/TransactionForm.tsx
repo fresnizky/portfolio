@@ -53,14 +53,14 @@ export function TransactionForm({
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="type" className="block text-base md:text-sm font-medium text-gray-700">
           Type
         </label>
         <select
           id="type"
           {...register('type')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           {transactionTypes.map((type) => (
             <option key={type.value} value={type.value}>
@@ -69,21 +69,21 @@ export function TransactionForm({
           ))}
         </select>
         {errors.type && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.type.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="assetId" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="assetId" className="block text-base md:text-sm font-medium text-gray-700">
           Asset
         </label>
         <select
           id="assetId"
           {...register('assetId')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           <option value="">Select an asset</option>
           {assets.map((asset) => (
@@ -93,14 +93,14 @@ export function TransactionForm({
           ))}
         </select>
         {errors.assetId && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.assetId.message}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="date" className="block text-base md:text-sm font-medium text-gray-700">
           Date
         </label>
         <input
@@ -108,10 +108,10 @@ export function TransactionForm({
           type="date"
           {...register('date')}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         />
         {errors.date && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.date.message}
           </p>
         )}
@@ -119,7 +119,7 @@ export function TransactionForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="quantity" className="block text-base md:text-sm font-medium text-gray-700">
             Quantity
           </label>
           <input
@@ -128,18 +128,18 @@ export function TransactionForm({
             step="any"
             {...register('quantity', { valueAsNumber: true })}
             disabled={isSubmitting}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             placeholder="10"
           />
           {errors.quantity && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
+            <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
               {errors.quantity.message}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="price" className="block text-base md:text-sm font-medium text-gray-700">
             Price per unit ($)
           </label>
           <input
@@ -148,11 +148,11 @@ export function TransactionForm({
             step="0.01"
             {...register('price', { valueAsNumber: true })}
             disabled={isSubmitting}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             placeholder="150.00"
           />
           {errors.price && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
+            <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
               {errors.price.message}
             </p>
           )}
@@ -160,7 +160,7 @@ export function TransactionForm({
       </div>
 
       <div>
-        <label htmlFor="commission" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="commission" className="block text-base md:text-sm font-medium text-gray-700">
           Commission ($)
         </label>
         <input
@@ -169,11 +169,11 @@ export function TransactionForm({
           step="0.01"
           {...register('commission', { valueAsNumber: true })}
           disabled={isSubmitting}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           placeholder="0.00"
         />
         {errors.commission && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-base md:text-sm text-red-600" role="alert">
             {errors.commission.message}
           </p>
         )}

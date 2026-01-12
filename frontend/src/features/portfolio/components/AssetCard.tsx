@@ -19,12 +19,12 @@ export function AssetCard({ asset, onEdit, onDelete }: AssetCardProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${categoryStyles[asset.category]}`}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-sm md:text-xs font-medium ${categoryStyles[asset.category]}`}
           >
             {asset.category}
           </span>
-          <span className="text-sm font-medium text-gray-500">{asset.ticker}</span>
-          <span className="text-xs text-gray-400">({asset.currency})</span>
+          <span className="text-base md:text-sm font-medium text-gray-500">{asset.ticker}</span>
+          <span className="text-sm md:text-xs text-gray-400">({asset.currency})</span>
         </div>
         <div className="flex gap-1">
           <button
@@ -59,7 +59,7 @@ export function AssetCard({ asset, onEdit, onDelete }: AssetCardProps) {
       </div>
       <h3 className="mt-2 text-base font-semibold text-gray-900">{asset.name}</h3>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-sm text-gray-500">Target</span>
+        <span className="text-base md:text-sm text-gray-500">Target</span>
         <span className="text-lg font-semibold text-gray-900">
           {Number(asset.targetPercentage).toFixed(1)}%
         </span>

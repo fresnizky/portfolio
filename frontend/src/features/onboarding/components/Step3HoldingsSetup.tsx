@@ -44,7 +44,7 @@ export function Step3HoldingsSetup({
       {/* Holdings Inputs */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="font-medium text-gray-900 mb-4">Cargar posiciones actuales</h3>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-base md:text-sm text-gray-600 mb-4">
           Ingresa las cantidades que posees de cada activo. Los precios son opcionales.
         </p>
 
@@ -61,7 +61,7 @@ export function Step3HoldingsSetup({
                     <span className="text-gray-500 ml-2">{asset.name}</span>
                   </div>
                   {value !== null && (
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-base md:text-sm font-medium text-gray-700">
                       Valor: {formatCurrency(value)}
                     </span>
                   )}
@@ -69,7 +69,7 @@ export function Step3HoldingsSetup({
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label className="text-sm text-gray-600">Cantidad</label>
+                    <label className="text-base md:text-sm text-gray-600">Cantidad</label>
                     <input
                       type="number"
                       min="0"
@@ -81,11 +81,11 @@ export function Step3HoldingsSetup({
                         h.price
                       )}
                       placeholder="0"
-                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full mt-1 px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">
+                    <label className="text-base md:text-sm text-gray-600">
                       Precio actual (opcional)
                     </label>
                     <input
@@ -99,7 +99,7 @@ export function Step3HoldingsSetup({
                         parseFloat(e.target.value) || undefined
                       )}
                       placeholder="$0.00"
-                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full mt-1 px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>

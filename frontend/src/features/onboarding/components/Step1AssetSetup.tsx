@@ -41,32 +41,32 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
         <h3 className="font-medium text-gray-900 mb-4">Agregar activo</h3>
         <div className="grid gap-4 md:grid-cols-4">
           <div>
-            <label className="text-sm text-gray-600">Ticker</label>
+            <label className="text-base md:text-sm text-gray-600">Ticker</label>
             <input
               {...register('ticker')}
               placeholder="VOO"
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.ticker && (
-              <p className="text-sm text-red-600 mt-1">{errors.ticker.message}</p>
+              <p className="text-base md:text-sm text-red-600 mt-1">{errors.ticker.message}</p>
             )}
           </div>
           <div>
-            <label className="text-sm text-gray-600">Nombre</label>
+            <label className="text-base md:text-sm text-gray-600">Nombre</label>
             <input
               {...register('name')}
               placeholder="Vanguard S&P 500"
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.name && (
-              <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+              <p className="text-base md:text-sm text-red-600 mt-1">{errors.name.message}</p>
             )}
           </div>
           <div>
-            <label className="text-sm text-gray-600">Categoria</label>
+            <label className="text-base md:text-sm text-gray-600">Categoria</label>
             <select
               {...register('category')}
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="ETF">ETF</option>
               <option value="FCI">FCI</option>
@@ -75,10 +75,10 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
             </select>
           </div>
           <div>
-            <label className="text-sm text-gray-600">Moneda</label>
+            <label className="text-base md:text-sm text-gray-600">Moneda</label>
             <select
               {...register('currency')}
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="USD">USD</option>
               <option value="ARS">ARS</option>
@@ -107,8 +107,8 @@ export function Step1AssetSetup({ assets, onAdd, onRemove }: Step1AssetSetupProp
                   <span className="font-mono font-medium text-gray-900">{asset.ticker}</span>
                   <span className="mx-2 text-gray-400">-</span>
                   <span className="text-gray-700">{asset.name}</span>
-                  <span className="ml-2 text-xs text-gray-500">({asset.category})</span>
-                  <span className="ml-1 text-xs text-gray-400">{asset.currency || 'USD'}</span>
+                  <span className="ml-2 text-sm md:text-xs text-gray-500">({asset.category})</span>
+                  <span className="ml-1 text-sm md:text-xs text-gray-400">{asset.currency || 'USD'}</span>
                 </div>
                 <button
                   onClick={() => onRemove(asset.tempId)}

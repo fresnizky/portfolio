@@ -36,14 +36,14 @@ export function Step2TargetSetup({
           </span>
         </div>
         {!isValid && (
-          <p className="text-sm text-amber-600 mt-1">
+          <p className="text-base md:text-sm text-amber-600 mt-1">
             {targetSum < 100
               ? `Faltan ${(100 - targetSum).toFixed(1)}% para completar`
               : `Excede por ${(targetSum - 100).toFixed(1)}%`}
           </p>
         )}
         {isValid && (
-          <p className="text-sm text-green-600 mt-1">
+          <p className="text-base md:text-sm text-green-600 mt-1">
             Los targets suman exactamente 100%
           </p>
         )}
@@ -67,9 +67,9 @@ export function Step2TargetSetup({
                   step="0.1"
                   value={targets[asset.tempId] || 0}
                   onChange={(e) => onSetTarget(asset.tempId, parseFloat(e.target.value) || 0)}
-                  className="w-24 px-3 py-2 border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-24 px-3 py-2 text-base border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <span className="text-gray-500">%</span>
+                <span className="text-base md:text-sm text-gray-500">%</span>
               </div>
             </div>
           ))}

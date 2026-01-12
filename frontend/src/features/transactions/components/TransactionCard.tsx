@@ -34,39 +34,39 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${typeStyles[transaction.type]}`}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-sm md:text-xs font-medium ${typeStyles[transaction.type]}`}
           >
             {transaction.type}
           </span>
-          <span className="text-sm font-medium text-gray-500">{transaction.asset.ticker}</span>
+          <span className="text-base md:text-sm font-medium text-gray-500">{transaction.asset.ticker}</span>
         </div>
-        <span className="text-sm text-gray-500">{formatDate(transaction.date)}</span>
+        <span className="text-base md:text-sm text-gray-500">{formatDate(transaction.date)}</span>
       </div>
 
       <h3 className="mt-2 text-base font-semibold text-gray-900">{transaction.asset.name}</h3>
 
       <div className="mt-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">Quantity</span>
+          <span className="text-base md:text-sm text-gray-500">Quantity</span>
           <span className="font-medium text-gray-900">{formatQuantity(transaction.quantity)}</span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">Price</span>
+          <span className="text-base md:text-sm text-gray-500">Price</span>
           <span className="font-medium text-gray-900">
             {formatFromCents(transaction.priceCents)}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">Commission</span>
+          <span className="text-base md:text-sm text-gray-500">Commission</span>
           <span className="font-medium text-gray-900">
             {formatFromCents(transaction.commissionCents)}
           </span>
         </div>
 
         <div className="flex items-center justify-between border-t border-gray-100 pt-2">
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-base md:text-sm font-medium text-gray-500">
             {transaction.type === 'BUY' ? 'Total Cost' : 'Total Proceeds'}
           </span>
           <span className="text-lg font-semibold text-gray-900">
