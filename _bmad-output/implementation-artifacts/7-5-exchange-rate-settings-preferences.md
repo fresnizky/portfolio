@@ -57,10 +57,10 @@ So that **I can see when the rate was last updated and refresh it if I suspect i
   - [x] Show inline status messages on success/error
   - [x] Write tests
 
-- [ ] Task 6: Integrate ExchangeRateSection into Settings page (AC: #1)
-  - [ ] Import ExchangeRateSection in `frontend/src/features/settings/index.tsx`
-  - [ ] Add as a new section between Alert Settings and Export sections
-  - [ ] Write integration test
+- [x] Task 6: Integrate ExchangeRateSection into Settings page (AC: #1)
+  - [x] Import ExchangeRateSection in `frontend/src/features/settings/index.tsx`
+  - [x] Add as a new section between Alert Settings and Export sections
+  - [x] Write integration test
 
 - [ ] Task 7: Run all tests and ensure passing
   - [ ] Run `pnpm test` in backend
@@ -483,6 +483,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 3: Created useExchangeRateRefresh hook with useMutation. Updates cache on success. Added 4 unit tests.
 - Task 4: Created ExchangeRateSection component with rate display, stale warning, metadata. Added 'full' format to formatDate. Added 8 tests.
 - Task 5: Added refresh button with loading spinner, disabled state, success/error messages. Added 6 tests.
+- Task 6: Integrated ExchangeRateSection into Settings page. Added 1 integration test.
 
 ### File List
 
@@ -495,3 +496,5 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.test.tsx (created)
 - frontend/src/features/settings/components/ExchangeRateSection.tsx (created)
 - frontend/src/features/settings/components/ExchangeRateSection.test.tsx (created)
+- frontend/src/features/settings/index.tsx (modified)
+- frontend/src/features/settings/index.test.tsx (modified)
