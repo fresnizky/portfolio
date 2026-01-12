@@ -94,8 +94,8 @@ development_status:
   epic-7-retrospective: optional
 
   # Epic 8: Bugfixes & Improvements
-  epic-8: backlog
-  8-1-fix-mobile-login-failed-to-fetch: backlog
+  epic-8: in-progress
+  8-1-fix-mobile-login-failed-to-fetch: done
   8-2-fix-onboarding-detection-existing-assets: backlog
   8-3-fix-transaction-date-format-validation: backlog
   8-4-fix-btc-decimal-precision: backlog

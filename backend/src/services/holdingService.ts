@@ -1,4 +1,5 @@
 import { prisma } from '@/config/database'
+import { Prisma } from '@prisma/client'
 import { Errors } from '@/lib/errors'
 
 export const holdingService = {
@@ -118,7 +119,7 @@ export const holdingService = {
 
     // 2. Build transaction operations
     const now = new Date()
-    const operations: Parameters<typeof prisma.$transaction>[0] = []
+    const operations: Prisma.PrismaPromise<unknown>[] = []
 
     for (const { assetId, quantity, price } of holdings) {
       // Upsert holding

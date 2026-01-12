@@ -83,6 +83,7 @@ export const api = {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
       return handleResponse<LoginResponse>(res)
@@ -94,6 +95,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<AuthMeResponse>(res)
     },
@@ -105,6 +107,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<{ success: boolean }>(res)
@@ -118,6 +121,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<Asset[]>(res)
     },
@@ -129,6 +133,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<Asset>(res)
@@ -141,6 +146,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<Asset>(res)
@@ -153,6 +159,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<void>(res)
     },
@@ -164,6 +171,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<Asset[]>(res)
@@ -177,6 +185,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<PortfolioSummary>(res)
     },
@@ -190,6 +199,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<Asset>(res)
@@ -202,6 +212,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<BatchUpdatePricesResponse>(res)
@@ -228,6 +239,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
 
       // Response format: { data: Transaction[], meta: { total: number } }
@@ -254,6 +266,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<Transaction>(res)
@@ -283,6 +296,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<DashboardResponse>(res)
     },
@@ -304,6 +318,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
 
       if (!res.ok) {
@@ -328,6 +343,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<Snapshot>(res)
     },
@@ -340,6 +356,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<OnboardingStatus>(res)
     },
@@ -351,6 +368,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<OnboardingStatus>(res)
     },
@@ -362,6 +380,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<OnboardingStatus>(res)
     },
@@ -373,6 +392,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify({ assets }),
       })
       return handleResponse<Asset[]>(res)
@@ -385,6 +405,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify({ targets }),
       })
       return handleResponse<Asset[]>(res)
@@ -397,6 +418,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify({ holdings }),
       })
       return handleResponse<Holding[]>(res)
@@ -410,6 +432,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<UserSettings>(res)
     },
@@ -421,6 +444,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
         body: JSON.stringify(input),
       })
       return handleResponse<UserSettings>(res)
@@ -432,6 +456,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<ExportData>(res)
     },
@@ -439,6 +464,7 @@ export const api = {
     exportCsv: async (): Promise<Blob> => {
       const res = await fetch(`${API_URL}/settings/export/csv`, {
         headers: getAuthHeaders(),
+        credentials: 'include',
       })
       if (!res.ok) {
         const json = await res.json()
@@ -459,6 +485,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<ExchangeRateResponse>(res)
     },
@@ -470,6 +497,7 @@ export const api = {
           'Content-Type': 'application/json',
           ...getAuthHeaders(),
         },
+        credentials: 'include',
       })
       return handleResponse<ExchangeRateResponse>(res)
     },

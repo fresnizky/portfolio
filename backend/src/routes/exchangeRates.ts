@@ -7,7 +7,7 @@ const router: Router = Router()
  * GET /api/exchange-rates/current
  * Get current USD/ARS exchange rate
  */
-router.get('/current', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/current', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const { rate, fetchedAt, isStale, source } = await exchangeRateService.getRate(
       'USD',
@@ -32,7 +32,7 @@ router.get('/current', async (req: Request, res: Response, next: NextFunction) =
  * POST /api/exchange-rates/refresh
  * Force refresh the exchange rate from external API
  */
-router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/refresh', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const freshRate = await exchangeRateService.fetchFromApi()
     await exchangeRateService.saveRate('USD', 'ARS', freshRate)

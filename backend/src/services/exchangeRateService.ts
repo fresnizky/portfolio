@@ -79,7 +79,7 @@ export const exchangeRateService = {
     if (!response.ok) {
       throw new Error(`Bluelytics API error: ${response.status}`)
     }
-    const data: BluelyticsResponse = await response.json()
+    const data = (await response.json()) as BluelyticsResponse
     return data.oficial.value_avg // USD to ARS rate
   },
 

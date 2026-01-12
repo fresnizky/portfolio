@@ -1,7 +1,7 @@
 import './types/express'
 import express from 'express'
-import cors from 'cors'
 import dotenv from 'dotenv'
+import { corsMiddleware } from './middleware/cors'
 import { errorHandler } from './middleware/errorHandler'
 import { authMiddleware } from './middleware/auth'
 import authRouter from './routes/auth'
@@ -22,7 +22,7 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3000
 
-app.use(cors())
+app.use(corsMiddleware())
 app.use(express.json())
 
 // Health check endpoint

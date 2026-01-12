@@ -54,6 +54,7 @@ describe('api', () => {
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
         })
       )
