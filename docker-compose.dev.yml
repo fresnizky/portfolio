@@ -24,3 +24,4 @@ services:
       - ./backend/prisma.config.ts:/app/prisma.config.ts
     environment:
       - NODE_ENV=development
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:10001}

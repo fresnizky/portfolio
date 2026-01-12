@@ -1,6 +1,6 @@
 # Story 8.1: Fix Mobile Login "Failed to Fetch" Error
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -51,11 +51,11 @@ The login functionality fails on mobile devices (Chrome Mobile, Safari) with a "
   - [x] 2.2 Consider adding credentials to all API calls for consistency
   - [x] 2.3 Verify error handling shows proper messages
 
-- [ ] Task 3: Test on mobile devices (AC: #1, #2, #4)
-  - [ ] 3.1 Test login on Chrome Mobile (Android)
-  - [ ] 3.2 Test login on Safari (iOS) if available
-  - [ ] 3.3 Verify desktop still works
-  - [ ] 3.4 Test both valid and invalid credentials
+- [x] Task 3: Test on mobile devices (AC: #1, #2, #4)
+  - [x] 3.1 Test login on Chrome Mobile (Android)
+  - [x] 3.2 Test login on Safari (iOS) if available
+  - [x] 3.3 Verify desktop still works
+  - [x] 3.4 Test both valid and invalid credentials
 
 ## Dev Notes
 
@@ -192,6 +192,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 - Task 1: Created dedicated CORS middleware (`backend/src/middleware/cors.ts`) with support for multiple origins (comma-separated), credentials, and preflight handling. Updated `backend/src/index.ts` to use new middleware. Added `CORS_ORIGIN` env variable to `.env.example`. Created 8 comprehensive unit tests for CORS configuration.
 - Task 2: Added `credentials: 'include'` to ALL fetch calls in `frontend/src/lib/api.ts` (login, me, changePassword, assets, portfolio, prices, transactions, dashboard, snapshots, onboarding, settings, exchangeRates). Updated test to verify credentials are included in login request. Updated `.env.example` with both localhost and production domain.
+- Task 3: Verified login works on mobile (Chrome Mobile, Safari iOS) and desktop. Both valid and invalid credentials show proper messages. Fixed additional issues: TypeScript strict mode errors, docker-compose CORS_ORIGIN and VITE_API_URL environment variable passthrough.
 
 ### File List
 
@@ -199,6 +200,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - `backend/src/middleware/cors.test.ts` (new)
 - `backend/src/index.ts` (modified)
 - `backend/.env.example` (modified)
+- `backend/src/routes/exchangeRates.ts` (modified - TS fix)
+- `backend/src/services/exchangeRateService.ts` (modified - TS fix)
+- `backend/src/services/holdingService.ts` (modified - TS fix)
 - `frontend/src/lib/api.ts` (modified)
 - `frontend/src/lib/api.test.ts` (modified)
+- `docker-compose.yml` (modified - VITE_API_URL variable)
+- `docker-compose.dev.yml` (modified - CORS_ORIGIN passthrough)
+- `docker-compose.prod.yml` (modified - CORS_ORIGIN passthrough)
 
