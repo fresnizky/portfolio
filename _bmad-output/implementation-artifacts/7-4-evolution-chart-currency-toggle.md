@@ -50,11 +50,11 @@ So that **I can analyze my portfolio growth in my preferred currency**.
   - [x] Update YAxis tickFormatter for correct currency
   - [x] Write tests
 
-- [ ] Task 5: Update EvolutionSummary for multi-currency (AC: #4)
-  - [ ] Add `displayCurrency` and `exchangeRate` props
-  - [ ] Convert all values (start, end, absoluteChange) to display currency
-  - [ ] Use formatCurrency with displayCurrency parameter
-  - [ ] Write tests
+- [x] Task 5: Update EvolutionSummary for multi-currency (AC: #4)
+  - [x] Add `displayCurrency` and `exchangeRate` props
+  - [x] Convert all values (start, end, absoluteChange) to display currency
+  - [x] Use formatCurrency with displayCurrency parameter
+  - [x] Write tests
 
 - [ ] Task 6: Update formatCurrency for proper ARS formatting (AC: #3, #4)
   - [ ] Ensure ARS uses 'es-AR' locale for proper formatting ($ 1.500.000,00)
@@ -570,6 +570,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 2: Added displayCurrency state to EvolutionPage, integrated useExchangeRate hook, passed props to child components. 3 new tests for currency persistence.
 - Task 3: Exchange rate fetch implemented in Task 2 via useExchangeRate in EvolutionPage (cleaner than modifying useSnapshots).
 - Task 4: Updated EvolutionChart with convertValue function, currency-aware data transformation, tooltip and YAxis formatting. 4 new tests.
+- Task 5: Updated EvolutionSummary with convertValue, effectiveCurrency for fallback, all values now currency-aware. 4 new tests.
 
 ### File List
 
@@ -579,5 +580,6 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - frontend/src/features/evolution/index.test.tsx (modified)
 - frontend/src/features/evolution/components/EvolutionChart.tsx (modified - multi-currency support)
 - frontend/src/features/evolution/components/EvolutionChart.test.tsx (modified - 4 new tests)
-- frontend/src/features/evolution/components/EvolutionSummary.tsx (modified - interface)
+- frontend/src/features/evolution/components/EvolutionSummary.tsx (modified - multi-currency support)
+- frontend/src/features/evolution/components/EvolutionSummary.test.tsx (modified - 4 new tests)
 

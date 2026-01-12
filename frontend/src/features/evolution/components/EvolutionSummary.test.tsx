@@ -114,4 +114,77 @@ describe('EvolutionSummary', () => {
     expect(screen.getByText('+$5,000.00')).toBeInTheDocument() // Absolute change
     expect(screen.getByText('+50.00%')).toBeInTheDocument() // Percentage change
   })
+
+  it('should display all values in USD by default', () => {
+    const snapshots = [
+      createSnapshot('1', '2026-01-01T00:00:00.000Z', '10000.00'),
+      createSnapshot('2', '2026-01-15T00:00:00.000Z', '12000.00'),
+    ]
+
+    render(<EvolutionSummary snapshots={snapshots} />)
+
+    expect(screen.getByText('$10,000.00')).toBeInTheDocument()
+    expect(screen.getByText('$12,000.00')).toBeInTheDocument()
+    expect(screen.getByText('+$2,000.00')).toBeInTheDocument()
+  })
+
+  it('should convert all values to ARS when selected', () => {
+    const snapshots = [
+      createSnapshot('1', '2026-01-01T00:00:00.000Z', '100.00'),
+      createSnapshot('2', '2026-01-15T00:00:00.000Z', '120.00'),
+    ]
+    const exchangeRate = 1100 // 1 USD = 1100 ARS
+
+    render(
+      <EvolutionSummary
+        snapshots={snapshots}
+        displayCurrency="ARS"
+        exchangeRate={exchangeRate}
+      />
+    )
+
+    // 100 USD * 1100 = 110,000 ARS
+    // 120 USD * 1100 = 132,000 ARS
+    // Change = 22,000 ARS
+    expect(screen.getByText(/110.*000/)).toBeInTheDocument() // Start value in ARS
+    expect(screen.getByText(/132.*000/)).toBeInTheDocument() // End value in ARS
+  })
+
+  it('should calculate percentage change correctly regardless of currency', () => {
+    const snapshots = [
+      createSnapshot('1', '2026-01-01T00:00:00.000Z', '100.00'),
+      createSnapshot('2', '2026-01-15T00:00:00.000Z', '120.00'),
+    ]
+
+    // Test with ARS - percentage should be same as USD (20%)
+    render(
+      <EvolutionSummary
+        snapshots={snapshots}
+        displayCurrency="ARS"
+        exchangeRate={1100}
+      />
+    )
+
+    // Percentage change is currency-agnostic
+    expect(screen.getByText('+20.00%')).toBeInTheDocument()
+  })
+
+  it('should handle null exchangeRate (fallback to USD values)', () => {
+    const snapshots = [
+      createSnapshot('1', '2026-01-01T00:00:00.000Z', '10000.00'),
+      createSnapshot('2', '2026-01-15T00:00:00.000Z', '12000.00'),
+    ]
+
+    render(
+      <EvolutionSummary
+        snapshots={snapshots}
+        displayCurrency="ARS"
+        exchangeRate={null}
+      />
+    )
+
+    // Should fallback to USD values when no exchange rate
+    expect(screen.getByText('$10,000.00')).toBeInTheDocument()
+    expect(screen.getByText('$12,000.00')).toBeInTheDocument()
+  })
 })
