@@ -43,12 +43,12 @@ So that **I can see when the rate was last updated and refresh it if I suspect i
   - [x] Invalidate `queryKeys.exchangeRates.current()` on success
   - [x] Write tests
 
-- [ ] Task 4: Create ExchangeRateSection component (AC: #1, #2, #3)
-  - [ ] Create `frontend/src/features/settings/components/ExchangeRateSection.tsx`
-  - [ ] Display current rate, fetchedAt, source
-  - [ ] Show stale warning when `isStale` is true
-  - [ ] Style to match existing Settings sections
-  - [ ] Write tests
+- [x] Task 4: Create ExchangeRateSection component (AC: #1, #2, #3)
+  - [x] Create `frontend/src/features/settings/components/ExchangeRateSection.tsx`
+  - [x] Display current rate, fetchedAt, source
+  - [x] Show stale warning when `isStale` is true
+  - [x] Style to match existing Settings sections
+  - [x] Write tests
 
 - [ ] Task 5: Add refresh button with loading state (AC: #4, #5, #6)
   - [ ] Add "Actualizar ahora" button to ExchangeRateSection
@@ -481,11 +481,16 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 1: Added POST /api/exchange-rates/refresh endpoint. Calls fetchFromApi() and saveRate(), returns fresh rate data. Added 3 unit tests.
 - Task 2: Added api.exchangeRates.refresh() method. Reuses existing ExchangeRateResponse type.
 - Task 3: Created useExchangeRateRefresh hook with useMutation. Updates cache on success. Added 4 unit tests.
+- Task 4: Created ExchangeRateSection component with rate display, stale warning, metadata. Added 'full' format to formatDate. Added 8 tests.
 
 ### File List
 
 - backend/src/routes/exchangeRates.ts (modified)
 - backend/src/routes/exchangeRates.test.ts (modified)
 - frontend/src/lib/api.ts (modified)
+- frontend/src/lib/formatters.ts (modified)
+- frontend/src/lib/formatters.test.ts (modified)
 - frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.ts (created)
 - frontend/src/features/exchange-rates/hooks/useExchangeRateRefresh.test.tsx (created)
+- frontend/src/features/settings/components/ExchangeRateSection.tsx (created)
+- frontend/src/features/settings/components/ExchangeRateSection.test.tsx (created)

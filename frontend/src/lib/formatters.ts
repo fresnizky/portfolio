@@ -19,7 +19,7 @@ export function formatPercentage(value: string | number, decimals = 2): string {
 
 export function formatDate(
   dateString: string,
-  style: 'short' | 'medium' | 'long' = 'medium'
+  style: 'short' | 'medium' | 'long' | 'full' = 'medium'
 ): string {
   const date = new Date(dateString)
 
@@ -27,6 +27,7 @@ export function formatDate(
     short: 'dd/MM',
     medium: 'dd MMM yyyy',
     long: 'dd MMMM yyyy',
+    full: "dd MMM yyyy, HH:mm",
   }
 
   return format(date, formats[style], { locale: es })
