@@ -39,8 +39,8 @@ describe('PortfolioSummaryCard', () => {
 
   it('should format value in ARS when displayCurrency is ARS', () => {
     render(<PortfolioSummaryCard totalValue="1500.00" displayCurrency="ARS" />)
-    // ARS format may use non-breaking space
-    expect(screen.getByText(/ARS\s*1,500\.00/)).toBeInTheDocument()
+    // es-AR locale uses $ symbol, period thousands separator, comma decimal
+    expect(screen.getByText(/\$\s*1\.500,00/)).toBeInTheDocument()
   })
 
   it('should display exchange rate indicator when exchangeRate is provided', () => {

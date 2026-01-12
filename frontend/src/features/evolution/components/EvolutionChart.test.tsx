@@ -8,8 +8,13 @@ vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>
   ),
-  LineChart: ({ children, data }: { children: React.ReactNode; data: unknown[] }) => (
-    <div data-testid="line-chart" data-points={data.length}>
+  LineChart: ({ children, data }: { children: React.ReactNode; data: Array<{ value: number; formattedValue: string }> }) => (
+    <div
+      data-testid="line-chart"
+      data-points={data.length}
+      data-first-value={data[0]?.value}
+      data-first-formatted={data[0]?.formattedValue}
+    >
       {children}
     </div>
   ),
@@ -91,5 +96,58 @@ describe('EvolutionChart', () => {
     expect(screen.getByTestId('cartesian-grid')).toBeInTheDocument()
     expect(screen.getByTestId('tooltip')).toBeInTheDocument()
     expect(screen.getByTestId('line')).toBeInTheDocument()
+  })
+
+  it('should display values in USD by default', () => {
+    render(<EvolutionChart snapshots={mockSnapshots} />)
+
+    const chart = screen.getByTestId('line-chart')
+    // First snapshot is 10000 USD (sorted by date asc)
+    expect(chart).toHaveAttribute('data-first-value', '10000')
+    expect(chart).toHaveAttribute('data-first-formatted', '$10,000.00')
+  })
+
+  it('should convert and display values in ARS when selected', () => {
+    const exchangeRate = 1100 // 1 USD = 1100 ARS
+
+    render(
+      <EvolutionChart
+        snapshots={mockSnapshots}
+        displayCurrency="ARS"
+        exchangeRate={exchangeRate}
+      />
+    )
+
+    const chart = screen.getByTestId('line-chart')
+    // 10000 USD * 1100 = 11,000,000 ARS
+    expect(chart).toHaveAttribute('data-first-value', '11000000')
+  })
+
+  it('should handle null exchangeRate gracefully (show USD)', () => {
+    render(
+      <EvolutionChart
+        snapshots={mockSnapshots}
+        displayCurrency="ARS"
+        exchangeRate={null}
+      />
+    )
+
+    const chart = screen.getByTestId('line-chart')
+    // Should fallback to USD value when no exchange rate available
+    expect(chart).toHaveAttribute('data-first-value', '10000')
+  })
+
+  it('should not convert when displayCurrency is USD', () => {
+    render(
+      <EvolutionChart
+        snapshots={mockSnapshots}
+        displayCurrency="USD"
+        exchangeRate={1100}
+      />
+    )
+
+    const chart = screen.getByTestId('line-chart')
+    // Should show USD value regardless of exchangeRate
+    expect(chart).toHaveAttribute('data-first-value', '10000')
   })
 })

@@ -112,7 +112,7 @@ describe('PositionsList', () => {
 
     // Should show display value (converted to USD)
     expect(screen.getByText('$1,000.00')).toBeInTheDocument()
-    // Should show original value in ARS in parentheses (may have non-breaking space)
-    expect(screen.getByText(/\(ARS\s*1,000,000\.00\)/)).toBeInTheDocument()
+    // Should show original value in ARS with es-AR formatting ($ symbol, period thousands, comma decimal)
+    expect(screen.getByText(/\(\$\s*1\.000\.000,00\)/)).toBeInTheDocument()
   })
 })

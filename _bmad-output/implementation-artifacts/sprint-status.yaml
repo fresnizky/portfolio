@@ -89,7 +89,7 @@ development_status:
   7-1-currency-field-on-asset-model: done
   7-2-exchange-rate-api-integration: done
   7-3-dashboard-multi-currency-display: done
-  7-4-evolution-chart-currency-toggle: backlog
+  7-4-evolution-chart-currency-toggle: done
   7-5-exchange-rate-settings-preferences: backlog
   epic-7-retrospective: optional
 
