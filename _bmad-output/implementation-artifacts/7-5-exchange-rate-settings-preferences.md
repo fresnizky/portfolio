@@ -62,10 +62,10 @@ So that **I can see when the rate was last updated and refresh it if I suspect i
   - [x] Add as a new section between Alert Settings and Export sections
   - [x] Write integration test
 
-- [ ] Task 7: Run all tests and ensure passing
-  - [ ] Run `pnpm test` in backend
-  - [ ] Run `pnpm test` in frontend
-  - [ ] Fix any failing tests
+- [x] Task 7: Run all tests and ensure passing
+  - [x] Run `pnpm test` in backend - 530 passed
+  - [x] Run `pnpm test` in frontend - 460 passed
+  - [x] All tests passing
 
 ## Dev Notes
 
@@ -484,6 +484,7 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 - Task 4: Created ExchangeRateSection component with rate display, stale warning, metadata. Added 'full' format to formatDate. Added 8 tests.
 - Task 5: Added refresh button with loading spinner, disabled state, success/error messages. Added 6 tests.
 - Task 6: Integrated ExchangeRateSection into Settings page. Added 1 integration test.
+- Task 7: All tests passing. Backend: 530 tests. Frontend: 460 tests.
 
 ### File List
 

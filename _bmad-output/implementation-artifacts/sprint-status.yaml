@@ -90,7 +90,7 @@ development_status:
   7-2-exchange-rate-api-integration: done
   7-3-dashboard-multi-currency-display: done
   7-4-evolution-chart-currency-toggle: done
-  7-5-exchange-rate-settings-preferences: in-progress
+  7-5-exchange-rate-settings-preferences: review
   epic-7-retrospective: optional
 
   # Epic 8: Bugfixes & Improvements
