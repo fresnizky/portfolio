@@ -1,6 +1,6 @@
 # Story 7.4: Evolution Chart Currency Toggle
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
