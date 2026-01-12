@@ -14,8 +14,9 @@ import path from 'path';
  */
 
 // Load environment-specific config
-const baseURL = process.env.BASE_URL || 'http://localhost:10001';
-const apiURL = process.env.API_URL || 'http://localhost:10002';
+// Default ports are for E2E stack (10021, 10022) - separate from dev (10001, 10002)
+const baseURL = process.env.BASE_URL || 'http://localhost:10021';
+const apiURL = process.env.API_URL || 'http://localhost:10022';
 
 export default defineConfig({
   testDir: './tests/e2e',

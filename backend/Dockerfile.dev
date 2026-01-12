@@ -19,6 +19,11 @@ RUN pnpm install
 # Copy remaining source code (will be overridden by volume mount in dev)
 COPY . .
 
+# Copy and set entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 3000
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["pnpm", "dev"]

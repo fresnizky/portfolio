@@ -7,7 +7,8 @@ import type { APIRequestContext } from '@playwright/test';
  * Pattern: Pure function → Fixture wrapper (TEA fixture-architecture)
  */
 
-const API_URL = process.env.API_URL || 'http://localhost:10002';
+// Default port is for E2E stack (10022) - separate from dev (10002)
+const API_URL = process.env.API_URL || 'http://localhost:10022';
 
 // ============================================
 // Types

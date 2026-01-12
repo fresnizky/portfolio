@@ -78,7 +78,7 @@ const apiFixture = base.extend<{ api: ApiFixture }>({
 
 /**
  * Auth Fixture
- * Handles login/logout via API with cookie injection
+ * Handles login/logout via API with localStorage injection (Zustand persist)
  */
 const authFixture = base.extend<{ auth: AuthFixture }>({
   auth: async ({ request, context }, use) => {
@@ -88,31 +88,38 @@ const authFixture = base.extend<{ auth: AuthFixture }>({
       const result = await loginUser(request, { email, password });
       currentToken = result.token;
 
-      // Inject token as cookie for browser context
-      await context.addCookies([
-        {
-          name: 'auth_token',
-          value: result.token,
-          domain: 'localhost',
-          path: '/',
-          httpOnly: true,
-          secure: false,
+      // Inject auth state into localStorage (Zustand persist format)
+      const authState = {
+        state: {
+          token: result.token,
+          user: result.user,
+          isAuthenticated: true,
+          isLoading: false,
         },
-      ]);
+        version: 0,
+      };
+
+      await context.addInitScript((authStateStr: string) => {
+        window.localStorage.setItem('auth-storage', authStateStr);
+      }, JSON.stringify(authState));
 
       return result;
     };
 
     const logout = async () => {
       currentToken = null;
-      await context.clearCookies();
+      await context.addInitScript(() => {
+        window.localStorage.removeItem('auth-storage');
+      });
     };
 
     await use({ loginAs, logout });
 
     // Cleanup on fixture teardown
     if (currentToken) {
-      await context.clearCookies();
+      await context.addInitScript(() => {
+        window.localStorage.removeItem('auth-storage');
+      });
     }
   },
 });
@@ -143,9 +150,12 @@ const cleanupFixture = base.extend<{ cleanup: CleanupFixture; _cleanupToken: str
 /**
  * Authenticated User Fixture
  * Creates a test user, logs in, and provides user data to test
+ *
+ * IMPORTANT: Frontend uses Zustand persist with localStorage (key: 'auth-storage')
+ * We inject the auth state via addInitScript before any page loads
  */
 const authenticatedUserFixture = base.extend<{ authenticatedUser: TestUser }>({
-  authenticatedUser: async ({ request, context }, use) => {
+  authenticatedUser: async ({ request, context, page }, use) => {
     // Generate unique test user
     const timestamp = Date.now();
     const userData = {
@@ -170,17 +180,25 @@ const authenticatedUserFixture = base.extend<{ authenticatedUser: TestUser }>({
       password: userData.password,
     });
 
-    // Inject auth cookie
-    await context.addCookies([
-      {
-        name: 'auth_token',
-        value: token,
-        domain: 'localhost',
-        path: '/',
-        httpOnly: true,
-        secure: false,
+    // Inject auth state into localStorage (Zustand persist format)
+    // This must be done BEFORE navigating to any page
+    const authState = {
+      state: {
+        token,
+        user: {
+          id: userId || user.id,
+          email: userData.email,
+        },
+        isAuthenticated: true,
+        isLoading: false,
       },
-    ]);
+      version: 0,
+    };
+
+    // Add init script to inject auth state before page loads
+    await context.addInitScript((authStateStr: string) => {
+      window.localStorage.setItem('auth-storage', authStateStr);
+    }, JSON.stringify(authState));
 
     const testUser: TestUser = {
       id: userId || user.id,
@@ -192,8 +210,10 @@ const authenticatedUserFixture = base.extend<{ authenticatedUser: TestUser }>({
 
     await use(testUser);
 
-    // Cleanup: logout
-    await context.clearCookies();
+    // Cleanup: clear localStorage auth state
+    await context.addInitScript(() => {
+      window.localStorage.removeItem('auth-storage');
+    });
   },
 });
 

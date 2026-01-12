@@ -1,0 +1,90 @@
+# E2E Test Stack - Completely Standalone
+#
+# This is a self-contained environment for E2E testing.
+# Does NOT share anything with dev/prod environments.
+#
+# Usage:
+#   pnpm test:e2e:setup     # Start stack
+#   pnpm test:e2e           # Run tests
+#   pnpm test:e2e:cleanup   # Stop and clean
+#
+# Or manually:
+#   docker compose -f docker-compose.e2e.yml up --build -d
+#   docker compose -f docker-compose.e2e.yml down -v
+
+services:
+  # ===========================================
+  # Frontend for E2E Tests
+  # ===========================================
+  frontend-e2e:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: portfolio_frontend_e2e
+    ports:
+      - "10021:5173"
+    environment:
+      # Point to local test backend
+      - VITE_API_URL=http://localhost:10022/api
+    depends_on:
+      backend-e2e:
+        condition: service_healthy
+    networks:
+      - e2e-network
+    # No volumes - use built code for consistency
+
+  # ===========================================
+  # Backend for E2E Tests
+  # ===========================================
+  backend-e2e:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: portfolio_backend_e2e
+    ports:
+      - "10022:3000"
+    environment:
+      - NODE_ENV=test
+      - PORT=3000
+      - DATABASE_URL=postgresql://test_user:test_pass@db-e2e:5432/portfolio_e2e
+      - JWT_SECRET=e2e-test-secret-key-not-for-production
+      - JWT_EXPIRES_IN=1h
+      - CORS_ORIGIN=http://localhost:10021,http://127.0.0.1:10021
+    depends_on:
+      db-e2e:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - e2e-network
+
+  # ===========================================
+  # Database for E2E Tests
+  # ===========================================
+  db-e2e:
+    image: postgres:16-alpine
+    container_name: portfolio_db_e2e
+    ports:
+      - "10023:5432"
+    environment:
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_pass
+      - POSTGRES_DB=portfolio_e2e
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d portfolio_e2e"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    # Use tmpfs for fast, ephemeral storage (no persistence)
+    tmpfs:
+      - /var/lib/postgresql/data
+    networks:
+      - e2e-network
+
+networks:
+  e2e-network:
+    driver: bridge
