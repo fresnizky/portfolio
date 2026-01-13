@@ -138,7 +138,7 @@ describe('TransactionSummary', () => {
     ]
 
     it('should calculate total invested correctly from real API response', () => {
-      render(<TransactionSummary transactions={realApiTransactions as any} />)
+      render(<TransactionSummary transactions={realApiTransactions as Transaction[]} />)
 
       // Should NOT show NaN
       const container = document.body
@@ -149,7 +149,7 @@ describe('TransactionSummary', () => {
     })
 
     it('should calculate total withdrawn correctly from real API response', () => {
-      render(<TransactionSummary transactions={realApiTransactions as any} />)
+      render(<TransactionSummary transactions={realApiTransactions as Transaction[]} />)
 
       // Should NOT show NaN
       expect(document.body.textContent).not.toContain('NaN')
@@ -159,7 +159,7 @@ describe('TransactionSummary', () => {
     })
 
     it('should never render NaN for any monetary value', () => {
-      render(<TransactionSummary transactions={realApiTransactions as any} />)
+      render(<TransactionSummary transactions={realApiTransactions as Transaction[]} />)
 
       // Get all rendered text
       const allText = document.body.textContent || ''

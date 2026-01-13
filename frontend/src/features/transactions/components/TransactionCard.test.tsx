@@ -137,8 +137,7 @@ describe('TransactionCard', () => {
     }
 
     it('should display price correctly from real API response', () => {
-      // Using 'as any' to bypass TypeScript - this simulates the runtime mismatch
-      render(<TransactionCard transaction={realApiResponse as any} />)
+      render(<TransactionCard transaction={realApiResponse as Transaction} />)
 
       // Should show $450.75, NOT $NaN
       expect(screen.queryByText('$NaN')).not.toBeInTheDocument()
@@ -146,7 +145,7 @@ describe('TransactionCard', () => {
     })
 
     it('should display commission correctly from real API response', () => {
-      render(<TransactionCard transaction={realApiResponse as any} />)
+      render(<TransactionCard transaction={realApiResponse as Transaction} />)
 
       // Should show $5.00, NOT $NaN
       expect(screen.queryByText('$NaN')).not.toBeInTheDocument()
@@ -154,7 +153,7 @@ describe('TransactionCard', () => {
     })
 
     it('should display total cost correctly from real API response', () => {
-      render(<TransactionCard transaction={realApiResponse as any} />)
+      render(<TransactionCard transaction={realApiResponse as Transaction} />)
 
       // Should show $4,512.50, NOT $NaN
       expect(screen.queryByText('$NaN')).not.toBeInTheDocument()
@@ -162,7 +161,7 @@ describe('TransactionCard', () => {
     })
 
     it('should never render NaN for any monetary value', () => {
-      render(<TransactionCard transaction={realApiResponse as any} />)
+      render(<TransactionCard transaction={realApiResponse as Transaction} />)
 
       // Get all text content and verify no NaN anywhere
       const container = screen.getByText('VOO').closest('div')?.parentElement
@@ -171,18 +170,18 @@ describe('TransactionCard', () => {
     })
 
     it('should handle SELL transaction from real API response', () => {
-      const sellResponse = {
+      const sellResponse: Transaction = {
         ...realApiResponse,
         id: 'tx-real-2',
-        type: 'SELL' as const,
+        type: 'SELL',
         quantity: '5',
         price: '125.50',
         commission: '2.50',
-        totalCost: undefined, // SELL doesn't have totalCost
-        totalProceeds: '625.00', // (5 × 125.50) - 2.50
+        totalCost: undefined,
+        totalProceeds: '625.00',
       }
 
-      render(<TransactionCard transaction={sellResponse as any} />)
+      render(<TransactionCard transaction={sellResponse} />)
 
       expect(screen.queryByText('$NaN')).not.toBeInTheDocument()
       expect(screen.getByText('$125.50')).toBeInTheDocument()

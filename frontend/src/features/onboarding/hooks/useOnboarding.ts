@@ -36,13 +36,15 @@ export function useOnboarding() {
 
   const removeAsset = useCallback((tempId: string) => {
     setData(prev => {
-      const { [tempId]: _t, ...targets } = prev.targets
-      const { [tempId]: _h, ...holdings } = prev.holdings
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [tempId]: _removedTarget, ...remainingTargets } = prev.targets
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [tempId]: _removedHolding, ...remainingHoldings } = prev.holdings
       return {
         ...prev,
         assets: prev.assets.filter(a => a.tempId !== tempId),
-        targets,
-        holdings,
+        targets: remainingTargets,
+        holdings: remainingHoldings,
       }
     })
   }, [])
