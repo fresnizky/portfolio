@@ -180,6 +180,15 @@ const authenticatedUserFixture = base.extend<{ authenticatedUser: TestUser }>({
       password: userData.password,
     });
 
+    // Skip onboarding so user goes directly to dashboard
+    const API_URL = process.env.API_URL || 'http://localhost:10022';
+    await request.post(`${API_URL}/api/onboarding/skip`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
     // Inject auth state into localStorage (Zustand persist format)
     // This must be done BEFORE navigating to any page
     const authState = {
@@ -217,6 +226,72 @@ const authenticatedUserFixture = base.extend<{ authenticatedUser: TestUser }>({
   },
 });
 
+/**
+ * New User Fixture (for onboarding tests)
+ * Creates a test user WITHOUT skipping onboarding
+ */
+const newUserFixture = base.extend<{ newUser: TestUser }>({
+  newUser: async ({ request, context }, use) => {
+    // Generate unique test user
+    const timestamp = Date.now();
+    const userData = {
+      email: `newuser-${timestamp}@example.com`,
+      password: 'TestPassword123!',
+      name: `New User ${timestamp}`,
+    };
+
+    // Create user via API
+    let userId: string;
+    try {
+      const created = await seedUser(request, userData);
+      userId = created.id;
+    } catch {
+      userId = '';
+    }
+
+    // Login to get token
+    const { token, user } = await loginUser(request, {
+      email: userData.email,
+      password: userData.password,
+    });
+
+    // DO NOT skip onboarding - this user should go through onboarding flow
+
+    // Inject auth state into localStorage (Zustand persist format)
+    const authState = {
+      state: {
+        token,
+        user: {
+          id: userId || user.id,
+          email: userData.email,
+        },
+        isAuthenticated: true,
+        isLoading: false,
+      },
+      version: 0,
+    };
+
+    await context.addInitScript((authStateStr: string) => {
+      window.localStorage.setItem('auth-storage', authStateStr);
+    }, JSON.stringify(authState));
+
+    const testUser: TestUser = {
+      id: userId || user.id,
+      email: userData.email,
+      name: userData.name,
+      password: userData.password,
+      token,
+    };
+
+    await use(testUser);
+
+    // Cleanup
+    await context.addInitScript(() => {
+      window.localStorage.removeItem('auth-storage');
+    });
+  },
+});
+
 // ============================================
 // Merged Test Export
 // ============================================
@@ -231,6 +306,7 @@ export const test = mergeTests(
   authFixture,
   cleanupFixture,
   authenticatedUserFixture,
+  newUserFixture,
 );
 
 export { expect };
