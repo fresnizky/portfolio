@@ -414,4 +414,196 @@ test.describe('Transactions Page', () => {
       await expect(page).toHaveURL(/dashboard/);
     });
   });
+
+  test.describe('Transaction Values Display', () => {
+    /**
+     * CRITICAL TEST: Verifies that transaction values displayed in UI
+     * match the values used when creating the transaction.
+     *
+     * This test catches type mismatches between backend response and frontend expectations.
+     * Bug context: Frontend expected priceCents/commissionCents/totalCents but
+     * backend returns price/commission/totalCost as pre-formatted strings.
+     */
+    test('[P0] should display correct monetary values for created transaction', async ({
+      page,
+      authenticatedUser,
+      api,
+    }) => {
+      // GIVEN: Known transaction values
+      const transactionData = {
+        quantity: 10,
+        price: 450.75,      // $450.75 per unit
+        commission: 5.00,   // $5.00 commission
+        // Expected total cost: (10 × 450.75) + 5.00 = $4,512.50
+      };
+
+      // Create an asset first
+      const assetResponse = await api.post<{ data: { id: string; ticker: string } }>('/api/assets', {
+        ticker: `TEST-${Date.now()}`,
+        name: 'Test Asset for Transaction Values',
+        category: 'ETF',
+        currency: 'USD',
+      });
+      const assetId = assetResponse.data.id;
+      const ticker = assetResponse.data.ticker;
+
+      // Create transaction via API with known values
+      await api.post('/api/transactions', {
+        type: 'buy',
+        assetId,
+        date: new Date().toISOString(),
+        quantity: transactionData.quantity,
+        price: transactionData.price,
+        commission: transactionData.commission,
+      });
+
+      // WHEN: Navigating to transactions page
+      await page.goto('/transactions');
+      await page.waitForLoadState('networkidle');
+
+      // Find the transaction card for our asset
+      const transactionCard = page.locator('[class*="rounded-lg"][class*="border"]').filter({
+        hasText: ticker,
+      }).first();
+
+      await expect(transactionCard).toBeVisible({ timeout: 10000 });
+
+      // THEN: Verify all monetary values are displayed correctly (not NaN)
+      // Quantity should be displayed
+      await expect(transactionCard.getByText('10')).toBeVisible();
+
+      // Price should be $450.75, NOT $NaN
+      await expect(transactionCard.getByText('$450.75')).toBeVisible();
+
+      // Commission should be $5.00, NOT $NaN
+      await expect(transactionCard.getByText('$5.00')).toBeVisible();
+
+      // Total Cost should be $4,512.50, NOT $NaN
+      await expect(transactionCard.getByText('$4,512.50')).toBeVisible();
+
+      // CRITICAL: Verify NO NaN values appear anywhere in the card
+      const cardText = await transactionCard.textContent();
+      expect(cardText).not.toContain('NaN');
+      expect(cardText).not.toContain('undefined');
+    });
+
+    test('[P0] should display correct values for SELL transaction', async ({
+      page,
+      authenticatedUser,
+      api,
+    }) => {
+      // GIVEN: Asset with holding and known sell transaction values
+      const transactionData = {
+        buyQuantity: 20,
+        buyPrice: 100.00,
+        sellQuantity: 5,
+        sellPrice: 125.50,    // $125.50 per unit
+        sellCommission: 2.50, // $2.50 commission
+        // Expected total proceeds: (5 × 125.50) - 2.50 = $625.00
+      };
+
+      // Create asset
+      const assetResponse = await api.post<{ data: { id: string; ticker: string } }>('/api/assets', {
+        ticker: `SELL-${Date.now()}`,
+        name: 'Test Asset for Sell Transaction',
+        category: 'ETF',
+        currency: 'USD',
+      });
+      const assetId = assetResponse.data.id;
+      const ticker = assetResponse.data.ticker;
+
+      // Create initial BUY to have holdings
+      await api.post('/api/transactions', {
+        type: 'buy',
+        assetId,
+        date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+        quantity: transactionData.buyQuantity,
+        price: transactionData.buyPrice,
+        commission: 0,
+      });
+
+      // Create SELL transaction
+      await api.post('/api/transactions', {
+        type: 'sell',
+        assetId,
+        date: new Date().toISOString(),
+        quantity: transactionData.sellQuantity,
+        price: transactionData.sellPrice,
+        commission: transactionData.sellCommission,
+      });
+
+      // WHEN: Navigating to transactions page
+      await page.goto('/transactions');
+      await page.waitForLoadState('networkidle');
+
+      // Find the SELL transaction card
+      const sellCard = page.locator('[class*="rounded-lg"][class*="border"]').filter({
+        hasText: ticker,
+      }).filter({
+        hasText: 'SELL',
+      }).first();
+
+      await expect(sellCard).toBeVisible({ timeout: 10000 });
+
+      // THEN: Verify SELL transaction values
+      await expect(sellCard.getByText('5')).toBeVisible(); // Quantity
+      await expect(sellCard.getByText('$125.50')).toBeVisible(); // Price
+      await expect(sellCard.getByText('$2.50')).toBeVisible(); // Commission
+      await expect(sellCard.getByText('$625.00')).toBeVisible(); // Total Proceeds
+
+      // Verify NO NaN values
+      const cardText = await sellCard.textContent();
+      expect(cardText).not.toContain('NaN');
+    });
+
+    test('[P1] should display correct summary totals', async ({
+      page,
+      authenticatedUser,
+      api,
+    }) => {
+      // GIVEN: Multiple transactions with known totals
+      const assetResponse = await api.post<{ data: { id: string } }>('/api/assets', {
+        ticker: `SUM-${Date.now()}`,
+        name: 'Test Asset for Summary',
+        category: 'ETF',
+        currency: 'USD',
+      });
+      const assetId = assetResponse.data.id;
+
+      // Create two BUY transactions
+      // Transaction 1: total = (10 × 100) + 0 = $1,000.00
+      await api.post('/api/transactions', {
+        type: 'buy',
+        assetId,
+        date: new Date(Date.now() - 86400000).toISOString(),
+        quantity: 10,
+        price: 100.00,
+        commission: 0,
+      });
+
+      // Transaction 2: total = (5 × 200) + 10 = $1,010.00
+      await api.post('/api/transactions', {
+        type: 'buy',
+        assetId,
+        date: new Date().toISOString(),
+        quantity: 5,
+        price: 200.00,
+        commission: 10.00,
+      });
+
+      // Expected Total Invested: $1,000.00 + $1,010.00 = $2,010.00
+
+      // WHEN: Navigating to transactions page
+      await page.goto('/transactions');
+      await page.waitForLoadState('networkidle');
+
+      // THEN: Summary should NOT show NaN
+      const summarySection = page.locator('text=Total Invested').locator('..');
+      const summaryText = await summarySection.textContent();
+
+      expect(summaryText).not.toContain('NaN');
+      // Should contain the actual total (may be formatted differently)
+      expect(summaryText).toMatch(/\$[\d,]+\.\d{2}/); // Matches currency format like $2,010.00
+    });
+  });
 });

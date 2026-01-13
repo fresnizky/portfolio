@@ -37,13 +37,11 @@ const mockTransactions: Transaction[] = [
     type: 'BUY',
     date: '2026-01-07T12:00:00.000Z',
     quantity: '10',
-    priceCents: '15000',
-    commissionCents: '500',
-    totalCents: '150500',
+    price: '150.00',
+    commission: '5.00',
+    totalCost: '1505.00', // (10 × 150) + 5 = $1,505.00
     assetId: 'asset-1',
-    userId: 'user-1',
     createdAt: '2026-01-07T12:00:00.000Z',
-    updatedAt: '2026-01-07T12:00:00.000Z',
     asset: { ticker: 'VOO', name: 'Vanguard S&P 500 ETF' },
   },
 ]

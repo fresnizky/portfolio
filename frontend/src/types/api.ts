@@ -116,18 +116,24 @@ export interface BatchUpdatePricesResponse {
 // Transaction Types
 export type TransactionType = 'BUY' | 'SELL'
 
+/**
+ * Transaction as returned by the API.
+ *
+ * IMPORTANT: The backend returns pre-formatted monetary values (price, commission, etc.)
+ * as strings, NOT raw cents. This matches the output of formatTransaction() in
+ * backend/src/services/transactionService.ts
+ */
 export interface Transaction {
   id: string
   type: TransactionType
   date: string // ISO 8601
   quantity: string // Decimal from Prisma as string
-  priceCents: string // BigInt as string
-  commissionCents: string // BigInt as string
-  totalCents: string // BigInt as string
+  price: string // Pre-formatted dollar amount (e.g., "450.75")
+  commission: string // Pre-formatted dollar amount (e.g., "5.00")
+  totalCost?: string // For BUY transactions: pre-formatted total (e.g., "4512.50")
+  totalProceeds?: string // For SELL transactions: pre-formatted total (e.g., "625.00")
   assetId: string
-  userId: string
   createdAt: string
-  updatedAt: string
   asset: {
     ticker: string
     name: string
