@@ -15,7 +15,7 @@ export const assetFormSchema = z.object({
     .min(1, 'Name is required')
     .max(100, 'Name must be 100 characters or less'),
   category: assetCategorySchema,
-  currency: currencySchema.default('USD'),
+  currency: currencySchema,
 })
 
-export type AssetFormData = z.infer<typeof assetFormSchema>
+export type AssetFormData = z.output<typeof assetFormSchema>

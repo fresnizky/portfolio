@@ -18,6 +18,8 @@ describe('ProtectedRoute', () => {
       user: null,
       isAuthenticated: false,
       isLoading: true,
+      onboardingStatus: undefined,
+      needsOnboarding: undefined,
     })
 
     render(
@@ -39,6 +41,8 @@ describe('ProtectedRoute', () => {
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      onboardingStatus: undefined,
+      needsOnboarding: undefined,
     })
 
     render(
@@ -61,6 +65,8 @@ describe('ProtectedRoute', () => {
       user: { id: '1', email: 'test@example.com' },
       isAuthenticated: true,
       isLoading: false,
+      onboardingStatus: { completed: true, skipped: false, hasExistingData: true },
+      needsOnboarding: false,
     })
 
     render(

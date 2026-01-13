@@ -12,6 +12,8 @@ services:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
       - ./frontend/index.html:/app/index.html
+    environment:
+      - VITE_API_URL=http://localhost:${PORT_API:-10002}/api
 
   backend:
     build:

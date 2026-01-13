@@ -37,7 +37,21 @@ const mockExchangeRate = {
 
 const mockRefreshMutation = {
   mutateAsync: vi.fn(),
+  mutate: vi.fn(),
   isPending: false,
+  isIdle: true,
+  isSuccess: false,
+  isError: false,
+  data: undefined,
+  error: null,
+  variables: undefined,
+  reset: vi.fn(),
+  context: undefined,
+  failureCount: 0,
+  failureReason: null,
+  status: 'idle' as const,
+  submittedAt: 0,
+  isPaused: false,
 }
 
 describe('ExchangeRateSection', () => {
@@ -188,6 +202,7 @@ describe('ExchangeRateSection', () => {
     vi.mocked(useExchangeRateRefresh).mockReturnValue({
       ...mockRefreshMutation,
       isPending: true,
+      status: 'pending',
     } as ReturnType<typeof useExchangeRateRefresh>)
 
     render(<ExchangeRateSection />, { wrapper: createWrapper() })
@@ -205,6 +220,7 @@ describe('ExchangeRateSection', () => {
     vi.mocked(useExchangeRateRefresh).mockReturnValue({
       ...mockRefreshMutation,
       isPending: true,
+      status: 'pending',
     } as ReturnType<typeof useExchangeRateRefresh>)
 
     render(<ExchangeRateSection />, { wrapper: createWrapper() })

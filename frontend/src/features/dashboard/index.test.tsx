@@ -52,6 +52,8 @@ describe('DashboardPage', () => {
 
   const mockDashboardResponse: DashboardResponse = {
     totalValue: '10000.00',
+    displayCurrency: 'USD',
+    exchangeRate: null,
     positions: [
       {
         assetId: 'asset-1',
@@ -60,7 +62,10 @@ describe('DashboardPage', () => {
         category: 'ETF',
         quantity: '10',
         currentPrice: '450.00',
+        originalValue: '4500.00',
+        originalCurrency: 'USD',
         value: '4500.00',
+        displayCurrency: 'USD',
         targetPercentage: '60.00',
         actualPercentage: '45.00',
         deviation: '-15.00',
@@ -105,6 +110,8 @@ describe('DashboardPage', () => {
   it('should display empty state when no assets', async () => {
     vi.mocked(api.dashboard.get).mockResolvedValue({
       totalValue: '0',
+      displayCurrency: 'USD',
+      exchangeRate: null,
       positions: [],
       alerts: [],
     })

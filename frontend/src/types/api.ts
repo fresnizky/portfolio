@@ -114,25 +114,15 @@ export interface BatchUpdatePricesResponse {
 }
 
 // Transaction Types
-export type TransactionType = 'BUY' | 'SELL'
+// Re-exported from shared schemas (single source of truth)
+import type {
+  Transaction as TransactionSchema,
+  TransactionResponse as TransactionResponseSchema,
+} from '@shared'
 
-export interface Transaction {
-  id: string
-  type: TransactionType
-  date: string // ISO 8601
-  quantity: string // Decimal from Prisma as string
-  priceCents: string // BigInt as string
-  commissionCents: string // BigInt as string
-  totalCents: string // BigInt as string
-  assetId: string
-  userId: string
-  createdAt: string
-  updatedAt: string
-  asset: {
-    ticker: string
-    name: string
-  }
-}
+export type Transaction = TransactionSchema
+export type TransactionResponse = TransactionResponseSchema
+export type TransactionType = 'BUY' | 'SELL'
 
 export interface TransactionListFilters {
   assetId?: string

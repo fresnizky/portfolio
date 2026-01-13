@@ -20,17 +20,16 @@ export function TransactionSummary({ transactions }: TransactionSummaryProps) {
     let withdrawn = 0
 
     for (const tx of transactions) {
-      const totalCents = Number(tx.totalCents)
-      if (tx.type === 'BUY') {
-        invested += totalCents
-      } else {
-        withdrawn += totalCents
+      if (tx.type === 'BUY' && tx.totalCost) {
+        invested += Number(tx.totalCost)
+      } else if (tx.type === 'SELL' && tx.totalProceeds) {
+        withdrawn += Number(tx.totalProceeds)
       }
     }
 
     return {
-      totalInvested: invested / 100,
-      totalWithdrawn: withdrawn / 100,
+      totalInvested: invested,
+      totalWithdrawn: withdrawn,
     }
   }, [transactions])
 

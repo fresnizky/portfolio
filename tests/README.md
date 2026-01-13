@@ -5,54 +5,113 @@ Tests end-to-end con Playwright para validar flujos completos de usuario.
 ## Quick Start
 
 ```bash
-# 1. Instalar dependencias
+# 1. Instalar dependencias y browsers
 pnpm install
-
-# 2. Instalar browsers de Playwright
 pnpm exec playwright install --with-deps
 
-# 3. Levantar DB de tests (separada de desarrollo)
-pnpm test:e2e:setup
+# 2. Levantar stack E2E (completamente aislado de dev/prod)
+pnpm test:e2e:up
 
-# 4. Levantar frontend y backend
-# Terminal 1:
-cd frontend && pnpm dev
-# Terminal 2:
-cd backend && pnpm dev
-
-# 5. Ejecutar tests
+# 3. Ejecutar tests
 pnpm test:e2e
+
+# 4. Limpiar cuando termines
+pnpm test:e2e:clean
+```
+
+### Stack E2E
+
+El comando `test:e2e:up` levanta un stack **completamente separado** que puede correr en paralelo con dev:
+
+| Servicio | Container | Puerto | Descripcion |
+|----------|-----------|--------|-------------|
+| Frontend | `portfolio_frontend_e2e` | 10021 | Vite dev server |
+| Backend | `portfolio_backend_e2e` | 10022 | Express con NODE_ENV=test |
+| Database | `portfolio_db_e2e` | 10023 | PostgreSQL efimero (tmpfs) |
+
+**Puertos E2E vs DEV:**
+- E2E: 10021-10023 (offset +20)
+- DEV: 10001-10003
+
+**Ventajas:**
+- No comparte nada con dev/prod
+- DB limpia en cada ejecucion (tmpfs)
+- Rate limiting desactivado automaticamente
+- Reproducible en CI/CD
+
+### Scripts utiles
+
+```bash
+pnpm test:e2e:logs          # Ver logs de todos los servicios
+pnpm test:e2e:logs:backend  # Ver solo logs del backend
 ```
 
 ## Scripts Disponibles
 
-| Script | Descripción |
+| Script | Descripcion |
 |--------|-------------|
 | `pnpm test:e2e` | Ejecutar todos los tests E2E |
 | `pnpm test:e2e:ui` | Abrir Playwright UI mode (interactivo) |
 | `pnpm test:e2e:headed` | Ejecutar con browser visible |
 | `pnpm test:e2e:debug` | Modo debug con inspector |
 | `pnpm test:e2e:smoke` | Solo smoke tests (health check) |
+| `pnpm test:e2e:p0` | Solo tests P0 (criticos) |
+| `pnpm test:e2e:p1` | Tests P0 + P1 (alta prioridad) |
+| `pnpm test:e2e:p2` | Tests P0 + P1 + P2 (incluye edge cases) |
 | `pnpm test:e2e:chromium` | Solo ejecutar en Chromium |
-| `pnpm test:e2e:setup` | Levantar DB de tests + migrar |
-| `pnpm test:e2e:cleanup` | Destruir DB de tests |
-| `pnpm test:e2e:report` | Ver reporte HTML de última ejecución |
+| `pnpm test:e2e:up` | Levantar stack E2E + migrar DB |
+| `pnpm test:e2e:down` | Detener stack E2E (mantiene datos) |
+| `pnpm test:e2e:clean` | Destruir stack E2E + volúmenes |
+| `pnpm test:e2e:report` | Ver reporte HTML de ultima ejecucion |
 
 ## Arquitectura
 
 ```
 tests/
-├── e2e/                    # Archivos de test
-│   ├── smoke.spec.ts       # Health checks
-│   └── example.spec.ts     # Tests de ejemplo
+├── e2e/                         # Archivos de test E2E
+│   ├── smoke.spec.ts            # Health checks (P0)
+│   ├── example.spec.ts          # Tests de ejemplo - Auth, Homepage
+│   ├── holdings.spec.ts         # Holdings & Prices (P0-P2)
+│   ├── transactions.spec.ts     # Transactions CRUD & Filters (P0-P2)
+│   ├── dashboard-alerts.spec.ts # Dashboard & Alerts (P0-P2)
+│   ├── onboarding.spec.ts       # Onboarding flow (P0-P2)
+│   ├── settings.spec.ts         # Settings & Export (P1-P3)
+│   └── evolution.spec.ts        # Portfolio evolution charts (P1-P3)
 ├── support/
-│   ├── fixtures/           # Playwright fixtures (mergeTests pattern)
-│   │   └── index.ts        # Exporta: test, expect, TestUser
-│   ├── helpers/            # Funciones puras de API
-│   │   └── api-helpers.ts  # seedUser, loginUser, etc.
-│   └── factories/          # Data factories (faker pattern)
-│       └── index.ts        # createUser, createAsset, etc.
+│   ├── fixtures/                # Playwright fixtures (mergeTests pattern)
+│   │   └── index.ts             # Exporta: test, expect, TestUser
+│   ├── helpers/                 # Funciones puras de API
+│   │   └── api-helpers.ts       # seedUser, loginUser, etc.
+│   └── factories/               # Data factories (faker pattern)
+│       └── index.ts             # createUser, createAsset, etc.
 └── README.md
+```
+
+## Test Priority System
+
+Los tests usan tags de prioridad en el nombre para facilitar ejecucion selectiva:
+
+| Prioridad | Tag | Cuando ejecutar | Descripcion |
+|-----------|-----|-----------------|-------------|
+| **P0** | `[P0]` | Cada commit | Paths criticos que deben funcionar siempre |
+| **P1** | `[P1]` | PRs a main | Features importantes, alta cobertura |
+| **P2** | `[P2]` | Nightly | Edge cases, features secundarias |
+| **P3** | `[P3]` | On-demand | Features nice-to-have, exploratorios |
+
+### Ejecutar por Prioridad
+
+```bash
+# Solo tests criticos (P0)
+pnpm test:e2e:p0
+
+# Tests criticos + alta prioridad (P0 + P1)
+pnpm test:e2e:p1
+
+# Todos los tests hasta P2
+pnpm test:e2e:p2
+
+# Suite completa
+pnpm test:e2e
 ```
 
 ## Patrones Clave
@@ -100,18 +159,18 @@ test('portfolio display', async ({ page, authenticatedUser, api }) => {
 
 ## Base de Datos de Tests
 
-Los tests usan una **DB PostgreSQL separada** (`portfolio_test`) para no afectar datos de desarrollo.
+Los tests usan una **DB PostgreSQL separada** (`portfolio_e2e`) para no afectar datos de desarrollo.
 
 ```bash
-# Levantar DB de tests
-docker compose -f docker-compose.test.yml up -d
+# Levantar stack E2E (incluye DB)
+pnpm test:e2e:up
 
-# DB disponible en: localhost:10013
-# Credenciales: portfolio_user / portfolio_pass
-# Database: portfolio_test
+# DB disponible en: localhost:10023
+# Credenciales: test_user / test_pass
+# Database: portfolio_e2e
 
 # Limpiar todo
-docker compose -f docker-compose.test.yml down -v
+pnpm test:e2e:clean
 ```
 
 ## Configuración
@@ -119,10 +178,12 @@ docker compose -f docker-compose.test.yml down -v
 ### Variables de Entorno
 
 ```bash
-# .env (o exportar antes de correr tests)
-BASE_URL=http://localhost:10001      # Frontend
-API_URL=http://localhost:10002       # Backend API
-PORT_DB_TEST=10013                   # DB de tests
+# Por defecto, Playwright usa los puertos E2E (no necesitan exportarse)
+# BASE_URL=http://localhost:10021    # Frontend E2E (default)
+# API_URL=http://localhost:10022     # Backend API E2E (default)
+
+# Para apuntar a DEV (si fuera necesario):
+BASE_URL=http://localhost:10001 API_URL=http://localhost:10002 pnpm test:e2e
 ```
 
 ### Timeouts (TEA Standards)
@@ -236,13 +297,13 @@ Los tests están configurados para CI:
 
 ```bash
 # Verificar que está corriendo
-docker ps | grep portfolio_db_test
+docker ps | grep portfolio_db_e2e
 
 # Ver logs
-docker logs portfolio_db_test
+docker logs portfolio_db_e2e
 
 # Reiniciar
-pnpm test:e2e:cleanup && pnpm test:e2e:setup
+pnpm test:e2e:clean && pnpm test:e2e:up
 ```
 
 ### Browser no se instala

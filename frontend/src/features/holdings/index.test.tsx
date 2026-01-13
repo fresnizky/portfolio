@@ -163,6 +163,7 @@ describe('HoldingsPage', () => {
       ticker: 'VOO',
       name: 'Vanguard S&P 500 ETF',
       category: 'ETF',
+      currency: 'USD',
       targetPercentage: '60.00',
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-10T00:00:00.000Z',

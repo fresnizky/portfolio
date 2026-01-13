@@ -1,0 +1,17 @@
+{
+  "name": "@portfolio/shared",
+  "version": "1.0.0",
+  "description": "Shared schemas and types for Portfolio Tracker",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.17"
+  }
+}

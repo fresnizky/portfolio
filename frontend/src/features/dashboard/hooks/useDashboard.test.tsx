@@ -37,6 +37,8 @@ describe('useDashboard', () => {
 
   const mockDashboardResponse: DashboardResponse = {
     totalValue: '10000.00',
+    displayCurrency: 'USD',
+    exchangeRate: null,
     positions: [
       {
         assetId: 'asset-1',
@@ -45,7 +47,10 @@ describe('useDashboard', () => {
         category: 'ETF',
         quantity: '10',
         currentPrice: '450.00',
+        originalValue: '4500.00',
+        originalCurrency: 'USD',
         value: '4500.00',
+        displayCurrency: 'USD',
         targetPercentage: '60.00',
         actualPercentage: '45.00',
         deviation: '-15.00',
@@ -58,7 +63,10 @@ describe('useDashboard', () => {
         category: 'CRYPTO',
         quantity: '0.1',
         currentPrice: '55000.00',
+        originalValue: '5500.00',
+        originalCurrency: 'USD',
         value: '5500.00',
+        displayCurrency: 'USD',
         targetPercentage: '40.00',
         actualPercentage: '55.00',
         deviation: '15.00',

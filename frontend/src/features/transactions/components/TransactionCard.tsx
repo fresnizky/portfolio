@@ -6,14 +6,19 @@ const typeStyles: Record<TransactionType, string> = {
   SELL: 'bg-red-100 text-red-800',
 }
 
-function formatFromCents(cents: string): string {
-  const value = Number(cents) / 100
+/**
+ * Format a pre-formatted dollar amount string to currency display.
+ * The backend already returns values like "450.75", we just need to
+ * add the currency symbol and thousand separators.
+ */
+function formatCurrency(value: string): string {
+  const numValue = Number(value)
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value)
+  }).format(numValue)
 }
 
 function formatDate(isoDate: string): string {
@@ -54,14 +59,14 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
         <div className="flex items-center justify-between">
           <span className="text-base md:text-sm text-gray-500">Price</span>
           <span className="font-medium text-gray-900">
-            {formatFromCents(transaction.priceCents)}
+            {formatCurrency(transaction.price)}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-base md:text-sm text-gray-500">Commission</span>
           <span className="font-medium text-gray-900">
-            {formatFromCents(transaction.commissionCents)}
+            {formatCurrency(transaction.commission)}
           </span>
         </div>
 
@@ -70,7 +75,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             {transaction.type === 'BUY' ? 'Total Cost' : 'Total Proceeds'}
           </span>
           <span className="text-lg font-semibold text-gray-900">
-            {formatFromCents(transaction.totalCents)}
+            {formatCurrency(transaction.type === 'BUY' ? transaction.totalCost! : transaction.totalProceeds!)}
           </span>
         </div>
       </div>
