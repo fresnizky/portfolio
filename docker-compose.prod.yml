@@ -1,18 +1,91 @@
-# Production override
-# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.ports up
+# Production Stack - Completely Standalone
+#
+# This is a self-contained production environment.
+# Does NOT share anything with dev/e2e environments.
+# Can run simultaneously with dev and e2e.
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.prod.yml down
+#
+# Ports:
+#   Frontend: 10011
+#   Backend:  10012
+#   Database: 10013
 
 services:
-  frontend:
+  # ===========================================
+  # Frontend for Production
+  # ===========================================
+  frontend-prod:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: portfolio_frontend_prod
     ports:
-      - "${PORT_FRONTEND:-10001}:80"
+      - "10011:80"
+    environment:
+      - VITE_API_URL=http://localhost:10012/api
+    depends_on:
+      backend-prod:
+        condition: service_healthy
+    networks:
+      - prod-network
 
-  backend:
+  # ===========================================
+  # Backend for Production
+  # ===========================================
+  backend-prod:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: portfolio_backend_prod
+    ports:
+      - "10012:3000"
     environment:
       - NODE_ENV=production
-      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:10001}
+      - PORT=3000
+      - DATABASE_URL=postgresql://prod_user:${PROD_DB_PASSWORD:-prod_secure_pass}@db-prod:5432/portfolio_prod
+      - JWT_SECRET=${PROD_JWT_SECRET:-prod-jwt-secret-change-in-production}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
+      - CORS_ORIGIN=http://localhost:10011,http://127.0.0.1:10011
+    depends_on:
+      db-prod:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - prod-network
+
+  # ===========================================
+  # Database for Production (persistent)
+  # ===========================================
+  db-prod:
+    image: postgres:18
+    container_name: portfolio_db_prod
+    ports:
+      - "10013:5432"
+    environment:
+      - POSTGRES_USER=prod_user
+      - POSTGRES_PASSWORD=${PROD_DB_PASSWORD:-prod_secure_pass}
+      - POSTGRES_DB=portfolio_prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prod_user -d portfolio_prod"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - prod-network
+
+networks:
+  prod-network:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:

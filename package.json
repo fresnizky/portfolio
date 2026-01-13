@@ -11,10 +11,12 @@
     "dev:logs": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env --env-file .env.ports logs -f",
     "dev:logs:backend": "docker logs -f portfolio-backend-1",
     "dev:logs:frontend": "docker logs -f portfolio-frontend-1",
-    "prod:up": "docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env --env-file .env.ports up --build -d",
-    "prod:down": "docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env --env-file .env.ports down",
-    "prod:clean": "docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env --env-file .env.ports down -v",
-    "prod:logs": "docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env --env-file .env.ports logs -f",
+    "prod:up": "docker compose -f docker-compose.prod.yml --env-file .env up --build -d",
+    "prod:down": "docker compose -f docker-compose.prod.yml down",
+    "prod:clean": "./scripts/prod-clean.sh",
+    "prod:logs": "docker compose -f docker-compose.prod.yml logs -f",
+    "prod:logs:backend": "docker logs -f portfolio_backend_prod",
+    "prod:logs:frontend": "docker logs -f portfolio_frontend_prod",
     "test": "pnpm test:e2e",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -32,7 +34,7 @@
     "test:e2e:logs:backend": "docker logs -f portfolio_backend_e2e",
     "test:e2e:report": "playwright show-report",
     "docker:status": "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}' | grep -E 'portfolio|NAME'",
-    "docker:clean:all": "docker compose -f docker-compose.e2e.yml down -v; docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v; docker compose -f docker-compose.yml -f docker-compose.prod.yml down -v"
+    "docker:clean:all": "docker compose -f docker-compose.e2e.yml down -v; docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v; docker compose -f docker-compose.prod.yml down -v"
   },
   "keywords": [
     "portfolio",
