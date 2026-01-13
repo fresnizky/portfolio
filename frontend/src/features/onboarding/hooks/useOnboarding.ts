@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { queryKeys } from '@/lib/queryKeys'
-import type { BatchAssetCreate, AssetCategory } from '@/types/api'
+import type { BatchAssetCreate } from '@/types/api'
 
 interface OnboardingAsset extends BatchAssetCreate {
   tempId: string

@@ -4,7 +4,6 @@ import {
   transactionResponseSchema,
   transactionListResponseSchema,
   validateTransaction,
-  validateTransactionList,
   safeValidateTransaction,
 } from './transaction'
 

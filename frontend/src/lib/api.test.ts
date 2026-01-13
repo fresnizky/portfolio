@@ -160,6 +160,7 @@ describe('api', () => {
       ticker: 'VOO',
       name: 'Vanguard S&P 500 ETF',
       category: 'ETF',
+      currency: 'USD',
       targetPercentage: '60.00',
       createdAt: '2026-01-07T00:00:00.000Z',
       updatedAt: '2026-01-07T00:00:00.000Z',
@@ -501,13 +502,11 @@ describe('api', () => {
       type: 'BUY',
       date: '2026-01-07T00:00:00.000Z',
       quantity: '10.00000000',
-      priceCents: '15000',
-      commissionCents: '500',
-      totalCents: '150500',
+      price: '150.00',
+      commission: '5.00',
+      totalCost: '1505.00',
       assetId: 'asset-1',
-      userId: 'user-1',
       createdAt: '2026-01-07T00:00:00.000Z',
-      updatedAt: '2026-01-07T00:00:00.000Z',
       asset: {
         ticker: 'VOO',
         name: 'Vanguard S&P 500 ETF',
@@ -678,11 +677,19 @@ describe('api', () => {
         }
 
         const sellTransaction: Transaction = {
-          ...mockTransaction,
           id: 'tx-2',
           type: 'SELL',
+          date: '2026-01-07T00:00:00.000Z',
           quantity: '5.00000000',
-          totalCents: '79500',
+          price: '160.00',
+          commission: '5.00',
+          totalProceeds: '795.00',
+          assetId: 'asset-1',
+          createdAt: '2026-01-07T00:00:00.000Z',
+          asset: {
+            ticker: 'VOO',
+            name: 'Vanguard S&P 500 ETF',
+          },
         }
         const mockResponse = { data: sellTransaction }
 

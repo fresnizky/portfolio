@@ -37,21 +37,21 @@ export function AllocationChart({ positions }: AllocationChartProps) {
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
-          data={chartData}
+          data={chartData as unknown as Record<string, unknown>[]}
           dataKey="value"
           nameKey="name"
           cx="50%"
           cy="50%"
           innerRadius={60}
           outerRadius={100}
-          label={({ name, value }) => `${name}: ${value.toFixed(1)}%`}
+          label={({ name, value }) => `${name || ''}: ${(value as number).toFixed(1)}%`}
         >
           {chartData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.category]} />
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => [`${value.toFixed(2)}%`, 'Allocation']}
+          formatter={(value) => [`${Number(value).toFixed(2)}%`, 'Allocation']}
         />
         <Legend />
       </PieChart>

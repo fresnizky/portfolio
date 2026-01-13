@@ -1,16 +1,16 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import type { BatchAssetCreate, AssetCategory, Currency } from '@/types/api'
+import type { BatchAssetCreate } from '@/types/api'
 
 const assetSchema = z.object({
   ticker: z.string().min(1, 'Ticker requerido').max(10).transform(v => v.toUpperCase()),
   name: z.string().min(1, 'Nombre requerido'),
   category: z.enum(['ETF', 'FCI', 'CRYPTO', 'CASH']),
-  currency: z.enum(['USD', 'ARS']).default('USD'),
+  currency: z.enum(['USD', 'ARS']),
 })
 
-type AssetFormData = z.infer<typeof assetSchema>
+type AssetFormData = z.output<typeof assetSchema>
 
 interface Step1AssetSetupProps {
   assets: (BatchAssetCreate & { tempId: string })[]

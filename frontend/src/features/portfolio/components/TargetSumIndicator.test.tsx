@@ -8,6 +8,7 @@ const createMockAsset = (id: string, targetPercentage: string): Asset => ({
   ticker: `TICK${id}`,
   name: `Asset ${id}`,
   category: 'ETF',
+    currency: 'USD',
   targetPercentage,
   createdAt: '2026-01-07T00:00:00.000Z',
   updatedAt: '2026-01-07T00:00:00.000Z',

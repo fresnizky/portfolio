@@ -115,7 +115,13 @@ export interface BatchUpdatePricesResponse {
 
 // Transaction Types
 // Re-exported from shared schemas (single source of truth)
-export type { Transaction, TransactionResponse } from '@shared'
+import type {
+  Transaction as TransactionSchema,
+  TransactionResponse as TransactionResponseSchema,
+} from '@shared'
+
+export type Transaction = TransactionSchema
+export type TransactionResponse = TransactionResponseSchema
 export type TransactionType = 'BUY' | 'SELL'
 
 export interface TransactionListFilters {
