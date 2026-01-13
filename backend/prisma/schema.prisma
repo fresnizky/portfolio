@@ -50,8 +50,9 @@ model Asset {
   name             String
   category         AssetCategory
   currency         Currency      @default(USD)
+  decimalPlaces    Int           @default(2)
   targetPercentage Decimal       @default(0)
-  currentPriceCents BigInt?
+  currentPrice     Decimal?      @db.Decimal(18, 8)
   priceUpdatedAt   DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
@@ -83,15 +84,15 @@ model Holding {
 }
 
 model Transaction {
-  id              String          @id @default(cuid())
-  type            TransactionType
-  date            DateTime
-  quantity        Decimal         @db.Decimal(18, 8)
-  priceCents      BigInt          // Price per unit in cents
-  commissionCents BigInt          @default(0)
-  totalCents      BigInt          // Calculated: (quantity × priceCents) ± commissionCents
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id         String          @id @default(cuid())
+  type       TransactionType
+  date       DateTime
+  quantity   Decimal         @db.Decimal(18, 8)
+  price      Decimal         @db.Decimal(18, 8)
+  commission Decimal         @db.Decimal(18, 8) @default(0)
+  total      Decimal         @db.Decimal(18, 8)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
 
   // Relations
   userId  String
@@ -105,14 +106,14 @@ model Transaction {
 }
 
 model PortfolioSnapshot {
-  id              String          @id @default(cuid())
-  date            DateTime        @db.Date
-  totalValueCents BigInt
-  userId          String
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assets          SnapshotAsset[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id         String          @id @default(cuid())
+  date       DateTime        @db.Date
+  totalValue Decimal         @db.Decimal(18, 8)
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assets     SnapshotAsset[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
 
   @@unique([userId, date])
   @@index([userId])
@@ -127,8 +128,8 @@ model SnapshotAsset {
   ticker     String
   name       String
   quantity   Decimal           @db.Decimal(18, 8)
-  priceCents BigInt
-  valueCents BigInt
+  price      Decimal           @db.Decimal(18, 8)
+  value      Decimal           @db.Decimal(18, 8)
   percentage Decimal           @db.Decimal(5, 2)
 
   @@unique([snapshotId, assetId])
