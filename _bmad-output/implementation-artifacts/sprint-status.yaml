@@ -101,3 +101,15 @@ development_status:
   8-4-fix-btc-decimal-precision: done
   8-5-improve-mobile-font-size: done
   epic-8-retrospective: optional
+
+  # Epic 9: Decimal Precision & Data Quality
+  epic-9: in-progress
+  9-1-schema-migration-decimal-places: done
+  9-2-data-migration-cleanup: backlog
+  9-3-backend-api-types-update: backlog
+  9-4-frontend-types-api-update: backlog
+  9-5-transaction-precision-validation: backlog
+  9-6-dashboard-fix-price-null: backlog
+  9-7-transactions-ui-table: backlog
+  9-8-frontend-formatters-update: backlog
+  epic-9-retrospective: optional
