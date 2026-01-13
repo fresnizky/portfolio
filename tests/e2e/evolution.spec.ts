@@ -19,8 +19,8 @@ test.describe('Evolution Page', () => {
       // WHEN: Navigating to evolution page
       await page.goto('/evolution');
 
-      // THEN: Page loads with heading
-      await expect(page.getByRole('heading', { name: /evolucion|evolution|portfolio/i })).toBeVisible();
+      // THEN: Page loads with heading (Spanish: "Evolución del Portfolio")
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     });
 
     test('[P1] should display evolution chart section', async ({ page, authenticatedUser }) => {
@@ -28,11 +28,8 @@ test.describe('Evolution Page', () => {
       await page.goto('/evolution');
       await page.waitForLoadState('networkidle');
 
-      // THEN: Chart container is visible
-      const chartContainer = page.locator('[class*="chart"], canvas, svg').first();
-      const chartSection = page.locator('[class*="rounded-lg"]').filter({ hasText: '' });
-
-      await expect(chartSection.first()).toBeVisible({ timeout: 10000 });
+      // THEN: Chart section (white rounded container) is visible
+      await expect(page.locator('.bg-white.border.rounded-lg').first()).toBeVisible({ timeout: 10000 });
     });
 
     test('[P1] should display date range selector', async ({ page, authenticatedUser }) => {
