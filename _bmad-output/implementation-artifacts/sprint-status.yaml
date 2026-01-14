@@ -110,6 +110,6 @@ development_status:
   9-4-frontend-types-api-update: done
   9-5-transaction-precision-validation: done
   9-6-dashboard-fix-price-null: done
-  9-7-transactions-ui-table: backlog
-  9-8-frontend-formatters-update: backlog
+  9-7-transactions-ui-table: done
+  9-8-frontend-formatters-update: ready-for-dev
   epic-9-retrospective: optional

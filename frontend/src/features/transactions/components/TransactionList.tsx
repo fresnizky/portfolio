@@ -1,54 +1,66 @@
 import type { Transaction } from '@/types/api'
-import { TransactionCard } from './TransactionCard'
+import { TransactionTable } from './TransactionTable'
 
 interface TransactionListProps {
   transactions: Transaction[]
   isLoading?: boolean
 }
 
-function LoadingSkeleton() {
+function TableSkeleton() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-lg border border-gray-200 bg-white p-4"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-5 w-12 rounded-full bg-gray-200" />
-              <div className="h-4 w-10 rounded bg-gray-200" />
-            </div>
-            <div className="h-4 w-20 rounded bg-gray-200" />
-          </div>
-          <div className="mt-2 h-5 w-40 rounded bg-gray-200" />
-          <div className="mt-3 space-y-2">
-            <div className="flex justify-between">
-              <div className="h-4 w-16 rounded bg-gray-200" />
-              <div className="h-4 w-12 rounded bg-gray-200" />
-            </div>
-            <div className="flex justify-between">
-              <div className="h-4 w-12 rounded bg-gray-200" />
-              <div className="h-4 w-16 rounded bg-gray-200" />
-            </div>
-            <div className="flex justify-between">
-              <div className="h-4 w-20 rounded bg-gray-200" />
-              <div className="h-4 w-14 rounded bg-gray-200" />
-            </div>
-            <div className="flex justify-between border-t border-gray-100 pt-2">
-              <div className="h-4 w-20 rounded bg-gray-200" />
-              <div className="h-6 w-24 rounded bg-gray-200" />
-            </div>
-          </div>
-        </div>
-      ))}
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <div className="inline-block min-w-full align-middle">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              {['Date', 'Type', 'Asset', 'Quantity', 'Price', 'Comm.', 'Total'].map(
+                (header, index) => (
+                  <th
+                    key={header}
+                    className={`px-4 py-3 ${index >= 4 && index <= 5 ? 'hidden md:table-cell' : ''}`}
+                  >
+                    <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
+                  </th>
+                )
+              )}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100 bg-white">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <tr key={i}>
+                <td className="px-4 py-3">
+                  <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="h-5 w-12 animate-pulse rounded-full bg-gray-200" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="h-4 w-12 animate-pulse rounded bg-gray-200" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="ml-auto h-4 w-16 animate-pulse rounded bg-gray-200" />
+                </td>
+                <td className="hidden md:table-cell px-4 py-3">
+                  <div className="ml-auto h-4 w-20 animate-pulse rounded bg-gray-200" />
+                </td>
+                <td className="hidden md:table-cell px-4 py-3">
+                  <div className="ml-auto h-4 w-14 animate-pulse rounded bg-gray-200" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="ml-auto h-4 w-20 animate-pulse rounded bg-gray-200" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
 
 export function TransactionList({ transactions, isLoading }: TransactionListProps) {
   if (isLoading) {
-    return <LoadingSkeleton />
+    return <TableSkeleton />
   }
 
   if (transactions.length === 0) {
@@ -59,11 +71,5 @@ export function TransactionList({ transactions, isLoading }: TransactionListProp
     )
   }
 
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {transactions.map((transaction) => (
-        <TransactionCard key={transaction.id} transaction={transaction} />
-      ))}
-    </div>
-  )
+  return <TransactionTable transactions={transactions} />
 }
