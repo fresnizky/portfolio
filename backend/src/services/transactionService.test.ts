@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { transactionService } from './transactionService'
 import { prisma } from '@/config/database'
 import { AppError } from '@/lib/errors'
+import { Prisma } from '@prisma/client'
 
 // Mock the database
 vi.mock('@/config/database', () => {
@@ -42,7 +43,7 @@ const mockAsset = {
 
 const mockHolding = {
   id: 'holding-123',
-  quantity: { toString: () => '100' },
+  quantity: new Prisma.Decimal('100'),
   userId,
   assetId,
 }
@@ -51,10 +52,10 @@ const createMockTransaction = (overrides = {}) => ({
   id: 'tx-123',
   type: 'BUY' as const,
   date: new Date('2026-01-10T10:00:00.000Z'),
-  quantity: { toString: () => '10' },
-  priceCents: BigInt(45075),
-  commissionCents: BigInt(500),
-  totalCents: BigInt(451250), // (10 × 45075) + 500
+  quantity: new Prisma.Decimal('10'),
+  price: new Prisma.Decimal('450.75'),
+  commission: new Prisma.Decimal('5.00'),
+  total: new Prisma.Decimal('4512.50'), // (10 × 450.75) + 5
   userId,
   assetId,
   createdAt: new Date('2026-01-10T10:00:00.000Z'),
@@ -86,15 +87,15 @@ describe('transactionService', () => {
       expect(result.type).toBe('BUY')
       expect(result.quantity).toBe('10')
       expect(result.price).toBe('450.75')
-      expect(result.commission).toBe('5.00')
-      expect(result.totalCost).toBe('4512.50') // (10 × 450.75) + 5 = 4512.50
+      expect(result.commission).toBe('5')
+      expect(result.totalCost).toBe('4512.5') // (10 × 450.75) + 5 = 4512.50
       expect(result.totalProceeds).toBeUndefined()
     })
 
     it('should create a sell transaction with correct totalProceeds', async () => {
       const mockTx = createMockTransaction({
         type: 'SELL',
-        totalCents: BigInt(450250), // (10 × 45075) - 500
+        total: new Prisma.Decimal('4502.50'), // (10 × 450.75) - 5
       })
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
       vi.mocked(prisma.holding.findFirst).mockResolvedValue(mockHolding as never)
@@ -110,7 +111,7 @@ describe('transactionService', () => {
       })
 
       expect(result.type).toBe('SELL')
-      expect(result.totalProceeds).toBe('4502.50') // (10 × 450.75) - 5 = 4502.50
+      expect(result.totalProceeds).toBe('4502.5') // (10 × 450.75) - 5 = 4502.50
       expect(result.totalCost).toBeUndefined()
     })
 
@@ -202,10 +203,10 @@ describe('transactionService', () => {
 
     it('should handle fractional quantities (crypto)', async () => {
       const mockTx = createMockTransaction({
-        quantity: { toString: () => '0.00012345' },
-        priceCents: BigInt(4200000), // $42,000
-        commissionCents: BigInt(0),
-        totalCents: BigInt(518), // 0.00012345 × 4200000 ≈ 518
+        quantity: new Prisma.Decimal('0.00012345'),
+        price: new Prisma.Decimal('42000'),
+        commission: new Prisma.Decimal('0'),
+        total: new Prisma.Decimal('5.1849'), // 0.00012345 × 42000
       })
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
       vi.mocked(prisma.transaction.create).mockResolvedValue(mockTx as never)
@@ -284,7 +285,7 @@ describe('transactionService', () => {
     it('should increase holding quantity on buy with existing holding', async () => {
       const existingHolding = {
         ...mockHolding,
-        quantity: { toString: () => '10' },
+        quantity: new Prisma.Decimal('10'),
       }
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
       vi.mocked(prisma.transaction.create).mockResolvedValue(createMockTransaction() as never)
@@ -302,14 +303,14 @@ describe('transactionService', () => {
 
       expect(prisma.holding.update).toHaveBeenCalledWith({
         where: { assetId },
-        data: { quantity: 15 }, // 10 + 5
+        data: { quantity: expect.any(Prisma.Decimal) }, // 10 + 5 = 15
       })
     })
 
     it('should decrease holding quantity on sell', async () => {
       const existingHolding = {
         ...mockHolding,
-        quantity: { toString: () => '10' },
+        quantity: new Prisma.Decimal('10'),
       }
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
       vi.mocked(prisma.holding.findFirst).mockResolvedValue(existingHolding as never)
@@ -330,7 +331,7 @@ describe('transactionService', () => {
 
       expect(prisma.holding.update).toHaveBeenCalledWith({
         where: { assetId },
-        data: { quantity: 7 }, // 10 - 3
+        data: { quantity: expect.any(Prisma.Decimal) }, // 10 - 3 = 7
       })
     })
 
@@ -353,7 +354,7 @@ describe('transactionService', () => {
         data: {
           userId,
           assetId,
-          quantity: 5,
+          quantity: expect.any(Prisma.Decimal),
         },
       })
     })
@@ -361,7 +362,7 @@ describe('transactionService', () => {
     it('should set holding to zero when selling all units (not delete)', async () => {
       const existingHolding = {
         ...mockHolding,
-        quantity: { toString: () => '5' },
+        quantity: new Prisma.Decimal('5'),
       }
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset as never)
       vi.mocked(prisma.holding.findFirst).mockResolvedValue(existingHolding as never)
@@ -382,7 +383,7 @@ describe('transactionService', () => {
 
       expect(prisma.holding.update).toHaveBeenCalledWith({
         where: { assetId },
-        data: { quantity: 0 }, // Should be 0, not deleted
+        data: { quantity: expect.any(Prisma.Decimal) }, // Should be 0, not deleted
       })
     })
   })
@@ -408,7 +409,7 @@ describe('transactionService', () => {
     it('should throw validation error when holdings are insufficient', async () => {
       vi.mocked(prisma.holding.findFirst).mockResolvedValue({
         ...mockHolding,
-        quantity: { toString: () => '5' },
+        quantity: new Prisma.Decimal('5'),
       } as never)
 
       await expect(
@@ -576,7 +577,7 @@ describe('transactionService', () => {
 
       const result = await transactionService.getById(userId, 'tx-123')
 
-      expect(result.totalCost).toBe('4512.50')
+      expect(result.totalCost).toBe('4512.5')
       expect(result.totalProceeds).toBeUndefined()
     })
 
@@ -584,13 +585,13 @@ describe('transactionService', () => {
       vi.mocked(prisma.transaction.findFirst).mockResolvedValue(
         createMockTransaction({
           type: 'SELL',
-          totalCents: BigInt(450250),
+          total: new Prisma.Decimal('4502.50'),
         }) as never
       )
 
       const result = await transactionService.getById(userId, 'tx-123')
 
-      expect(result.totalProceeds).toBe('4502.50')
+      expect(result.totalProceeds).toBe('4502.5')
       expect(result.totalCost).toBeUndefined()
     })
   })

@@ -1,6 +1,6 @@
 import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
-import { fromCents } from '@/lib/money'
+import { Prisma } from '@prisma/client'
 import type { PortfolioSnapshot, SnapshotAsset } from '@prisma/client'
 
 type PortfolioSnapshotWithAssets = PortfolioSnapshot & { assets: SnapshotAsset[] }
@@ -17,30 +17,29 @@ export const snapshotService = {
     })
 
     // Calculate total value and build asset breakdown
-    let totalValueCents = BigInt(0)
+    let totalValue = new Prisma.Decimal(0)
     const assetBreakdown = assets
-      .filter(asset => asset.holding && asset.currentPriceCents)
+      .filter(asset => asset.holding && asset.currentPrice)
       .map(asset => {
-        const quantity = Number(asset.holding!.quantity)
-        const valueCents = BigInt(Math.round(quantity * Number(asset.currentPriceCents!)))
-        totalValueCents += valueCents
+        const quantity = asset.holding!.quantity
+        const value = quantity.mul(asset.currentPrice!)
+        totalValue = totalValue.add(value)
         return {
           assetId: asset.id,
           ticker: asset.ticker,
           name: asset.name,
           quantity: asset.holding!.quantity,
-          priceCents: asset.currentPriceCents!,
-          valueCents,
+          price: asset.currentPrice!,
+          value,
         }
       })
 
     // Add percentage to each asset
     const assetsWithPercentage = assetBreakdown.map(asset => ({
       ...asset,
-      percentage:
-        totalValueCents > BigInt(0)
-          ? Number((asset.valueCents * BigInt(10000)) / totalValueCents) / 100
-          : 0,
+      percentage: totalValue.gt(0)
+        ? asset.value.mul(100).div(totalValue).toNumber()
+        : 0,
     }))
 
     // Check if snapshot exists for today (upsert logic)
@@ -59,7 +58,7 @@ export const snapshotService = {
         // Update snapshot
         const snapshot = await tx.portfolioSnapshot.update({
           where: { id: existingSnapshot.id },
-          data: { totalValueCents },
+          data: { totalValue },
         })
 
         // Create new assets
@@ -70,8 +69,8 @@ export const snapshotService = {
             ticker: a.ticker,
             name: a.name,
             quantity: a.quantity,
-            priceCents: a.priceCents,
-            valueCents: a.valueCents,
+            price: a.price,
+            value: a.value,
             percentage: a.percentage,
           })),
         })
@@ -87,7 +86,7 @@ export const snapshotService = {
       const newSnapshot = await tx.portfolioSnapshot.create({
         data: {
           date: today,
-          totalValueCents,
+          totalValue,
           userId,
         },
       })
@@ -99,8 +98,8 @@ export const snapshotService = {
           ticker: a.ticker,
           name: a.name,
           quantity: a.quantity,
-          priceCents: a.priceCents,
-          valueCents: a.valueCents,
+          price: a.price,
+          value: a.value,
           percentage: a.percentage,
         })),
       })
@@ -149,14 +148,14 @@ export const snapshotService = {
     return {
       id: snapshot.id,
       date: snapshot.date.toISOString(),
-      totalValue: fromCents(snapshot.totalValueCents),
+      totalValue: snapshot.totalValue.toString(),
       assets: snapshot.assets.map(a => ({
         assetId: a.assetId,
         ticker: a.ticker,
         name: a.name,
         quantity: a.quantity.toString(),
-        price: fromCents(a.priceCents),
-        value: fromCents(a.valueCents),
+        price: a.price.toString(),
+        value: a.value.toString(),
         percentage: a.percentage.toString(),
       })),
       createdAt: snapshot.createdAt.toISOString(),

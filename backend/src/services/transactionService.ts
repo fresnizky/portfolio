@@ -1,6 +1,6 @@
 import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
-import { toCents, fromCents } from '@/lib/money'
+import { Prisma } from '@prisma/client'
 import type { CreateTransactionInput, TransactionListQuery } from '@/validations/transaction'
 
 /**
@@ -11,10 +11,10 @@ function formatTransaction(tx: {
   type: 'BUY' | 'SELL'
   assetId: string
   date: Date
-  quantity: { toString(): string }
-  priceCents: bigint
-  commissionCents: bigint
-  totalCents: bigint
+  quantity: Prisma.Decimal
+  price: Prisma.Decimal
+  commission: Prisma.Decimal
+  total: Prisma.Decimal
   createdAt: Date
   asset: { ticker: string; name: string }
 }) {
@@ -28,10 +28,10 @@ function formatTransaction(tx: {
     },
     date: tx.date.toISOString(),
     quantity: tx.quantity.toString(),
-    price: fromCents(tx.priceCents),
-    commission: fromCents(tx.commissionCents),
-    totalCost: tx.type === 'BUY' ? fromCents(tx.totalCents) : undefined,
-    totalProceeds: tx.type === 'SELL' ? fromCents(tx.totalCents) : undefined,
+    price: tx.price.toString(),
+    commission: tx.commission.toString(),
+    totalCost: tx.type === 'BUY' ? tx.total.toString() : undefined,
+    totalProceeds: tx.type === 'SELL' ? tx.total.toString() : undefined,
     createdAt: tx.createdAt.toISOString(),
   }
 }
@@ -60,21 +60,21 @@ export const transactionService = {
       await this.validateSellQuantity(userId, input.assetId, input.quantity)
     }
 
-    // Calculate amounts in cents
-    const priceCents = toCents(input.price)
-    const commissionCents = toCents(input.commission)
+    // Calculate amounts using Prisma Decimal
+    const price = new Prisma.Decimal(input.price)
+    const commission = new Prisma.Decimal(input.commission)
+    const quantity = new Prisma.Decimal(input.quantity)
 
-    // quantity × priceCents (handle decimal quantity)
-    // We need to use the quantity as-is and calculate with precision
-    const baseAmountCents = BigInt(Math.round(input.quantity * Number(priceCents)))
+    // baseAmount = quantity × price
+    const baseAmount = quantity.mul(price)
 
-    // totalCents based on type:
+    // total based on type:
     // BUY: add commission to cost
     // SELL: subtract commission from proceeds
-    const totalCents =
+    const total =
       input.type === 'buy'
-        ? baseAmountCents + commissionCents
-        : baseAmountCents - commissionCents
+        ? baseAmount.add(commission)
+        : baseAmount.sub(commission)
 
     // Atomic transaction: create transaction record + update holding
     const result = await prisma.$transaction(async (tx) => {
@@ -83,10 +83,10 @@ export const transactionService = {
         data: {
           type: input.type.toUpperCase() as 'BUY' | 'SELL',
           date: new Date(input.date),
-          quantity: input.quantity,
-          priceCents,
-          commissionCents,
-          totalCents,
+          quantity,
+          price,
+          commission,
+          total,
           userId,
           assetId: input.assetId,
         },
@@ -102,9 +102,11 @@ export const transactionService = {
 
       if (existingHolding) {
         // Update existing holding
-        const currentQty = Number(existingHolding.quantity.toString())
+        const currentQty = existingHolding.quantity
         const newQty =
-          input.type === 'buy' ? currentQty + input.quantity : currentQty - input.quantity
+          input.type === 'buy'
+            ? currentQty.add(quantity)
+            : currentQty.sub(quantity)
 
         await tx.holding.update({
           where: { assetId: input.assetId },
@@ -116,7 +118,7 @@ export const transactionService = {
           data: {
             userId,
             assetId: input.assetId,
-            quantity: input.quantity,
+            quantity,
           },
         })
       }
@@ -143,9 +145,9 @@ export const transactionService = {
       })
     }
 
-    // Compare using number conversion for simplicity
-    const holdingQty = Number(holding.quantity.toString())
-    if (holdingQty < quantity) {
+    // Compare using Decimal
+    const requestedQty = new Prisma.Decimal(quantity)
+    if (holding.quantity.lt(requestedQty)) {
       throw Errors.validation('Insufficient holdings', {
         available: holding.quantity.toString(),
         requested: quantity.toString(),

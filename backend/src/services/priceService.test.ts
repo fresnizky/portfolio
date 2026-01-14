@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { priceService, fromCents } from './priceService'
+import { priceService } from './priceService'
 import { prisma } from '@/config/database'
 import { AppError } from '@/lib/errors'
+import { Prisma } from '@prisma/client'
 import type { Asset } from '@prisma/client'
 
 // Mock the database
@@ -16,21 +17,16 @@ vi.mock('@/config/database', () => ({
   },
 }))
 
-// Helper to create mock Prisma Decimal
-const createMockDecimal = (value: number) => ({
-  toNumber: () => value,
-  valueOf: () => value,
-  toString: () => String(value),
-}) as unknown as Asset['targetPercentage']
-
 // Reusable mock asset factory
 const createMockAsset = (overrides: Partial<Asset> = {}): Asset => ({
   id: 'asset-123',
   ticker: 'VOO',
   name: 'Vanguard S&P 500 ETF',
   category: 'ETF',
-  targetPercentage: createMockDecimal(50),
-  currentPriceCents: BigInt(45075), // $450.75
+  currency: 'USD',
+  decimalPlaces: 2,
+  targetPercentage: new Prisma.Decimal('50'),
+  currentPrice: new Prisma.Decimal('450.75'),
   priceUpdatedAt: new Date('2026-01-09T15:30:00.000Z'),
   userId: 'user-123',
   createdAt: new Date(),
@@ -39,19 +35,6 @@ const createMockAsset = (overrides: Partial<Asset> = {}): Asset => ({
 })
 
 const userId = 'user-123'
-
-describe('fromCents', () => {
-  it('should convert cents to decimal string', () => {
-    expect(fromCents(BigInt(45075))).toBe('450.75')
-    expect(fromCents(BigInt(100))).toBe('1.00')
-    expect(fromCents(BigInt(1))).toBe('0.01')
-    expect(fromCents(BigInt(4200000))).toBe('42000.00')
-  })
-
-  it('should return null for null input', () => {
-    expect(fromCents(null)).toBeNull()
-  })
-})
 
 describe('priceService', () => {
   beforeEach(() => {
@@ -65,7 +48,7 @@ describe('priceService', () => {
         id: 'asset-123',
         ticker: 'VOO',
         name: 'Vanguard S&P 500 ETF',
-        currentPriceCents: BigInt(50000), // $500.00
+        currentPrice: new Prisma.Decimal('500.00'),
         priceUpdatedAt: new Date(),
       }
 
@@ -74,21 +57,21 @@ describe('priceService', () => {
 
       const result = await priceService.updatePrice(userId, 'asset-123', { price: 500.00 })
 
-      expect(result.currentPrice).toBe('500.00')
+      expect(result.currentPrice).toBe('500')
       expect(prisma.asset.findFirst).toHaveBeenCalledWith({
         where: { id: 'asset-123', userId },
       })
       expect(prisma.asset.update).toHaveBeenCalledWith({
         where: { id: 'asset-123' },
         data: {
-          currentPriceCents: BigInt(50000),
+          currentPrice: expect.any(Prisma.Decimal),
           priceUpdatedAt: expect.any(Date),
         },
         select: {
           id: true,
           ticker: true,
           name: true,
-          currentPriceCents: true,
+          currentPrice: true,
           priceUpdatedAt: true,
         },
       })
@@ -123,16 +106,19 @@ describe('priceService', () => {
       expect(prisma.asset.update).not.toHaveBeenCalled()
     })
 
-    it('should convert decimal prices to cents', async () => {
+    it('should store decimal prices directly', async () => {
       const mockAsset = createMockAsset()
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset)
-      vi.mocked(prisma.asset.update).mockResolvedValue(mockAsset)
+      vi.mocked(prisma.asset.update).mockResolvedValue({
+        ...mockAsset,
+        currentPrice: new Prisma.Decimal('450.75'),
+      } as never)
 
       await priceService.updatePrice(userId, 'asset-123', { price: 450.75 })
 
       expect(prisma.asset.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ currentPriceCents: BigInt(45075) }),
+          data: expect.objectContaining({ currentPrice: expect.any(Prisma.Decimal) }),
         })
       )
     })
@@ -140,13 +126,16 @@ describe('priceService', () => {
     it('should handle high prices for crypto', async () => {
       const mockAsset = createMockAsset({ ticker: 'BTC', category: 'CRYPTO' })
       vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAsset)
-      vi.mocked(prisma.asset.update).mockResolvedValue(mockAsset)
+      vi.mocked(prisma.asset.update).mockResolvedValue({
+        ...mockAsset,
+        currentPrice: new Prisma.Decimal('42000.00'),
+      } as never)
 
       await priceService.updatePrice(userId, 'asset-123', { price: 42000.00 })
 
       expect(prisma.asset.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ currentPriceCents: BigInt(4200000) }),
+          data: expect.objectContaining({ currentPrice: expect.any(Prisma.Decimal) }),
         })
       )
     })
@@ -159,8 +148,8 @@ describe('priceService', () => {
         { id: 'asset-2' },
       ]
       const updatedAssets = [
-        { id: 'asset-1', ticker: 'VOO', currentPriceCents: BigInt(45075), priceUpdatedAt: new Date() },
-        { id: 'asset-2', ticker: 'GLD', currentPriceCents: BigInt(8530), priceUpdatedAt: new Date() },
+        { id: 'asset-1', ticker: 'VOO', currentPrice: new Prisma.Decimal('450.75'), priceUpdatedAt: new Date() },
+        { id: 'asset-2', ticker: 'GLD', currentPrice: new Prisma.Decimal('85.30'), priceUpdatedAt: new Date() },
       ]
 
       vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets as Asset[])
@@ -175,7 +164,7 @@ describe('priceService', () => {
 
       expect(result.updated).toBe(2)
       expect(result.assets[0].currentPrice).toBe('450.75')
-      expect(result.assets[1].currentPrice).toBe('85.30')
+      expect(result.assets[1].currentPrice).toBe('85.3')
       expect(prisma.$transaction).toHaveBeenCalled()
     })
 
@@ -243,7 +232,7 @@ describe('priceService', () => {
     it('should handle single price in batch', async () => {
       const mockAssets = [{ id: 'asset-1' }]
       const updatedAssets = [
-        { id: 'asset-1', ticker: 'VOO', currentPriceCents: BigInt(10000), priceUpdatedAt: new Date() },
+        { id: 'asset-1', ticker: 'VOO', currentPrice: new Prisma.Decimal('100.00'), priceUpdatedAt: new Date() },
       ]
 
       vi.mocked(prisma.asset.findMany).mockResolvedValue(mockAssets as Asset[])
@@ -254,7 +243,7 @@ describe('priceService', () => {
       })
 
       expect(result.updated).toBe(1)
-      expect(result.assets[0].currentPrice).toBe('100.00')
+      expect(result.assets[0].currentPrice).toBe('100')
     })
   })
 })

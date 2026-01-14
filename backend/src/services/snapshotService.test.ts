@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { snapshotService } from './snapshotService'
 import { prisma } from '@/config/database'
 import { AppError } from '@/lib/errors'
+import { Prisma } from '@prisma/client'
 
 // Mock the database
 vi.mock('@/config/database', () => {
@@ -36,9 +37,9 @@ const mockAssetWithHolding = (overrides = {}) => ({
   ticker: 'VOO',
   name: 'Vanguard S&P 500 ETF',
   userId,
-  currentPriceCents: BigInt(45075),
+  currentPrice: new Prisma.Decimal('450.75'),
   holding: {
-    quantity: { toString: () => '10', toNumber: () => 10 },
+    quantity: new Prisma.Decimal('10'),
   },
   ...overrides,
 })
@@ -46,7 +47,7 @@ const mockAssetWithHolding = (overrides = {}) => ({
 const mockSnapshot = (overrides = {}) => ({
   id: 'snapshot-123',
   date: new Date('2026-01-10T00:00:00.000Z'),
-  totalValueCents: BigInt(450750),
+  totalValue: new Prisma.Decimal('4507.50'),
   userId,
   createdAt: new Date('2026-01-10T15:30:00.000Z'),
   updatedAt: new Date('2026-01-10T15:30:00.000Z'),
@@ -57,10 +58,10 @@ const mockSnapshot = (overrides = {}) => ({
       assetId: 'asset-123',
       ticker: 'VOO',
       name: 'Vanguard S&P 500 ETF',
-      quantity: { toString: () => '10' },
-      priceCents: BigInt(45075),
-      valueCents: BigInt(450750),
-      percentage: { toString: () => '100.00' },
+      quantity: new Prisma.Decimal('10'),
+      price: new Prisma.Decimal('450.75'),
+      value: new Prisma.Decimal('4507.50'),
+      percentage: new Prisma.Decimal('100.00'),
     },
   ],
   ...overrides,
@@ -82,7 +83,7 @@ describe('snapshotService', () => {
       vi.mocked(prisma.portfolioSnapshot.create).mockResolvedValue({
         id: 'snapshot-123',
         date: new Date('2026-01-10T00:00:00.000Z'),
-        totalValueCents: BigInt(450750),
+        totalValue: new Prisma.Decimal('4507.50'),
         userId,
       } as never)
       vi.mocked(prisma.snapshotAsset.createMany).mockResolvedValue({ count: 1 } as never)
@@ -91,19 +92,19 @@ describe('snapshotService', () => {
       const result = await snapshotService.create(userId)
 
       expect(result.id).toBe('snapshot-123')
-      expect(result.totalValue).toBe('4507.50')
+      expect(result.totalValue).toBe('4507.5')
       expect(result.assets).toHaveLength(1)
       expect(result.assets[0].ticker).toBe('VOO')
     })
 
     it('should calculate totalValue as sum of all position values', async () => {
       const assets = [
-        mockAssetWithHolding({ id: 'asset-1', ticker: 'VOO', currentPriceCents: BigInt(45000) }),
+        mockAssetWithHolding({ id: 'asset-1', ticker: 'VOO', currentPrice: new Prisma.Decimal('450.00') }),
         mockAssetWithHolding({
           id: 'asset-2',
           ticker: 'VTI',
-          currentPriceCents: BigInt(25000),
-          holding: { quantity: { toString: () => '5', toNumber: () => 5 } },
+          currentPrice: new Prisma.Decimal('250.00'),
+          holding: { quantity: new Prisma.Decimal('5') },
         }),
       ]
       vi.mocked(prisma.asset.findMany).mockResolvedValue(assets as never)
@@ -111,17 +112,17 @@ describe('snapshotService', () => {
       vi.mocked(prisma.portfolioSnapshot.create).mockResolvedValue({
         id: 'snapshot-123',
         date: new Date('2026-01-10T00:00:00.000Z'),
-        totalValueCents: BigInt(575000), // (10 × 45000) + (5 × 25000) = 575000
+        totalValue: new Prisma.Decimal('5750.00'), // (10 × 450) + (5 × 250) = 5750
         userId,
       } as never)
       vi.mocked(prisma.snapshotAsset.createMany).mockResolvedValue({ count: 2 } as never)
       vi.mocked(prisma.portfolioSnapshot.findFirst).mockResolvedValue(
-        mockSnapshot({ totalValueCents: BigInt(575000) }) as never
+        mockSnapshot({ totalValue: new Prisma.Decimal('5750.00') }) as never
       )
 
       const result = await snapshotService.create(userId)
 
-      expect(result.totalValue).toBe('5750.00')
+      expect(result.totalValue).toBe('5750')
     })
 
     it('should include all assets with holdings in breakdown', async () => {
@@ -133,15 +134,15 @@ describe('snapshotService', () => {
       vi.mocked(prisma.portfolioSnapshot.findUnique).mockResolvedValue(null)
       vi.mocked(prisma.portfolioSnapshot.create).mockResolvedValue({
         id: 'snapshot-123',
-        totalValueCents: BigInt(901500),
+        totalValue: new Prisma.Decimal('9015.00'),
         userId,
       } as never)
       vi.mocked(prisma.snapshotAsset.createMany).mockResolvedValue({ count: 2 } as never)
       vi.mocked(prisma.portfolioSnapshot.findFirst).mockResolvedValue(
         mockSnapshot({
           assets: [
-            { assetId: 'asset-1', ticker: 'VOO', name: 'Vanguard S&P 500', quantity: { toString: () => '10' }, priceCents: BigInt(45075), valueCents: BigInt(450750), percentage: { toString: () => '50.00' } },
-            { assetId: 'asset-2', ticker: 'VTI', name: 'Vanguard Total Stock', quantity: { toString: () => '10' }, priceCents: BigInt(45075), valueCents: BigInt(450750), percentage: { toString: () => '50.00' } },
+            { assetId: 'asset-1', ticker: 'VOO', name: 'Vanguard S&P 500', quantity: new Prisma.Decimal('10'), price: new Prisma.Decimal('450.75'), value: new Prisma.Decimal('4507.50'), percentage: new Prisma.Decimal('50.00') },
+            { assetId: 'asset-2', ticker: 'VTI', name: 'Vanguard Total Stock', quantity: new Prisma.Decimal('10'), price: new Prisma.Decimal('450.75'), value: new Prisma.Decimal('4507.50'), percentage: new Prisma.Decimal('50.00') },
           ],
         }) as never
       )
@@ -157,7 +158,7 @@ describe('snapshotService', () => {
       vi.mocked(prisma.portfolioSnapshot.findUnique).mockResolvedValue(null)
       vi.mocked(prisma.portfolioSnapshot.create).mockResolvedValue({
         id: 'snapshot-123',
-        totalValueCents: BigInt(450750),
+        totalValue: new Prisma.Decimal('4507.50'),
         userId,
       } as never)
       vi.mocked(prisma.snapshotAsset.createMany).mockResolvedValue({ count: 1 } as never)
@@ -165,7 +166,7 @@ describe('snapshotService', () => {
 
       const result = await snapshotService.create(userId)
 
-      expect(result.assets[0].percentage).toBe('100.00')
+      expect(result.assets[0].percentage).toBe('100')
     })
 
     it('should update existing snapshot if one exists for today', async () => {
@@ -189,31 +190,31 @@ describe('snapshotService', () => {
       vi.mocked(prisma.portfolioSnapshot.create).mockResolvedValue({
         id: 'snapshot-123',
         date: new Date('2026-01-10T00:00:00.000Z'),
-        totalValueCents: BigInt(0),
+        totalValue: new Prisma.Decimal('0'),
         userId,
       } as never)
       vi.mocked(prisma.snapshotAsset.createMany).mockResolvedValue({ count: 0 } as never)
       vi.mocked(prisma.portfolioSnapshot.findFirst).mockResolvedValue(
-        mockSnapshot({ totalValueCents: BigInt(0), assets: [] }) as never
+        mockSnapshot({ totalValue: new Prisma.Decimal('0'), assets: [] }) as never
       )
 
       const result = await snapshotService.create(userId)
 
-      expect(result.totalValue).toBe('0.00')
+      expect(result.totalValue).toBe('0')
       expect(result.assets).toHaveLength(0)
     })
 
     it('should skip assets without holdings or prices', async () => {
       const assets = [
         mockAssetWithHolding({ id: 'asset-1', ticker: 'VOO' }),
-        { id: 'asset-2', ticker: 'VTI', userId, currentPriceCents: null, holding: null }, // No price
-        { id: 'asset-3', ticker: 'BTC', userId, currentPriceCents: BigInt(4200000), holding: null }, // No holding
+        { id: 'asset-2', ticker: 'VTI', userId, currentPrice: null, holding: null }, // No price
+        { id: 'asset-3', ticker: 'BTC', userId, currentPrice: new Prisma.Decimal('42000'), holding: null }, // No holding
       ]
       vi.mocked(prisma.asset.findMany).mockResolvedValue(assets as never)
       vi.mocked(prisma.portfolioSnapshot.findUnique).mockResolvedValue(null)
       vi.mocked(prisma.portfolioSnapshot.create).mockResolvedValue({
         id: 'snapshot-123',
-        totalValueCents: BigInt(450750),
+        totalValue: new Prisma.Decimal('4507.50'),
         userId,
       } as never)
       vi.mocked(prisma.snapshotAsset.createMany).mockResolvedValue({ count: 1 } as never)
@@ -331,7 +332,7 @@ describe('snapshotService', () => {
       const result = await snapshotService.getById(userId, 'snapshot-123')
 
       expect(result.id).toBe('snapshot-123')
-      expect(result.totalValue).toBe('4507.50')
+      expect(result.totalValue).toBe('4507.5')
       expect(result.assets).toHaveLength(1)
       expect(result.assets[0]).toMatchObject({
         assetId: 'asset-123',
@@ -339,8 +340,8 @@ describe('snapshotService', () => {
         name: 'Vanguard S&P 500 ETF',
         quantity: '10',
         price: '450.75',
-        value: '4507.50',
-        percentage: '100.00',
+        value: '4507.5',
+        percentage: '100',
       })
     })
 
