@@ -19,7 +19,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "analyze:transactions": "npx ts-node --transpile-only scripts/analyze-corrupted-transactions.ts",
+    "cleanup:transactions": "npx ts-node --transpile-only scripts/cleanup-corrupted-transactions.ts"
   },
   "keywords": [],
   "author": "",
