@@ -116,7 +116,7 @@ describe('portfolioService', () => {
       expect(result.positions[0].value).toBe('4507.50')
     })
 
-    it('should return value = 0 when currentPrice is null', async () => {
+    it('should return value = null and priceStatus = missing when currentPrice is null', async () => {
       const mockHoldings = [
         createMockHoldingWithAsset(10, {
           id: 'asset-1',
@@ -130,8 +130,45 @@ describe('portfolioService', () => {
 
       const result = await portfolioService.getSummary(userId)
 
-      expect(result.positions[0].value).toBe('0.00')
+      expect(result.positions[0].value).toBeNull()
+      expect(result.positions[0].originalValue).toBeNull()
       expect(result.positions[0].currentPrice).toBeNull()
+      expect(result.positions[0].priceStatus).toBe('missing')
+    })
+
+    it('should return priceStatus = set when currentPrice is provided', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'VOO',
+          currentPrice: 100,
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+
+      const result = await portfolioService.getSummary(userId)
+
+      expect(result.positions[0].priceStatus).toBe('set')
+      expect(result.positions[0].value).toBe('1000.00')
+    })
+
+    it('should treat currentPrice = 0 as valid price (priceStatus = set)', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'EXPIRED',
+          currentPrice: 0,
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+
+      const result = await portfolioService.getSummary(userId)
+
+      expect(result.positions[0].priceStatus).toBe('set')
+      expect(result.positions[0].value).toBe('0.00')
+      expect(result.positions[0].currentPrice).toBe('0.00')
     })
 
     it('should calculate totalValue as sum of all position values', async () => {
@@ -198,6 +235,7 @@ describe('portfolioService', () => {
         value: '4732.88',
         displayCurrency: 'USD',
         targetPercentage: '60.00',
+        priceStatus: 'set',
         priceUpdatedAt,
       })
     })
@@ -335,9 +373,34 @@ describe('portfolioService', () => {
 
       expect(result.positions).toHaveLength(2)
       expect(result.positions[0].value).toBe('4507.50')
-      expect(result.positions[1].value).toBe('0.00')
-      // Total should only include priced position
+      expect(result.positions[0].priceStatus).toBe('set')
+      expect(result.positions[1].value).toBeNull()
+      expect(result.positions[1].priceStatus).toBe('missing')
+      // Total should only include priced positions
       expect(result.totalValue).toBe('4507.50')
+      // Should include excludedCount for positions without price
+      expect(result.excludedCount).toBe(1)
+    })
+
+    it('should not include excludedCount when all positions have prices', async () => {
+      const mockHoldings = [
+        createMockHoldingWithAsset(10, {
+          id: 'asset-1',
+          ticker: 'VOO',
+          currentPrice: 100,
+        }),
+        createMockHoldingWithAsset(5, {
+          id: 'asset-2',
+          ticker: 'GLD',
+          currentPrice: 50,
+        }),
+      ]
+
+      vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
+
+      const result = await portfolioService.getSummary(userId)
+
+      expect(result.excludedCount).toBeUndefined()
     })
 
     it('should convert ARS values to USD when display currency is USD', async () => {

@@ -40,6 +40,24 @@ function ScaleIcon() {
   )
 }
 
+function PriceTagIcon() {
+  return (
+    <svg
+      data-testid="alert-icon-price"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+      <path d="M12 6v2m0 8v2m-4-6h1.5m5 0H16" />
+      <path d="M9.5 14.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5" />
+      <path d="M14.5 9.5c0-1.38-1.12-2.5-2.5-2.5S9.5 8.12 9.5 9.5" />
+    </svg>
+  )
+}
+
 export function AlertItem({ alert }: AlertItemProps) {
   const navigate = useNavigate()
 
@@ -51,6 +69,9 @@ export function AlertItem({ alert }: AlertItemProps) {
       case 'rebalance_needed':
         navigate('/portfolio')
         break
+      case 'missing_price':
+        navigate('/prices')
+        break
     }
   }
 
@@ -60,6 +81,8 @@ export function AlertItem({ alert }: AlertItemProps) {
         return <ClockIcon />
       case 'rebalance_needed':
         return <ScaleIcon />
+      case 'missing_price':
+        return <PriceTagIcon />
       default:
         return null
     }

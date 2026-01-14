@@ -51,55 +51,68 @@ export const dashboardService = {
 
     // Enrich positions with calculated fields
     const positions: DashboardPosition[] = summary.positions.map(pos => {
-      const value = parseFloat(pos.value)
+      const hasPriceSet = pos.priceStatus === 'set'
+      const value = hasPriceSet && pos.value !== null ? parseFloat(pos.value) : 0
       const target = pos.targetPercentage !== null ? parseFloat(pos.targetPercentage) : 0
 
-      // Calculate actual percentage of portfolio
-      const actualPercentage = totalValue > 0 ? (value / totalValue) * 100 : 0
+      // Calculate actual percentage of portfolio (only if price is set)
+      const actualPercentage = hasPriceSet && totalValue > 0 ? (value / totalValue) * 100 : null
 
-      // Calculate deviation from target
-      const deviation = actualPercentage - target
+      // Calculate deviation from target (only if price is set and has target)
+      const deviation = hasPriceSet && actualPercentage !== null ? actualPercentage - target : null
 
-      // Check for stale price alert
-      if (pos.priceUpdatedAt) {
-        const daysSinceUpdate = Math.floor(
-          (now.getTime() - new Date(pos.priceUpdatedAt).getTime()) / (1000 * 60 * 60 * 24)
-        )
-        if (daysSinceUpdate >= effectiveThresholds.staleDays) {
+      // Handle price-related alerts based on price status
+      if (hasPriceSet) {
+        // Check for stale price alert (only for positions with price)
+        if (pos.priceUpdatedAt) {
+          const daysSinceUpdate = Math.floor(
+            (now.getTime() - new Date(pos.priceUpdatedAt).getTime()) / (1000 * 60 * 60 * 24)
+          )
+          if (daysSinceUpdate >= effectiveThresholds.staleDays) {
+            alerts.push({
+              type: 'stale_price',
+              assetId: pos.assetId,
+              ticker: pos.ticker,
+              message: `${pos.ticker} price is ${daysSinceUpdate} days old`,
+              severity: 'warning',
+              data: { daysOld: daysSinceUpdate },
+            })
+          }
+        } else if (pos.currentPrice !== null) {
+          // Price exists but no timestamp - treat as stale
           alerts.push({
             type: 'stale_price',
             assetId: pos.assetId,
             ticker: pos.ticker,
-            message: `${pos.ticker} price is ${daysSinceUpdate} days old`,
+            message: `${pos.ticker} price has no update date`,
             severity: 'warning',
-            data: { daysOld: daysSinceUpdate },
           })
         }
-      } else if (pos.currentPrice !== null) {
-        // Price exists but no timestamp - treat as stale
-        alerts.push({
-          type: 'stale_price',
-          assetId: pos.assetId,
-          ticker: pos.ticker,
-          message: `${pos.ticker} price has no update date`,
-          severity: 'warning',
-        })
-      }
 
-      // Check for rebalance alert (only for positions with target)
-      // AC says "deviates more than", so use > not >=
-      if (pos.targetPercentage !== null && Math.abs(deviation) > effectiveThresholds.deviationPct) {
-        const direction = deviation > 0 ? 'overweight' : 'underweight'
+        // Check for rebalance alert (only for positions with target AND price set)
+        // AC says "deviates more than", so use > not >=
+        if (pos.targetPercentage !== null && deviation !== null && Math.abs(deviation) > effectiveThresholds.deviationPct) {
+          const direction = deviation > 0 ? 'overweight' : 'underweight'
+          alerts.push({
+            type: 'rebalance_needed',
+            assetId: pos.assetId,
+            ticker: pos.ticker,
+            message: `${pos.ticker} is ${Math.abs(deviation).toFixed(1)}% ${direction}`,
+            severity: 'warning',
+            data: {
+              deviation: deviation.toFixed(2),
+              direction,
+            },
+          })
+        }
+      } else {
+        // Price is missing - generate missing_price alert
         alerts.push({
-          type: 'rebalance_needed',
+          type: 'missing_price',
           assetId: pos.assetId,
           ticker: pos.ticker,
-          message: `${pos.ticker} is ${Math.abs(deviation).toFixed(1)}% ${direction}`,
-          severity: 'warning',
-          data: {
-            deviation: deviation.toFixed(2),
-            direction,
-          },
+          message: `Set price for ${pos.ticker}`,
+          severity: 'info',
         })
       }
 
@@ -115,8 +128,9 @@ export const dashboardService = {
         value: pos.value,
         displayCurrency: pos.displayCurrency,
         targetPercentage: pos.targetPercentage,
-        actualPercentage: actualPercentage.toFixed(2),
-        deviation: deviation.toFixed(2),
+        actualPercentage: actualPercentage !== null ? actualPercentage.toFixed(2) : null,
+        deviation: deviation !== null ? deviation.toFixed(2) : null,
+        priceStatus: pos.priceStatus,
         priceUpdatedAt: pos.priceUpdatedAt,
       }
     })
@@ -127,6 +141,7 @@ export const dashboardService = {
       exchangeRate: summary.exchangeRate,
       positions,
       alerts,
+      ...(summary.excludedCount && { excludedCount: summary.excludedCount }),
     }
   },
 }

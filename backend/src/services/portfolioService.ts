@@ -63,15 +63,18 @@ export const portfolioService = {
         const currentPrice = holding.asset.currentPrice?.toNumber() ?? null
         const assetCurrency = holding.asset.currency
 
-        // value = quantity × currentPrice (or 0 if price not set)
+        // Determine price status: null means missing, any number (including 0) means set
+        const priceStatus: 'set' | 'missing' = currentPrice !== null ? 'set' : 'missing'
+
+        // value = quantity × currentPrice (null if price not set)
         const originalValue =
           currentPrice !== null
             ? Math.round(quantity * currentPrice * 100) / 100
-            : 0
+            : null
 
         // Convert to display currency if needed
         let displayValue = originalValue
-        if (assetCurrency !== displayCurrency && exchangeRateInfo && originalValue > 0) {
+        if (assetCurrency !== displayCurrency && exchangeRateInfo && originalValue !== null && originalValue > 0) {
           const { converted } = await exchangeRateService.convert(
             originalValue,
             assetCurrency,
@@ -87,29 +90,33 @@ export const portfolioService = {
           category: holding.asset.category,
           quantity: holding.quantity.toString(),
           currentPrice: currentPrice !== null ? currentPrice.toFixed(2) : null,
-          originalValue: originalValue.toFixed(2),
+          originalValue: originalValue !== null ? originalValue.toFixed(2) : null,
           originalCurrency: assetCurrency,
-          value: displayValue.toFixed(2),
+          value: displayValue !== null ? displayValue.toFixed(2) : null,
           displayCurrency,
           targetPercentage: holding.asset.targetPercentage
             ? Number(holding.asset.targetPercentage).toFixed(2)
             : null,
+          priceStatus,
           priceUpdatedAt: holding.asset.priceUpdatedAt,
         }
       })
     )
 
-    // Calculate total portfolio value in display currency
-    const totalValue = positions.reduce(
-      (sum, pos) => sum + parseFloat(pos.value),
+    // Calculate total portfolio value (only from positions with price set)
+    const positionsWithPrice = positions.filter(pos => pos.priceStatus === 'set')
+    const totalValue = positionsWithPrice.reduce(
+      (sum, pos) => sum + parseFloat(pos.value!),
       0
     )
+    const excludedCount = positions.length - positionsWithPrice.length
 
     return {
       totalValue: totalValue.toFixed(2),
       displayCurrency,
       exchangeRate: exchangeRateInfo,
       positions,
+      ...(excludedCount > 0 && { excludedCount }),
     }
   },
 }

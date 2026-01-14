@@ -7,6 +7,7 @@ interface PortfolioSummaryCardProps {
   displayCurrency?: Currency
   exchangeRate?: ExchangeRateInfo | null
   isLoading?: boolean
+  excludedCount?: number
   onExchangeRateRefresh?: () => void
 }
 
@@ -15,6 +16,7 @@ export function PortfolioSummaryCard({
   displayCurrency = 'USD',
   exchangeRate = null,
   isLoading = false,
+  excludedCount,
   onExchangeRateRefresh,
 }: PortfolioSummaryCardProps) {
   return (
@@ -31,9 +33,16 @@ export function PortfolioSummaryCard({
           <div className="h-9 w-40 rounded bg-gray-200" />
         </div>
       ) : (
-        <p className="mt-2 text-3xl font-bold text-gray-900">
-          {formatCurrency(totalValue, displayCurrency)}
-        </p>
+        <>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {formatCurrency(totalValue, displayCurrency)}
+          </p>
+          {excludedCount !== undefined && excludedCount > 0 && (
+            <p className="mt-1 text-sm text-amber-600">
+              {excludedCount} asset{excludedCount > 1 ? 's' : ''} without price excluded from total
+            </p>
+          )}
+        </>
       )}
     </div>
   )

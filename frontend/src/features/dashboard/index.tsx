@@ -17,6 +17,7 @@ export function DashboardPage() {
         displayCurrency={data?.displayCurrency ?? 'USD'}
         exchangeRate={data?.exchangeRate ?? null}
         isLoading={isLoading}
+        excludedCount={data?.excludedCount}
         onExchangeRateRefresh={() => refetch()}
       />
 

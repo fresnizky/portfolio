@@ -18,6 +18,7 @@ describe('PositionsList', () => {
     targetPercentage: '50.00',
     actualPercentage: '45.00',
     deviation: '-5.00',
+    priceStatus: 'set',
     priceUpdatedAt: '2026-01-10T12:00:00.000Z',
     ...overrides,
   })
