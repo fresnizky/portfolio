@@ -259,7 +259,7 @@ export interface Holding {
     ticker: string
     name: string
     category: AssetCategory
-    currentPriceCents?: string | null
+    currentPrice?: string | null
   }
 }
 
