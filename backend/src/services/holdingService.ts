@@ -133,12 +133,11 @@ export const holdingService = {
 
       // Update asset price if provided
       if (price !== undefined) {
-        const priceCents = BigInt(Math.round(price * 100))
         operations.push(
           prisma.asset.update({
             where: { id: assetId },
             data: {
-              currentPriceCents: priceCents,
+              currentPrice: new Prisma.Decimal(price),
               priceUpdatedAt: now,
             },
           })
@@ -159,7 +158,7 @@ export const holdingService = {
             ticker: true,
             name: true,
             category: true,
-            currentPriceCents: true,
+            currentPrice: true,
           },
         },
       },

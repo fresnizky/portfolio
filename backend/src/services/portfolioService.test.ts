@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { portfolioService } from './portfolioService'
 import { prisma } from '@/config/database'
+import { Prisma } from '@prisma/client'
 import type { Holding, Currency } from '@prisma/client'
 
 // Mock the database
@@ -22,13 +23,6 @@ vi.mock('./exchangeRateService', () => ({
 
 import { exchangeRateService } from './exchangeRateService'
 
-// Helper to create mock Prisma Decimal that works with Number()
-const createMockDecimal = (value: number) => ({
-  toNumber: () => value,
-  valueOf: () => value,
-  toString: () => String(value),
-})
-
 // Type for holding with asset included for portfolio summary
 type HoldingWithAssetForSummary = Holding & {
   asset: {
@@ -37,8 +31,8 @@ type HoldingWithAssetForSummary = Holding & {
     name: string
     category: string
     currency: Currency
-    targetPercentage: ReturnType<typeof createMockDecimal> | null
-    currentPriceCents: bigint | null
+    targetPercentage: Prisma.Decimal | null
+    currentPrice: Prisma.Decimal | null
     priceUpdatedAt: Date | null
   }
 }
@@ -52,12 +46,12 @@ const createMockHoldingWithAsset = (
     category?: string
     currency?: Currency
     targetPercentage?: number | null
-    currentPriceCents?: bigint | null
+    currentPrice?: number | null
     priceUpdatedAt?: Date | null
   } = {}
 ): HoldingWithAssetForSummary => ({
   id: `holding-${assetOverrides.id ?? 'default'}`,
-  quantity: createMockDecimal(quantity) as unknown as Holding['quantity'],
+  quantity: new Prisma.Decimal(quantity),
   userId: 'user-123',
   assetId: assetOverrides.id ?? 'asset-123',
   createdAt: new Date(),
@@ -71,13 +65,15 @@ const createMockHoldingWithAsset = (
     targetPercentage:
       assetOverrides.targetPercentage !== undefined
         ? assetOverrides.targetPercentage !== null
-          ? createMockDecimal(assetOverrides.targetPercentage)
+          ? new Prisma.Decimal(assetOverrides.targetPercentage)
           : null
-        : createMockDecimal(50),
-    currentPriceCents:
-      assetOverrides.currentPriceCents !== undefined
-        ? assetOverrides.currentPriceCents
-        : BigInt(45075), // $450.75
+        : new Prisma.Decimal(50),
+    currentPrice:
+      assetOverrides.currentPrice !== undefined
+        ? assetOverrides.currentPrice !== null
+          ? new Prisma.Decimal(assetOverrides.currentPrice)
+          : null
+        : new Prisma.Decimal('450.75'),
     priceUpdatedAt: assetOverrides.priceUpdatedAt ?? new Date('2026-01-09T15:30:00.000Z'),
   },
 })
@@ -108,7 +104,7 @@ describe('portfolioService', () => {
         createMockHoldingWithAsset(10, {
           id: 'asset-1',
           ticker: 'VOO',
-          currentPriceCents: BigInt(45075), // $450.75
+          currentPrice: 450.75,
         }),
       ]
 
@@ -120,12 +116,12 @@ describe('portfolioService', () => {
       expect(result.positions[0].value).toBe('4507.50')
     })
 
-    it('should return value = 0 when currentPriceCents is null', async () => {
+    it('should return value = 0 when currentPrice is null', async () => {
       const mockHoldings = [
         createMockHoldingWithAsset(10, {
           id: 'asset-1',
           ticker: 'CASH',
-          currentPriceCents: null,
+          currentPrice: null,
           priceUpdatedAt: null,
         }),
       ]
@@ -143,20 +139,20 @@ describe('portfolioService', () => {
         createMockHoldingWithAsset(10, {
           id: 'asset-1',
           ticker: 'VOO',
-          currentPriceCents: BigInt(45075), // $450.75
+          currentPrice: 450.75,
         }),
         createMockHoldingWithAsset(50, {
           id: 'asset-2',
           ticker: 'GLD',
           name: 'SPDR Gold Trust',
-          currentPriceCents: BigInt(8530), // $85.30
+          currentPrice: 85.30,
         }),
         createMockHoldingWithAsset(0.03, {
           id: 'asset-3',
           ticker: 'BTC',
           name: 'Bitcoin',
           category: 'CRYPTO',
-          currentPriceCents: BigInt(4200000), // $42,000.00
+          currentPrice: 42000.00,
         }),
       ]
 
@@ -181,7 +177,7 @@ describe('portfolioService', () => {
           category: 'ETF',
           currency: 'USD',
           targetPercentage: 60,
-          currentPriceCents: BigInt(45075), // $450.75
+          currentPrice: 450.75,
           priceUpdatedAt,
         }),
       ]
@@ -211,7 +207,7 @@ describe('portfolioService', () => {
       const mockHoldings = [
         createMockHoldingWithAsset(10, {
           id: 'asset-1',
-          currentPriceCents: BigInt(45075),
+          currentPrice: 450.75,
           priceUpdatedAt,
         }),
       ]
@@ -229,7 +225,7 @@ describe('portfolioService', () => {
           id: 'asset-1',
           ticker: 'VOO',
           targetPercentage: null,
-          currentPriceCents: BigInt(10000), // $100
+          currentPrice: 100,
         }),
       ]
 
@@ -246,7 +242,7 @@ describe('portfolioService', () => {
         createMockHoldingWithAsset(10.333, {
           id: 'asset-1',
           ticker: 'TEST',
-          currentPriceCents: BigInt(3333), // $33.33
+          currentPrice: 33.33,
         }),
       ]
 
@@ -254,7 +250,7 @@ describe('portfolioService', () => {
 
       const result = await portfolioService.getSummary(userId)
 
-      // 10.333 * 33.33 = 344.40 (due to rounding in cents conversion)
+      // 10.333 * 33.33 = 344.40
       expect(result.positions[0].value).toBe('344.40')
     })
 
@@ -264,7 +260,7 @@ describe('portfolioService', () => {
           id: 'asset-1',
           ticker: 'BTC',
           category: 'CRYPTO',
-          currentPriceCents: BigInt(4200000), // $42,000
+          currentPrice: 42000,
         }),
       ]
 
@@ -291,7 +287,7 @@ describe('portfolioService', () => {
               category: true,
               currency: true,
               targetPercentage: true,
-              currentPriceCents: true,
+              currentPrice: true,
               priceUpdatedAt: true,
             },
           },
@@ -302,9 +298,9 @@ describe('portfolioService', () => {
 
     it('should order positions by ticker alphabetically', async () => {
       const mockHoldings = [
-        createMockHoldingWithAsset(10, { id: 'asset-1', ticker: 'ZZZ', currentPriceCents: BigInt(100) }),
-        createMockHoldingWithAsset(10, { id: 'asset-2', ticker: 'AAA', currentPriceCents: BigInt(100) }),
-        createMockHoldingWithAsset(10, { id: 'asset-3', ticker: 'MMM', currentPriceCents: BigInt(100) }),
+        createMockHoldingWithAsset(10, { id: 'asset-1', ticker: 'ZZZ', currentPrice: 1 }),
+        createMockHoldingWithAsset(10, { id: 'asset-2', ticker: 'AAA', currentPrice: 1 }),
+        createMockHoldingWithAsset(10, { id: 'asset-3', ticker: 'MMM', currentPrice: 1 }),
       ]
 
       vi.mocked(prisma.holding.findMany).mockResolvedValue(mockHoldings)
@@ -323,12 +319,12 @@ describe('portfolioService', () => {
         createMockHoldingWithAsset(10, {
           id: 'asset-1',
           ticker: 'VOO',
-          currentPriceCents: BigInt(45075), // $450.75
+          currentPrice: 450.75,
         }),
         createMockHoldingWithAsset(1000, {
           id: 'asset-2',
           ticker: 'CASH',
-          currentPriceCents: null,
+          currentPrice: null,
           priceUpdatedAt: null,
         }),
       ]
@@ -350,13 +346,13 @@ describe('portfolioService', () => {
           id: 'asset-1',
           ticker: 'VOO',
           currency: 'USD',
-          currentPriceCents: BigInt(10000), // $100
+          currentPrice: 100,
         }),
         createMockHoldingWithAsset(1000, {
           id: 'asset-2',
           ticker: 'FCI-ARG',
           currency: 'ARS',
-          currentPriceCents: BigInt(100000), // 1000 ARS
+          currentPrice: 1000, // 1000 ARS per unit
         }),
       ]
 
@@ -391,13 +387,13 @@ describe('portfolioService', () => {
           id: 'asset-1',
           ticker: 'VOO',
           currency: 'USD',
-          currentPriceCents: BigInt(10000),
+          currentPrice: 100,
         }),
         createMockHoldingWithAsset(5, {
           id: 'asset-2',
           ticker: 'GLD',
           currency: 'USD',
-          currentPriceCents: BigInt(5000),
+          currentPrice: 50,
         }),
       ]
 
@@ -415,7 +411,7 @@ describe('portfolioService', () => {
           id: 'asset-1',
           ticker: 'VOO',
           currency: 'USD',
-          currentPriceCents: BigInt(10000),
+          currentPrice: 100,
         }),
       ]
 
@@ -433,13 +429,13 @@ describe('portfolioService', () => {
           id: 'asset-1',
           ticker: 'VOO',
           currency: 'USD',
-          currentPriceCents: BigInt(10000),
+          currentPrice: 100,
         }),
         createMockHoldingWithAsset(1000, {
           id: 'asset-2',
           ticker: 'FCI-ARG',
           currency: 'ARS',
-          currentPriceCents: BigInt(100000),
+          currentPrice: 1000,
         }),
       ]
 

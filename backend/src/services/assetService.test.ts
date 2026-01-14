@@ -33,7 +33,7 @@ const createMockAsset = (overrides: Partial<Asset> = {}): Asset => ({
   name: 'Vanguard S&P 500 ETF',
   category: 'ETF',
   targetPercentage: createMockDecimal(0),
-  currentPriceCents: null,
+  currentPrice: null,
   priceUpdatedAt: null,
   userId: 'user-123',
   createdAt: new Date(),

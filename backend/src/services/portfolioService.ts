@@ -2,15 +2,6 @@ import { prisma } from '@/config/database'
 import { Currency } from '@prisma/client'
 import { exchangeRateService } from './exchangeRateService'
 
-/**
- * Convert cents to decimal number
- * e.g., 45075n -> 450.75
- */
-const centsToNumber = (cents: bigint | null): number | null => {
-  if (cents === null) return null
-  return Number(cents) / 100
-}
-
 export interface ExchangeRateInfo {
   usdToArs: number
   fetchedAt: string
@@ -39,7 +30,7 @@ export const portfolioService = {
             category: true,
             currency: true,
             targetPercentage: true,
-            currentPriceCents: true,
+            currentPrice: true,
             priceUpdatedAt: true,
           },
         },
@@ -68,8 +59,8 @@ export const portfolioService = {
     // Calculate positions with values
     const positions = await Promise.all(
       holdings.map(async holding => {
-        const quantity = Number(holding.quantity)
-        const currentPrice = centsToNumber(holding.asset.currentPriceCents)
+        const quantity = holding.quantity.toNumber()
+        const currentPrice = holding.asset.currentPrice?.toNumber() ?? null
         const assetCurrency = holding.asset.currency
 
         // value = quantity × currentPrice (or 0 if price not set)

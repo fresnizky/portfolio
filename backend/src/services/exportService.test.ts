@@ -34,7 +34,7 @@ const mockAsset = {
   name: 'Apple Inc',
   category: 'ETF',
   targetPercentage: new Decimal('25'),
-  currentPriceCents: BigInt(15000),
+  currentPrice: new Decimal('150.00'),
   priceUpdatedAt: new Date('2026-01-10T12:00:00Z'),
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-10T12:00:00Z'),
@@ -52,16 +52,16 @@ const mockTransaction = {
   type: 'BUY',
   date: new Date('2026-01-05T00:00:00Z'),
   quantity: new Decimal('10.5'),
-  priceCents: BigInt(14500),
-  commissionCents: BigInt(100),
-  totalCents: BigInt(152350),
+  price: new Decimal('145.00'),
+  commission: new Decimal('1.00'),
+  total: new Decimal('1523.50'),
   asset: { ticker: 'AAPL' },
 }
 
 const mockSnapshot = {
   id: 'snap-1',
   date: new Date('2026-01-10T00:00:00Z'),
-  totalValueCents: BigInt(15750000),
+  totalValue: new Decimal('157500.00'),
   assets: [{ id: 'sa-1' }],
 }
 
@@ -92,7 +92,7 @@ describe('exportService', () => {
     })
 
     it('should handle assets without price', async () => {
-      const assetNoPrice = { ...mockAsset, currentPriceCents: null, priceUpdatedAt: null }
+      const assetNoPrice = { ...mockAsset, currentPrice: null, priceUpdatedAt: null }
       vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.asset.findMany).mockResolvedValue([assetNoPrice] as never)
       vi.mocked(prisma.holding.findMany).mockResolvedValue([])

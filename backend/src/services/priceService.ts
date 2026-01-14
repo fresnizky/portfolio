@@ -1,10 +1,7 @@
 import { prisma } from '@/config/database'
 import { AppError, Errors } from '@/lib/errors'
-import { toCents, fromCentsNullable } from '@/lib/money'
+import { Prisma } from '@prisma/client'
 import type { UpdatePriceInput, BatchUpdatePricesInput } from '@/validations/price'
-
-// Re-export for backward compatibility with tests
-export { fromCentsNullable as fromCents } from '@/lib/money'
 
 export const priceService = {
   /**
@@ -26,28 +23,27 @@ export const priceService = {
       throw Errors.notFound('Asset')
     }
 
-    // Update price with current timestamp (convert to cents)
+    // Update price with current timestamp
     const updated = await prisma.asset.update({
       where: { id: assetId },
       data: {
-        currentPriceCents: toCents(data.price),
+        currentPrice: new Prisma.Decimal(data.price),
         priceUpdatedAt: new Date(),
       },
       select: {
         id: true,
         ticker: true,
         name: true,
-        currentPriceCents: true,
+        currentPrice: true,
         priceUpdatedAt: true,
       },
     })
 
-    // Return with formatted price (exclude BigInt field)
     return {
       id: updated.id,
       ticker: updated.ticker,
       name: updated.name,
-      currentPrice: fromCentsNullable(updated.currentPriceCents),
+      currentPrice: updated.currentPrice?.toString() ?? null,
       priceUpdatedAt: updated.priceUpdatedAt,
     }
   },
@@ -79,20 +75,20 @@ export const priceService = {
       throw new AppError(404, 'NOT_FOUND', 'One or more assets not found', { notFound })
     }
 
-    // Update all prices atomically (convert to cents)
+    // Update all prices atomically
     const timestamp = new Date()
     const updates = await prisma.$transaction(
       prices.map(({ assetId, price }) =>
         prisma.asset.update({
           where: { id: assetId },
           data: {
-            currentPriceCents: toCents(price),
+            currentPrice: new Prisma.Decimal(price),
             priceUpdatedAt: timestamp,
           },
           select: {
             id: true,
             ticker: true,
-            currentPriceCents: true,
+            currentPrice: true,
             priceUpdatedAt: true,
           },
         })
@@ -104,7 +100,7 @@ export const priceService = {
       assets: updates.map(a => ({
         id: a.id,
         ticker: a.ticker,
-        currentPrice: fromCentsNullable(a.currentPriceCents),
+        currentPrice: a.currentPrice?.toString() ?? null,
         priceUpdatedAt: a.priceUpdatedAt,
       })),
     }

@@ -34,14 +34,14 @@ interface ExportTransaction {
   type: string
   date: string
   quantity: string
-  priceCents: string
-  commissionCents: string
-  totalCents: string
+  price: string
+  commission: string
+  total: string
 }
 
 interface ExportSnapshot {
   date: string
-  totalValueCents: string
+  totalValue: string
   assetCount: number
 }
 
@@ -88,7 +88,7 @@ export const exportService = {
         name: a.name,
         category: a.category,
         targetPercentage: a.targetPercentage.toString(),
-        currentPrice: a.currentPriceCents ? (Number(a.currentPriceCents) / 100).toFixed(2) : null,
+        currentPrice: a.currentPrice?.toString() ?? null,
         priceUpdatedAt: a.priceUpdatedAt?.toISOString() ?? null,
         createdAt: a.createdAt.toISOString(),
         updatedAt: a.updatedAt.toISOString(),
@@ -103,13 +103,13 @@ export const exportService = {
         type: t.type,
         date: t.date.toISOString(),
         quantity: t.quantity.toString(),
-        priceCents: t.priceCents.toString(),
-        commissionCents: t.commissionCents.toString(),
-        totalCents: t.totalCents.toString(),
+        price: t.price.toString(),
+        commission: t.commission.toString(),
+        total: t.total.toString(),
       })),
       snapshots: snapshots.map(s => ({
         date: s.date.toISOString(),
-        totalValueCents: s.totalValueCents.toString(),
+        totalValue: s.totalValue.toString(),
         assetCount: s.assets.length,
       })),
     }
@@ -166,9 +166,9 @@ export const exportService = {
           type: t.type,
           date: t.date,
           quantity: t.quantity,
-          priceCents: t.priceCents,
-          commissionCents: t.commissionCents,
-          totalCents: t.totalCents,
+          price: t.price,
+          commission: t.commission,
+          total: t.total,
         })),
         { header: true }
       )
@@ -178,7 +178,7 @@ export const exportService = {
       const snapshotsCsv = stringify(
         data.snapshots.map(s => ({
           date: s.date,
-          totalValueCents: s.totalValueCents,
+          totalValue: s.totalValue,
           assetCount: s.assetCount,
         })),
         { header: true }

@@ -95,7 +95,7 @@ describeWithDb('Price Update & Portfolio Valuation Integration Tests', () => {
     })
     await prisma.asset.updateMany({
       where: { userId: testUserId },
-      data: { currentPriceCents: null, priceUpdatedAt: null },
+      data: { currentPrice: null, priceUpdatedAt: null },
     })
 
     // Create express app for main test user
@@ -233,7 +233,7 @@ describeWithDb('Price Update & Portfolio Valuation Integration Tests', () => {
 
       // Verify no prices were updated
       const asset = await prisma.asset.findUnique({ where: { id: testAssetId } })
-      expect(asset?.currentPriceCents).toBeNull()
+      expect(asset?.currentPrice).toBeNull()
     })
 
     it('should return 400 for empty prices array', async () => {
