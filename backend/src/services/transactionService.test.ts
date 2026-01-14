@@ -388,6 +388,164 @@ describe('transactionService', () => {
     })
   })
 
+  describe('precision validation', () => {
+    const mockAssetWithDecimals = (decimalPlaces: number, ticker = 'TEST') => ({
+      ...mockAsset,
+      decimalPlaces,
+      ticker,
+    })
+
+    it('should reject quantity with more decimals than asset.decimalPlaces', async () => {
+      // Asset with 2 decimal places (like USD)
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(2, 'USD') as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 10.123, // 3 decimals > 2 allowed
+          price: 1,
+          commission: 0,
+        })
+      ).rejects.toThrow(AppError)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 10.123,
+          price: 1,
+          commission: 0,
+        })
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+        message: 'Quantity exceeds 2 decimal places for USD',
+        details: {
+          decimalPlaces: 2,
+          provided: 3,
+          ticker: 'USD',
+        },
+      })
+    })
+
+    it('should accept quantity with exactly asset.decimalPlaces decimals', async () => {
+      const mockTx = createMockTransaction()
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(8, 'BTC') as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(mockTx as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 0.00000001, // Exactly 8 decimals (BTC satoshi)
+          price: 42000,
+          commission: 0,
+        })
+      ).resolves.toBeDefined()
+    })
+
+    it('should accept quantity with fewer decimals than asset.decimalPlaces', async () => {
+      const mockTx = createMockTransaction()
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(8, 'BTC') as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(mockTx as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 0.5, // 1 decimal < 8 allowed
+          price: 42000,
+          commission: 0,
+        })
+      ).resolves.toBeDefined()
+    })
+
+    it('should accept integer quantity for any decimalPlaces', async () => {
+      const mockTx = createMockTransaction()
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(2, 'USD') as never)
+      vi.mocked(prisma.transaction.create).mockResolvedValue(mockTx as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 100, // Integer (0 decimals)
+          price: 1,
+          commission: 0,
+        })
+      ).resolves.toBeDefined()
+    })
+
+    it('should reject 9 decimals when asset has 8 (BTC overflow)', async () => {
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(8, 'BTC') as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 0.000000001, // 9 decimals > 8 allowed
+          price: 42000,
+          commission: 0,
+        })
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+        details: {
+          decimalPlaces: 8,
+          provided: 9,
+        },
+      })
+    })
+
+    it('should reject 1 decimal when asset has 0 (whole units only)', async () => {
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(0, 'AAPL') as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'buy',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 1.5, // 1 decimal > 0 allowed
+          price: 150,
+          commission: 0,
+        })
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+        message: 'Quantity exceeds 0 decimal places for AAPL',
+        details: {
+          decimalPlaces: 0,
+          provided: 1,
+        },
+      })
+    })
+
+    it('should also validate precision on SELL transactions', async () => {
+      vi.mocked(prisma.asset.findFirst).mockResolvedValue(mockAssetWithDecimals(2, 'USD') as never)
+
+      await expect(
+        transactionService.create(userId, {
+          type: 'sell',
+          assetId,
+          date: '2026-01-10T10:00:00.000Z',
+          quantity: 10.123, // 3 decimals > 2 allowed
+          price: 1,
+          commission: 0,
+        })
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+      })
+    })
+  })
+
   describe('validateSellQuantity', () => {
     it('should throw validation error when no holdings exist', async () => {
       vi.mocked(prisma.holding.findFirst).mockResolvedValue(null)
