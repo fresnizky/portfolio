@@ -1,5 +1,6 @@
 import { prisma } from '@/config/database'
 import { Errors } from '@/lib/errors'
+import { countDecimalPlaces } from '@/lib/money'
 import { Prisma } from '@prisma/client'
 import type { CreateTransactionInput, TransactionListQuery } from '@/validations/transaction'
 
@@ -53,6 +54,19 @@ export const transactionService = {
 
     if (!asset) {
       throw Errors.notFound('Asset')
+    }
+
+    // Validate quantity precision against asset's decimal places
+    const quantityDecimals = countDecimalPlaces(input.quantity)
+    if (quantityDecimals > asset.decimalPlaces) {
+      throw Errors.validation(
+        `Quantity exceeds ${asset.decimalPlaces} decimal places for ${asset.ticker}`,
+        {
+          decimalPlaces: asset.decimalPlaces,
+          provided: quantityDecimals,
+          ticker: asset.ticker,
+        }
+      )
     }
 
     // For SELL, validate sufficient holdings

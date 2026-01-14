@@ -108,7 +108,7 @@ development_status:
   9-2-data-migration-cleanup: done
   9-3-backend-api-types-update: done
   9-4-frontend-types-api-update: done
-  9-5-transaction-precision-validation: ready-for-dev
+  9-5-transaction-precision-validation: done
   9-6-dashboard-fix-price-null: backlog
   9-7-transactions-ui-table: backlog
   9-8-frontend-formatters-update: backlog
