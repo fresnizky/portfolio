@@ -11,8 +11,11 @@ export const dashboardQuerySchema = z.object({
 export type DashboardQuery = z.infer<typeof dashboardQuerySchema>
 
 // Alert types
-export type AlertType = 'stale_price' | 'rebalance_needed'
+export type AlertType = 'stale_price' | 'rebalance_needed' | 'missing_price'
 export type AlertSeverity = 'warning' | 'info'
+
+// Price status for positions
+export type PriceStatus = 'set' | 'missing'
 
 // Dashboard position with calculated fields
 export interface DashboardPosition {
@@ -22,13 +25,14 @@ export interface DashboardPosition {
   category: string
   quantity: string
   currentPrice: string | null
-  originalValue: string
+  originalValue: string | null
   originalCurrency: string
-  value: string
+  value: string | null
   displayCurrency: string
   targetPercentage: string | null
-  actualPercentage: string
-  deviation: string
+  actualPercentage: string | null
+  deviation: string | null
+  priceStatus: PriceStatus
   priceUpdatedAt: Date | null
 }
 
@@ -59,6 +63,7 @@ export interface DashboardResponse {
   exchangeRate: DashboardExchangeRate | null
   positions: DashboardPosition[]
   alerts: DashboardAlert[]
+  excludedCount?: number
 }
 
 // Thresholds configuration

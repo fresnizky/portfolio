@@ -19,42 +19,58 @@ interface ChartDataItem {
 }
 
 export function AllocationChart({ positions }: AllocationChartProps) {
-  if (positions.length === 0) {
+  // Filter out positions without price (priceStatus === 'missing')
+  const positionsWithPrice = positions.filter((pos) => pos.priceStatus === 'set')
+  const excludedCount = positions.length - positionsWithPrice.length
+
+  // Edge case: all assets have no price
+  if (positionsWithPrice.length === 0) {
     return (
       <div className="flex h-[300px] items-center justify-center">
-        <p className="text-gray-500">No assets to display</p>
+        <p className="text-gray-500">
+          {positions.length === 0
+            ? 'No assets to display'
+            : 'Set prices to see allocation chart'}
+        </p>
       </div>
     )
   }
 
-  const chartData: ChartDataItem[] = positions.map((pos) => ({
+  const chartData: ChartDataItem[] = positionsWithPrice.map((pos) => ({
     name: pos.ticker,
-    value: parseFloat(pos.actualPercentage),
+    value: parseFloat(pos.actualPercentage!),
     category: pos.category,
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={chartData as unknown as Record<string, unknown>[]}
-          dataKey="value"
-          nameKey="name"
-          cx="50%"
-          cy="50%"
-          innerRadius={60}
-          outerRadius={100}
-          label={({ name, value }) => `${name || ''}: ${(value as number).toFixed(1)}%`}
-        >
-          {chartData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.category]} />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value) => [`${Number(value).toFixed(2)}%`, 'Allocation']}
-        />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
+    <div>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={chartData as unknown as Record<string, unknown>[]}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={100}
+            label={({ name, value }) => `${name || ''}: ${(value as number).toFixed(1)}%`}
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.category]} />
+            ))}
+          </Pie>
+          <Tooltip
+            formatter={(value) => [`${Number(value).toFixed(2)}%`, 'Allocation']}
+          />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+      {excludedCount > 0 && (
+        <p className="mt-2 text-center text-sm text-gray-500">
+          {excludedCount} asset{excludedCount > 1 ? 's' : ''} without price not shown
+        </p>
+      )}
+    </div>
   )
 }

@@ -28,11 +28,12 @@ const createMockPosition = (overrides: {
   category?: string
   quantity?: string
   currentPrice?: string | null
-  originalValue?: string
+  originalValue?: string | null
   originalCurrency?: string
-  value?: string
+  value?: string | null
   displayCurrency?: string
   targetPercentage?: string | null
+  priceStatus?: 'set' | 'missing'
   priceUpdatedAt?: Date | null
 } = {}) => ({
   assetId: overrides.assetId !== undefined ? overrides.assetId : 'asset-1',
@@ -46,6 +47,7 @@ const createMockPosition = (overrides: {
   value: overrides.value !== undefined ? overrides.value : '4507.50',
   displayCurrency: overrides.displayCurrency !== undefined ? overrides.displayCurrency : 'USD',
   targetPercentage: overrides.targetPercentage !== undefined ? overrides.targetPercentage : '60.00',
+  priceStatus: overrides.priceStatus !== undefined ? overrides.priceStatus : 'set',
   priceUpdatedAt: overrides.priceUpdatedAt !== undefined ? overrides.priceUpdatedAt : new Date('2026-01-09T15:30:00.000Z'),
 })
 
@@ -293,7 +295,38 @@ describe('dashboardService', () => {
       })
     })
 
-    it('should handle positions with zero value (actualPercentage = 0)', async () => {
+    it('should handle positions with zero value (price = 0, not missing)', async () => {
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
+        totalValue: '10000.00',
+        positions: [
+          createMockPosition({
+            assetId: 'asset-1',
+            ticker: 'VOO',
+            value: '10000.00',
+            targetPercentage: '60.00',
+          }),
+          createMockPosition({
+            assetId: 'asset-2',
+            ticker: 'EXPIRED',
+            value: '0.00',
+            currentPrice: '0.00', // Price is explicitly 0, not missing
+            priceStatus: 'set',
+            targetPercentage: '40.00',
+          }),
+        ],
+      }))
+
+      const result = await dashboardService.getDashboard(userId)
+
+      // VOO: 10000 / 10000 = 100%
+      expect(result.positions[0].actualPercentage).toBe('100.00')
+      expect(result.positions[0].deviation).toBe('40.00') // 100 - 60
+      // EXPIRED: 0 / 10000 = 0%
+      expect(result.positions[1].actualPercentage).toBe('0.00')
+      expect(result.positions[1].deviation).toBe('-40.00') // 0 - 40
+    })
+
+    it('should return null actualPercentage and deviation for positions without price', async () => {
       vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '10000.00',
         positions: [
@@ -306,8 +339,10 @@ describe('dashboardService', () => {
           createMockPosition({
             assetId: 'asset-2',
             ticker: 'CASH',
-            value: '0.00',
+            value: null,
+            originalValue: null,
             currentPrice: null,
+            priceStatus: 'missing',
             targetPercentage: '40.00',
             priceUpdatedAt: null,
           }),
@@ -316,12 +351,87 @@ describe('dashboardService', () => {
 
       const result = await dashboardService.getDashboard(userId)
 
-      // VOO: 10000 / 10000 = 100%
+      // VOO: has price, should have calculations
       expect(result.positions[0].actualPercentage).toBe('100.00')
-      expect(result.positions[0].deviation).toBe('40.00') // 100 - 60
-      // CASH: 0 / 10000 = 0%
-      expect(result.positions[1].actualPercentage).toBe('0.00')
-      expect(result.positions[1].deviation).toBe('-40.00') // 0 - 40
+      expect(result.positions[0].deviation).toBe('40.00')
+      expect(result.positions[0].priceStatus).toBe('set')
+
+      // CASH: no price, should have null values
+      expect(result.positions[1].actualPercentage).toBeNull()
+      expect(result.positions[1].deviation).toBeNull()
+      expect(result.positions[1].priceStatus).toBe('missing')
+    })
+
+    it('should generate missing_price alert for positions without price', async () => {
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
+        totalValue: '10000.00',
+        positions: [
+          createMockPosition({
+            assetId: 'asset-1',
+            ticker: 'VOO',
+            value: '10000.00',
+            targetPercentage: '60.00',
+          }),
+          createMockPosition({
+            assetId: 'asset-2',
+            ticker: 'BTC',
+            value: null,
+            originalValue: null,
+            currentPrice: null,
+            priceStatus: 'missing',
+            targetPercentage: '10.00',
+            priceUpdatedAt: null,
+          }),
+        ],
+      }))
+
+      const result = await dashboardService.getDashboard(userId)
+
+      const missingPriceAlerts = result.alerts.filter(a => a.type === 'missing_price')
+      expect(missingPriceAlerts).toHaveLength(1)
+      expect(missingPriceAlerts[0]).toEqual({
+        type: 'missing_price',
+        assetId: 'asset-2',
+        ticker: 'BTC',
+        message: 'Set price for BTC',
+        severity: 'info',
+      })
+    })
+
+    it('should NOT generate rebalance alert for positions without price', async () => {
+      vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
+        totalValue: '10000.00',
+        positions: [
+          createMockPosition({
+            assetId: 'asset-1',
+            ticker: 'VOO',
+            value: '10000.00',
+            targetPercentage: '50.00', // Would be 50% overweight
+          }),
+          createMockPosition({
+            assetId: 'asset-2',
+            ticker: 'BTC',
+            value: null,
+            originalValue: null,
+            currentPrice: null,
+            priceStatus: 'missing',
+            targetPercentage: '50.00', // Would look 50% underweight if calculated
+            priceUpdatedAt: null,
+          }),
+        ],
+      }))
+
+      const result = await dashboardService.getDashboard(userId)
+
+      // Should only have rebalance alert for VOO (overweight)
+      const rebalanceAlerts = result.alerts.filter(a => a.type === 'rebalance_needed')
+      expect(rebalanceAlerts).toHaveLength(1)
+      expect(rebalanceAlerts[0].ticker).toBe('VOO')
+
+      // Should have missing_price alert for BTC instead
+      const missingPriceAlerts = result.alerts.filter(a => a.type === 'missing_price')
+      expect(missingPriceAlerts).toHaveLength(1)
+      expect(missingPriceAlerts[0].ticker).toBe('BTC')
     })
 
     it('should handle assets with null targetPercentage', async () => {
@@ -401,15 +511,17 @@ describe('dashboardService', () => {
       expect(staleAlert?.message).toContain('no update date')
     })
 
-    it('should NOT generate stale alert for asset with null price', async () => {
+    it('should NOT generate stale alert for asset with null price (generates missing_price instead)', async () => {
       vi.mocked(portfolioService.getSummary).mockResolvedValue(createMockSummary({
         totalValue: '0.00',
         positions: [
           createMockPosition({
             assetId: 'asset-1',
             ticker: 'CASH',
-            value: '0.00',
+            value: null,
+            originalValue: null,
             currentPrice: null,
+            priceStatus: 'missing',
             targetPercentage: '100.00',
             priceUpdatedAt: null,
           }),
@@ -418,8 +530,14 @@ describe('dashboardService', () => {
 
       const result = await dashboardService.getDashboard(userId)
 
+      // Should NOT generate stale_price alert
       const staleAlerts = result.alerts.filter(a => a.type === 'stale_price')
       expect(staleAlerts).toHaveLength(0)
+
+      // Should generate missing_price alert instead
+      const missingPriceAlerts = result.alerts.filter(a => a.type === 'missing_price')
+      expect(missingPriceAlerts).toHaveLength(1)
+      expect(missingPriceAlerts[0].ticker).toBe('CASH')
     })
 
     it('should return totalValue from portfolioService', async () => {

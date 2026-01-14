@@ -28,6 +28,7 @@ describe('AllocationChart', () => {
       targetPercentage: '60.00',
       actualPercentage: '45.00',
       deviation: '-15.00',
+      priceStatus: 'set',
       priceUpdatedAt: '2026-01-10T12:00:00.000Z',
     },
     {
@@ -44,6 +45,7 @@ describe('AllocationChart', () => {
       targetPercentage: '40.00',
       actualPercentage: '55.00',
       deviation: '15.00',
+      priceStatus: 'set',
       priceUpdatedAt: '2026-01-10T12:00:00.000Z',
     },
   ]

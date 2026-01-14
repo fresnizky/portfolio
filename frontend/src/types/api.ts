@@ -141,8 +141,9 @@ export interface CreateTransactionInput {
 }
 
 // Dashboard Types
-export type AlertType = 'stale_price' | 'rebalance_needed'
+export type AlertType = 'stale_price' | 'rebalance_needed' | 'missing_price'
 export type AlertSeverity = 'warning' | 'info'
+export type PriceStatus = 'set' | 'missing'
 
 export interface DashboardAlert {
   type: AlertType
@@ -164,13 +165,14 @@ export interface DashboardPosition {
   category: AssetCategory
   quantity: string
   currentPrice: string | null
-  originalValue: string
+  originalValue: string | null
   originalCurrency: Currency
-  value: string
+  value: string | null
   displayCurrency: Currency
   targetPercentage: string | null
-  actualPercentage: string
-  deviation: string
+  actualPercentage: string | null
+  deviation: string | null
+  priceStatus: PriceStatus
   priceUpdatedAt: string | null
 }
 
@@ -186,6 +188,7 @@ export interface DashboardResponse {
   exchangeRate: ExchangeRateInfo | null
   positions: DashboardPosition[]
   alerts: DashboardAlert[]
+  excludedCount?: number
 }
 
 export interface DashboardParams {
