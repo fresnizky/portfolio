@@ -19,13 +19,13 @@ services:
   # ===========================================
   frontend-prod:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile.prod
+      args:
+        - VITE_API_URL=https://api.portfolio.resnizky.ar/api
     container_name: portfolio_frontend_prod
     ports:
       - "10011:80"
-    environment:
-      - VITE_API_URL=http://localhost:10012/api
     depends_on:
       backend-prod:
         condition: service_healthy
@@ -48,7 +48,7 @@ services:
       - DATABASE_URL=postgresql://prod_user:${PROD_DB_PASSWORD:-prod_secure_pass}@db-prod:5432/portfolio_prod
       - JWT_SECRET=${PROD_JWT_SECRET:-prod-jwt-secret-change-in-production}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
-      - CORS_ORIGIN=http://localhost:10011,http://127.0.0.1:10011
+      - CORS_ORIGIN=http://localhost:10011,http://127.0.0.1:10011,https://portfolio.resnizky.ar
     depends_on:
       db-prod:
         condition: service_healthy

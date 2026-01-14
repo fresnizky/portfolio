@@ -9,8 +9,8 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (ignore postinstall, prisma generate runs after COPY)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -32,14 +32,15 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Install production dependencies only (ignore postinstall, prisma generate runs separately below)
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
-# Copy Prisma schema and migrations
+# Copy Prisma schema, migrations, and config
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./
 
-# Generate Prisma client in production
-RUN pnpm prisma generate
+# Generate Prisma client (using dlx since prisma is a devDependency)
+RUN pnpm dlx prisma generate
 
 # Copy built files
 COPY --from=builder /app/dist ./dist
