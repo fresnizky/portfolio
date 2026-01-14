@@ -134,10 +134,10 @@ describe('TransactionsPage', () => {
     renderWithClient(<TransactionsPage />)
 
     await waitFor(() => {
-      // Check for transaction card content
-      expect(screen.getByText('Vanguard S&P 500 ETF')).toBeInTheDocument()
+      // Check for transaction table content (ticker appears in filter and table)
+      expect(screen.getAllByText('VOO')).toHaveLength(2) // filter + table row
       expect(screen.getByText('BUY')).toBeInTheDocument()
-      // Total appears in both summary and card
+      // Total appears in both summary and table row
       expect(screen.getAllByText('$1,505.00')).toHaveLength(2)
     })
   })
