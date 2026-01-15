@@ -15,6 +15,6 @@ RUN pnpm install
 # Copy source code (will be overridden by volume mount in dev)
 COPY . .
 
-EXPOSE 5173
+EXPOSE 10001
 
 CMD ["pnpm", "dev"]

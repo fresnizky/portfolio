@@ -6,6 +6,9 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  optimizeDeps: {
+    include: ['date-fns', 'date-fns/locale'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -13,14 +16,12 @@ export default defineConfig({
     },
   },
   server: {
-    host: true, // Required for Docker
-    port: 5173,
-    watch: {
-      usePolling: true, // Required for Docker volume mounts
-    },
+    host: true,
+    port: 10001,
     allowedHosts: [
       'localhost',
       'portfolio.resnizky.ar',
+      'portfolio-dev.resnizky.ar',
     ],
   },
   test: {
