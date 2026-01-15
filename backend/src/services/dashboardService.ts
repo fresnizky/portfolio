@@ -132,6 +132,7 @@ export const dashboardService = {
         deviation: deviation !== null ? deviation.toFixed(2) : null,
         priceStatus: pos.priceStatus,
         priceUpdatedAt: pos.priceUpdatedAt,
+        decimalPlaces: pos.decimalPlaces,
       }
     })
 

@@ -34,6 +34,7 @@ export interface DashboardPosition {
   deviation: string | null
   priceStatus: PriceStatus
   priceUpdatedAt: Date | null
+  decimalPlaces: number
 }
 
 // Dashboard alert

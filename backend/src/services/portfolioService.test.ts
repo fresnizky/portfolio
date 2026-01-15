@@ -324,6 +324,7 @@ describe('portfolioService', () => {
               name: true,
               category: true,
               currency: true,
+              decimalPlaces: true,
               targetPercentage: true,
               currentPrice: true,
               priceUpdatedAt: true,

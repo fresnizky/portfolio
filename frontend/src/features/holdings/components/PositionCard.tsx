@@ -57,7 +57,7 @@ export function PositionCard({ position, onUpdatePrice }: PositionCardProps) {
       <div className="mt-3 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-base md:text-sm text-gray-500">Quantity</span>
-          <span className="font-medium text-gray-900">{formatQuantity(position.quantity)}</span>
+          <span className="font-medium text-gray-900">{formatQuantity(position.quantity, position.decimalPlaces)}</span>
         </div>
 
         <div className="flex items-center justify-between">
