@@ -111,40 +111,99 @@ describe('formatGrowth', () => {
 })
 
 describe('formatQuantity', () => {
-  it('should format integer quantities without decimals', () => {
-    expect(formatQuantity('10')).toBe('10')
-    expect(formatQuantity('100')).toBe('100')
-    expect(formatQuantity('0')).toBe('0')
+  describe('without decimalPlaces (backward compatibility)', () => {
+    it('should format integer quantities without decimals', () => {
+      expect(formatQuantity('10')).toBe('10')
+      expect(formatQuantity('100')).toBe('100')
+      expect(formatQuantity('0')).toBe('0')
+    })
+
+    it('should preserve 2 decimal precision', () => {
+      expect(formatQuantity('10.50')).toBe('10.50')
+      expect(formatQuantity('0.25')).toBe('0.25')
+    })
+
+    it('should preserve 4 decimal precision', () => {
+      expect(formatQuantity('0.0001')).toBe('0.0001')
+      expect(formatQuantity('1.2345')).toBe('1.2345')
+    })
+
+    it('should preserve 8 decimal precision for BTC/crypto', () => {
+      expect(formatQuantity('0.00000001')).toBe('0.00000001')
+      expect(formatQuantity('0.00012345')).toBe('0.00012345')
+      expect(formatQuantity('1.23456789')).toBe('1.23456789')
+    })
+
+    it('should handle trailing zeros correctly', () => {
+      expect(formatQuantity('1.10')).toBe('1.10')
+      expect(formatQuantity('0.50000000')).toBe('0.50000000')
+    })
+
+    it('should handle invalid input', () => {
+      expect(formatQuantity('')).toBe('0')
+      expect(formatQuantity('invalid')).toBe('0')
+    })
+
+    it('should limit precision to 8 decimals maximum', () => {
+      // Input has more than 8 decimals
+      expect(formatQuantity('0.123456789012')).toBe('0.12345679')
+    })
   })
 
-  it('should preserve 2 decimal precision', () => {
-    expect(formatQuantity('10.50')).toBe('10.50')
-    expect(formatQuantity('0.25')).toBe('0.25')
-  })
+  describe('with decimalPlaces parameter', () => {
+    it('should format with decimalPlaces=0 (STOCK)', () => {
+      expect(formatQuantity('10', 0)).toBe('10')
+      expect(formatQuantity('10.5', 0)).toBe('11') // rounds
+      expect(formatQuantity('10.4', 0)).toBe('10') // rounds
+    })
 
-  it('should preserve 4 decimal precision', () => {
-    expect(formatQuantity('0.0001')).toBe('0.0001')
-    expect(formatQuantity('1.2345')).toBe('1.2345')
-  })
+    it('should format with decimalPlaces=2 (CASH)', () => {
+      expect(formatQuantity('100.50', 2)).toBe('100.5')
+      expect(formatQuantity('100.00', 2)).toBe('100')
+      expect(formatQuantity('100.126', 2)).toBe('100.13') // rounds
+      expect(formatQuantity('99.99', 2)).toBe('99.99')
+    })
 
-  it('should preserve 8 decimal precision for BTC/crypto', () => {
-    expect(formatQuantity('0.00000001')).toBe('0.00000001')
-    expect(formatQuantity('0.00012345')).toBe('0.00012345')
-    expect(formatQuantity('1.23456789')).toBe('1.23456789')
-  })
+    it('should format with decimalPlaces=4 (ETF)', () => {
+      expect(formatQuantity('1.2345', 4)).toBe('1.2345')
+      expect(formatQuantity('1.0000', 4)).toBe('1')
+      expect(formatQuantity('0.5', 4)).toBe('0.5')
+    })
 
-  it('should handle trailing zeros correctly', () => {
-    expect(formatQuantity('1.10')).toBe('1.10')
-    expect(formatQuantity('0.50000000')).toBe('0.50000000')
-  })
+    it('should format with decimalPlaces=6 (FCI)', () => {
+      expect(formatQuantity('1.123456', 6)).toBe('1.123456')
+      expect(formatQuantity('1.000000', 6)).toBe('1')
+      expect(formatQuantity('0.000001', 6)).toBe('0.000001')
+    })
 
-  it('should handle invalid input', () => {
-    expect(formatQuantity('')).toBe('0')
-    expect(formatQuantity('invalid')).toBe('0')
-  })
+    it('should format with decimalPlaces=8 (CRYPTO)', () => {
+      expect(formatQuantity('0.00000001', 8)).toBe('0.00000001')
+      expect(formatQuantity('1.00000000', 8)).toBe('1')
+      expect(formatQuantity('0.12345678', 8)).toBe('0.12345678')
+    })
 
-  it('should limit precision to 8 decimals maximum', () => {
-    // Input has more than 8 decimals
-    expect(formatQuantity('0.123456789012')).toBe('0.12345679')
+    it('should remove trailing zeros automatically', () => {
+      expect(formatQuantity('100.00', 2)).toBe('100')
+      expect(formatQuantity('100.10', 2)).toBe('100.1')
+      expect(formatQuantity('0.10000000', 8)).toBe('0.1')
+    })
+
+    it('should handle zero with any decimalPlaces', () => {
+      expect(formatQuantity('0', 0)).toBe('0')
+      expect(formatQuantity('0', 2)).toBe('0')
+      expect(formatQuantity('0', 8)).toBe('0')
+      expect(formatQuantity('0.00', 2)).toBe('0')
+    })
+
+    it('should handle invalid input with decimalPlaces', () => {
+      expect(formatQuantity('', 2)).toBe('0')
+      expect(formatQuantity('invalid', 8)).toBe('0')
+    })
+
+    it('should round correctly when precision exceeds decimalPlaces', () => {
+      expect(formatQuantity('1.999', 2)).toBe('2')
+      expect(formatQuantity('1.555', 2)).toBe('1.56')
+      expect(formatQuantity('0.123456789', 8)).toBe('0.12345679')
+    })
   })
 })

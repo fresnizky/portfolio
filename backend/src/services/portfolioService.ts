@@ -29,6 +29,7 @@ export const portfolioService = {
             name: true,
             category: true,
             currency: true,
+            decimalPlaces: true,
             targetPercentage: true,
             currentPrice: true,
             priceUpdatedAt: true,
@@ -99,6 +100,7 @@ export const portfolioService = {
             : null,
           priceStatus,
           priceUpdatedAt: holding.asset.priceUpdatedAt,
+          decimalPlaces: holding.asset.decimalPlaces,
         }
       })
     )

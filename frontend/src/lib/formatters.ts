@@ -50,13 +50,26 @@ export function formatGrowth(startValue: number, endValue: number): {
 
 /**
  * Format quantity with appropriate decimal precision
- * Supports up to 8 decimals for crypto (satoshi precision)
  * @param quantity - String representation of quantity from API
+ * @param decimalPlaces - Optional explicit decimal places from asset configuration.
+ *                        When provided, formats to this precision and removes trailing zeros.
+ *                        When omitted, falls back to inference from string value.
  * @returns Formatted quantity string
  */
-export function formatQuantity(quantity: string): string {
+export function formatQuantity(quantity: string, decimalPlaces?: number): string {
   const num = parseFloat(quantity)
   if (Number.isNaN(num)) return '0'
+
+  // If decimalPlaces explicitly provided, use it
+  if (decimalPlaces !== undefined) {
+    // Use Intl.NumberFormat for automatic trailing zero handling
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: decimalPlaces,
+    }).format(num)
+  }
+
+  // Fallback: infer from string value (backward compatibility)
   if (Number.isInteger(num)) return num.toString()
 
   // Show actual precision up to 8 decimals

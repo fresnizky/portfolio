@@ -28,6 +28,7 @@ export interface Asset {
   name: string
   category: AssetCategory
   currency: Currency
+  decimalPlaces: number
   targetPercentage: string  // Decimal from Prisma comes as string
   createdAt: string
   updatedAt: string
@@ -84,6 +85,7 @@ export interface Position {
   value: string
   targetPercentage: string | null
   priceUpdatedAt: string | null
+  decimalPlaces: number
 }
 
 export interface PortfolioSummary {
@@ -174,6 +176,7 @@ export interface DashboardPosition {
   deviation: string | null
   priceStatus: PriceStatus
   priceUpdatedAt: string | null
+  decimalPlaces: number
 }
 
 export interface ExchangeRateInfo {
@@ -263,6 +266,7 @@ export interface Holding {
     name: string
     category: AssetCategory
     currentPrice?: string | null
+    decimalPlaces: number
   }
 }
 
