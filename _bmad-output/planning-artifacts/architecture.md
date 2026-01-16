@@ -204,13 +204,14 @@ npm install -D typescript @types/express @types/node @types/cors ts-node nodemon
 
 **API Structure:**
 ```
-/api/auth/*        - Login, refresh, logout
-/api/assets/*      - CRUD de activos
-/api/holdings/*    - Gestión de holdings
-/api/transactions/* - Registro de transacciones
-/api/snapshots/*   - Histórico y evolución
-/api/dashboard/*   - Datos agregados para dashboard
-/api/settings/*    - Configuración de usuario
+/api/auth/*          - Login, refresh, logout
+/api/assets/*        - CRUD de activos
+/api/holdings/*      - Gestión de holdings
+/api/transactions/*  - Registro de transacciones
+/api/contributions/* - Sugerencias de distribución de aportes
+/api/snapshots/*     - Histórico y evolución
+/api/dashboard/*     - Datos agregados para dashboard
+/api/settings/*      - Configuración de usuario
 ```
 
 ### Frontend Architecture
@@ -736,6 +737,15 @@ portfolio/
 │       │   │   │   └── useTransactions.ts
 │       │   │   └── index.tsx       # Transactions page
 │       │   │
+│       │   ├── contributions/
+│       │   │   ├── components/
+│       │   │   │   ├── ContributionForm.tsx
+│       │   │   │   ├── AllocationSuggestion.tsx
+│       │   │   │   └── ContributionSummary.tsx
+│       │   │   ├── hooks/
+│       │   │   │   └── useContributionSuggestion.ts
+│       │   │   └── index.tsx       # Contribution allocation page
+│       │   │
 │       │   ├── prices/
 │       │   │   ├── components/
 │       │   │   │   ├── PriceUpdateForm.tsx
@@ -831,6 +841,7 @@ portfolio/
 │       │   ├── assetService.ts
 │       │   ├── holdingService.ts
 │       │   ├── transactionService.ts
+│       │   ├── contributionService.ts    # Cálculo de distribución de aportes
 │       │   ├── snapshotService.ts
 │       │   ├── dashboardService.ts
 │       │   └── calculationService.ts  # Lógica de cálculos
@@ -905,6 +916,7 @@ portfolio/
 | **Historical Data** (FR24-26) | `features/evolution/` | `routes/snapshots.ts`, `services/snapshotService.ts` |
 | **Onboarding** (FR27-29) | `features/onboarding/` | Usa otros services |
 | **Settings** (FR30-32) | `features/settings/` | `routes/settings.ts` |
+| **Contribution Allocation** (FR34-36) | `features/contributions/` | `routes/contributions.ts`, `services/contributionService.ts` |
 
 ### Integration Points
 

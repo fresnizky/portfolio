@@ -866,3 +866,97 @@ Usuario puede ver la evolución de su portfolio en el tiempo y nuevos usuarios t
 **Given** I view the settings page
 **When** I look at my account info
 **Then** I see my email and can change my password
+
+---
+
+## Epic 10: Contribution Allocation Suggestions
+
+Usuario puede registrar aportes mensuales y recibir sugerencias inteligentes de distribución que consideran los targets definidos y las desviaciones actuales para optimizar el rebalanceo pasivo.
+
+**FRs cubiertos:** FR34, FR35, FR36
+- Cálculo de distribución sugerida según targets
+- Ajuste inteligente para corregir desviaciones (rebalanceo pasivo)
+- Interface para ver, aceptar o modificar sugerencias
+- Integración con registro de transacciones
+
+---
+
+### Story 10.1: Contribution Suggestion API
+
+**As a** user,
+**I want** the system to calculate how to distribute a contribution amount across my assets,
+**So that** I can follow my investment strategy and correct deviations efficiently.
+
+**Acceptance Criteria:**
+
+**Given** I have assets with target percentages that sum to 100%
+**When** I POST to `/api/contributions/suggest` with an amount
+**Then** I receive a distribution suggestion with amount per asset
+
+**Given** I have assets with current deviations from targets
+**When** I request a contribution suggestion
+**Then** the suggestion prioritizes underweight assets and reduces allocation to overweight assets
+
+**Given** I request a suggestion for $1000 with targets VOO:60%, GLD:20%, BTC:20%
+**When** VOO is 5% underweight and BTC is 5% overweight
+**Then** the suggestion allocates more than $600 to VOO and less than $200 to BTC
+
+**Given** I have no assets configured
+**When** I POST to `/api/contributions/suggest`
+**Then** I receive a 400 error indicating assets must be configured first
+
+---
+
+### Story 10.2: Contribution Suggestion UI
+
+**As a** user,
+**I want** a visual interface to enter my contribution amount and see the suggested distribution,
+**So that** I can quickly understand how to allocate my monthly investment.
+
+**Acceptance Criteria:**
+
+**Given** I am on the contributions page
+**When** I enter a contribution amount
+**Then** I see a breakdown showing suggested amount per asset
+
+**Given** a suggestion is displayed
+**When** an asset has a rebalancing adjustment
+**Then** I see an indicator showing the adjustment reason (e.g., "+$50 to correct underweight")
+
+**Given** I view the suggestion
+**When** I want to proceed
+**Then** I can click "Use Suggestion" to pre-fill transaction forms
+
+**Given** I view the suggestion
+**When** I disagree with the distribution
+**Then** I can manually adjust amounts before proceeding
+
+**Given** I am on mobile
+**When** I view the contributions page
+**Then** the interface is usable and readable
+
+---
+
+### Story 10.3: Contribution to Transaction Integration
+
+**As a** user,
+**I want** to easily convert my contribution suggestion into actual transactions,
+**So that** I can record my purchases without re-entering data.
+
+**Acceptance Criteria:**
+
+**Given** I have accepted a contribution suggestion
+**When** I click "Record Transactions"
+**Then** I am guided to create buy transactions for each suggested asset
+
+**Given** I am recording transactions from a suggestion
+**When** I complete a transaction for one asset
+**Then** the system shows remaining assets to process
+
+**Given** I have recorded all transactions from a suggestion
+**When** I finish the flow
+**Then** I see a summary of what was recorded and my updated portfolio state
+
+**Given** I started but didn't complete all transactions
+**When** I return to the app later
+**Then** I can resume or discard the pending contribution plan

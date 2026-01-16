@@ -554,6 +554,12 @@ Portfolio Tracker es una **Single Page Application (SPA)** diseñada como herram
 - FR31: Usuario puede modificar el número de días para alerta de precios desactualizados
 - FR32: Usuario puede ver y modificar la configuración general de la aplicación
 
+### Contribution Allocation
+
+- FR34: Sistema calcula y sugiere distribución de aporte mensual según porcentajes target de cada activo
+- FR35: Sistema ajusta sugerencia de distribución para priorizar activos con desviación negativa (underweight) y reducir asignación a activos con desviación positiva (overweight)
+- FR36: Usuario puede ver, aceptar, modificar o ignorar la sugerencia de distribución antes de registrar transacciones
+
 ## Non-Functional Requirements
 
 ### Data Integrity & Reliability
