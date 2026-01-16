@@ -7,7 +7,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     ports:
-      - "${PORT_FRONTEND:-10001}:5173"
+      - "${PORT_FRONTEND:-10001}:10001"
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
@@ -26,4 +26,4 @@ services:
       - ./backend/prisma.config.ts:/app/prisma.config.ts
     environment:
       - NODE_ENV=development
-      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:10001}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:10001,https://portfolio.resnizky.ar,https://portfolio-dev.resnizky.ar,https://api.portfolio-dev.resnizky.ar}
