@@ -21,7 +21,9 @@
     "db:push": "prisma db push",
     "postinstall": "prisma generate",
     "analyze:transactions": "npx ts-node --transpile-only scripts/analyze-corrupted-transactions.ts",
-    "cleanup:transactions": "npx ts-node --transpile-only scripts/cleanup-corrupted-transactions.ts"
+    "cleanup:transactions": "npx ts-node --transpile-only scripts/cleanup-corrupted-transactions.ts",
+    "seed:demo": "npx ts-node --transpile-only scripts/seed-demo.ts",
+    "seed:cleanup": "npx ts-node --transpile-only scripts/cleanup-demo.ts"
   },
   "keywords": [],
   "author": "",
