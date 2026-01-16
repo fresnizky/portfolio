@@ -1,4 +1,4 @@
-# generated: 2026-01-11
+# generated: 2026-01-16
 # project: Portfolio Tracker
 # project_key: portfolio
 # tracking_system: file-system
@@ -33,7 +33,7 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2026-01-11
+generated: 2026-01-16
 project: Portfolio Tracker
 project_key: portfolio
 tracking_system: file-system
@@ -103,7 +103,7 @@ development_status:
   epic-8-retrospective: optional
 
   # Epic 9: Decimal Precision & Data Quality
-  epic-9: in-progress
+  epic-9: done
   9-1-schema-migration-decimal-places: done
   9-2-data-migration-cleanup: done
   9-3-backend-api-types-update: done
@@ -113,3 +113,10 @@ development_status:
   9-7-transactions-ui-table: done
   9-8-frontend-formatters-update: done
   epic-9-retrospective: optional
+
+  # Epic 10: Contribution Allocation Suggestions
+  epic-10: in-progress
+  10-1-contribution-suggestion-api: done
+  10-2-contribution-suggestion-ui: backlog
+  10-3-contribution-to-transaction-integration: backlog
+  epic-10-retrospective: optional

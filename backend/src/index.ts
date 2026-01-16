@@ -15,6 +15,7 @@ import snapshotsRouter from './routes/snapshots'
 import onboardingRouter from './routes/onboarding'
 import settingsRouter from './routes/settings'
 import exchangeRatesRouter from './routes/exchangeRates'
+import contributionsRouter from './routes/contributions'
 import { exchangeRateService } from './services/exchangeRateService'
 
 dotenv.config()
@@ -46,6 +47,7 @@ app.use('/api/snapshots', authMiddleware, snapshotsRouter)
 app.use('/api/onboarding', authMiddleware, onboardingRouter)
 app.use('/api/settings', authMiddleware, settingsRouter)
 app.use('/api/exchange-rates', authMiddleware, exchangeRatesRouter)
+app.use('/api/contributions', authMiddleware, contributionsRouter)
 
 // Centralized error handler (must be last)
 app.use(errorHandler)
