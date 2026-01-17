@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TransactionsPage } from './index'
 import { api } from '@/lib/api'
-import type { Asset, Transaction } from '@/types/api'
+import type { Asset, Transaction, ContributionAllocation } from '@/types/api'
 
 vi.mock('@/lib/api', () => ({
   api: {
@@ -63,9 +63,35 @@ function renderWithClient(ui: React.ReactElement) {
   )
 }
 
+const mockContributionAllocations: ContributionAllocation[] = [
+  {
+    assetId: 'asset-1',
+    ticker: 'VOO',
+    name: 'Vanguard S&P 500 ETF',
+    targetPercentage: '60.00',
+    actualPercentage: '55.00',
+    deviation: '-5.00',
+    baseAllocation: '600.00',
+    adjustedAllocation: '650.00',
+    adjustmentReason: 'underweight',
+  },
+  {
+    assetId: 'asset-2',
+    ticker: 'BTC',
+    name: 'Bitcoin',
+    targetPercentage: '40.00',
+    actualPercentage: '45.00',
+    deviation: '5.00',
+    baseAllocation: '400.00',
+    adjustedAllocation: '350.00',
+    adjustmentReason: 'overweight',
+  },
+]
+
 describe('TransactionsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    sessionStorage.clear()
   })
 
   it('should render page title', async () => {
@@ -186,6 +212,187 @@ describe('TransactionsPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No transactions recorded yet')).toBeInTheDocument()
+    })
+  })
+
+  describe('Pending Contribution Banner', () => {
+    it('should show banner when pending contribution exists', async () => {
+      const prefillData = {
+        amount: 1000,
+        allocations: mockContributionAllocations,
+        timestamp: Date.now(),
+        processedAssetIds: [],
+        status: 'pending',
+      }
+      sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/aporte pendiente/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should show count of remaining transactions', async () => {
+      const prefillData = {
+        amount: 1000,
+        allocations: mockContributionAllocations,
+        timestamp: Date.now(),
+        processedAssetIds: ['asset-1'],
+        status: 'in_progress',
+      }
+      sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/1 de 2/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should have Continue button in banner', async () => {
+      const prefillData = {
+        amount: 1000,
+        allocations: mockContributionAllocations,
+        timestamp: Date.now(),
+        processedAssetIds: [],
+        status: 'pending',
+      }
+      sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /continuar/i })).toBeInTheDocument()
+      })
+    })
+
+    it('should have Discard button in banner', async () => {
+      const prefillData = {
+        amount: 1000,
+        allocations: mockContributionAllocations,
+        timestamp: Date.now(),
+        processedAssetIds: [],
+        status: 'pending',
+      }
+      sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /descartar/i })).toBeInTheDocument()
+      })
+    })
+
+    it('should show confirmation dialog when Discard is clicked', async () => {
+      const user = userEvent.setup()
+      const prefillData = {
+        amount: 1000,
+        allocations: mockContributionAllocations,
+        timestamp: Date.now(),
+        processedAssetIds: [],
+        status: 'pending',
+      }
+      sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /descartar/i })).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole('button', { name: /descartar/i }))
+
+      // Should show confirmation dialog
+      await waitFor(() => {
+        expect(screen.getByText(/transacciones pendientes de registrar/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should clear pending contribution after confirmation', async () => {
+      const user = userEvent.setup()
+      const prefillData = {
+        amount: 1000,
+        allocations: mockContributionAllocations,
+        timestamp: Date.now(),
+        processedAssetIds: [],
+        status: 'pending',
+      }
+      sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /descartar/i })).toBeInTheDocument()
+      })
+
+      // Click discard to open dialog
+      await user.click(screen.getByRole('button', { name: /descartar/i }))
+
+      // Wait for dialog and confirm
+      await waitFor(() => {
+        expect(screen.getByText(/transacciones pendientes de registrar/i)).toBeInTheDocument()
+      })
+
+      // Click confirm button in dialog (there are two "Descartar" buttons now)
+      const confirmButton = screen.getAllByRole('button', { name: /descartar/i })[1]
+      await user.click(confirmButton)
+
+      await waitFor(() => {
+        expect(screen.queryByText(/aporte pendiente/i)).not.toBeInTheDocument()
+      })
+    })
+
+    it('should not show banner when no pending contribution exists', async () => {
+      vi.mocked(api.assets.list).mockResolvedValue(mockAssets)
+      vi.mocked(api.transactions.list).mockResolvedValue({
+        transactions: [],
+        total: 0,
+      })
+
+      renderWithClient(<TransactionsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Transactions' })).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText(/aporte pendiente/i)).not.toBeInTheDocument()
     })
   })
 })
