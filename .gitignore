@@ -60,6 +60,16 @@ playwright/.auth/
 # Claude Code local settings (may contain credentials)
 .claude/settings.local.json
 
+# BMAD Orchestration (multi-session coordination)
+# Este directorio contiene el tablero de orquestacion para coordinar
+# multiples sesiones de Claude Code trabajando en paralelo
+_bmad-output/orchestration/
+
+# BMAD QA Exploratorio
+# Config puede contener usernames, screenshots son temporales
+_bmad-output/qa-config.yaml
+_bmad-output/qa-screenshots/
+
 # Prisma
 prisma/*.db
 prisma/*.db-journal
