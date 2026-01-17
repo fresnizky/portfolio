@@ -60,11 +60,11 @@ describe('SuggestionActions', () => {
     expect(screen.getByRole('button', { name: /Registrar Transacciones/i })).toBeInTheDocument()
   })
 
-  it('should have Use Suggestion button disabled', () => {
+  it('should have Use Suggestion button enabled', () => {
     renderComponent()
 
     const useSuggestionBtn = screen.getByRole('button', { name: /Usar Sugerencia/i })
-    expect(useSuggestionBtn).toBeDisabled()
+    expect(useSuggestionBtn).not.toBeDisabled()
   })
 
   it('should display total to invest', () => {
@@ -101,10 +101,45 @@ describe('SuggestionActions', () => {
     expect(screen.getByText(/serás redirigido a la página de transacciones/i)).toBeInTheDocument()
   })
 
-  it('should have tooltip on disabled button', () => {
-    renderComponent()
+  it('should call onUseSuggestion when Use Suggestion button is clicked', async () => {
+    const user = userEvent.setup()
+    const mockOnUseSuggestion = vi.fn()
 
-    const useSuggestionBtn = screen.getByRole('button', { name: /Usar Sugerencia/i })
-    expect(useSuggestionBtn).toHaveAttribute('title', 'Disponible en próxima versión')
+    render(
+      <SuggestionActions
+        allocations={mockAllocations}
+        amount={1000}
+        displayCurrency="USD"
+        onUseSuggestion={mockOnUseSuggestion}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /Usar Sugerencia/i }))
+
+    expect(mockOnUseSuggestion).toHaveBeenCalled()
+  })
+
+  it('should store prefill data when Use Suggestion is clicked', async () => {
+    const user = userEvent.setup()
+    const mockOnUseSuggestion = vi.fn()
+
+    render(
+      <SuggestionActions
+        allocations={mockAllocations}
+        amount={1000}
+        displayCurrency="USD"
+        onUseSuggestion={mockOnUseSuggestion}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /Usar Sugerencia/i }))
+
+    // Verify session storage was set
+    const storedData = sessionStorage.getItem('contribution-prefill')
+    expect(storedData).not.toBeNull()
+
+    const parsedData = JSON.parse(storedData!)
+    expect(parsedData.amount).toBe(1000)
+    expect(parsedData.allocations).toHaveLength(2)
   })
 })

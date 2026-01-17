@@ -6,6 +6,7 @@ interface SuggestionActionsProps {
   allocations: ContributionAllocation[]
   amount: number
   displayCurrency: string
+  onUseSuggestion?: () => void
 }
 
 interface ContributionPrefillData {
@@ -14,18 +15,26 @@ interface ContributionPrefillData {
   timestamp: number
 }
 
-export function SuggestionActions({ allocations, amount, displayCurrency }: SuggestionActionsProps) {
+export function SuggestionActions({ allocations, amount, displayCurrency, onUseSuggestion }: SuggestionActionsProps) {
   const navigate = useNavigate()
 
-  const handleRecordTransactions = () => {
-    // Store in session storage for transaction prefill (Story 10.3)
+  const savePrefillData = () => {
     const prefillData: ContributionPrefillData = {
       amount,
       allocations,
       timestamp: Date.now(),
     }
     sessionStorage.setItem('contribution-prefill', JSON.stringify(prefillData))
+  }
+
+  const handleRecordTransactions = () => {
+    savePrefillData()
     navigate('/transactions')
+  }
+
+  const handleUseSuggestion = () => {
+    savePrefillData()
+    onUseSuggestion?.()
   }
 
   const total = allocations.reduce((sum, a) => sum + parseFloat(a.adjustedAllocation), 0)
@@ -43,12 +52,11 @@ export function SuggestionActions({ allocations, amount, displayCurrency }: Sugg
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
-          {/* Use Suggestion button - disabled until Story 10.3 */}
+          {/* Use Suggestion button - opens inline transaction flow */}
           <button
             type="button"
-            disabled
-            className="inline-flex w-full sm:w-auto items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
-            title="Disponible en próxima versión"
+            onClick={handleUseSuggestion}
+            className="inline-flex w-full sm:w-auto items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
             Usar Sugerencia
           </button>

@@ -16,6 +16,9 @@ interface TransactionFormProps {
   onSubmit: (data: CreateTransactionFormData) => void
   onCancel: () => void
   isSubmitting?: boolean
+  defaultValues?: Partial<CreateTransactionFormData>
+  lockedAssetId?: string
+  suggestedAmount?: number
 }
 
 export function TransactionForm({
@@ -23,6 +26,9 @@ export function TransactionForm({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  defaultValues: externalDefaults,
+  lockedAssetId,
+  suggestedAmount,
 }: TransactionFormProps) {
   const {
     register,
@@ -31,12 +37,12 @@ export function TransactionForm({
   } = useForm<CreateTransactionFormData>({
     resolver: zodResolver(createTransactionFormSchema),
     defaultValues: {
-      type: 'buy',
-      assetId: '',
-      date: new Date().toISOString().split('T')[0],
-      quantity: 0,
-      price: 0,
-      commission: 0,
+      type: externalDefaults?.type ?? 'buy',
+      assetId: externalDefaults?.assetId ?? '',
+      date: externalDefaults?.date ?? new Date().toISOString().split('T')[0],
+      quantity: externalDefaults?.quantity ?? 0,
+      price: externalDefaults?.price ?? 0,
+      commission: externalDefaults?.commission ?? 0,
     },
   })
 
@@ -82,7 +88,7 @@ export function TransactionForm({
         <select
           id="assetId"
           {...register('assetId')}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !!lockedAssetId}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           <option value="">Select an asset</option>
@@ -98,6 +104,14 @@ export function TransactionForm({
           </p>
         )}
       </div>
+
+      {suggestedAmount !== undefined && (
+        <div className="rounded-md bg-blue-50 p-3">
+          <p className="text-sm text-blue-700">
+            <span className="font-medium">Monto sugerido:</span> ${suggestedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      )}
 
       <div>
         <label htmlFor="date" className="block text-base md:text-sm font-medium text-gray-700">

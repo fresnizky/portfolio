@@ -6,16 +6,43 @@ import { TransactionList } from './components/TransactionList'
 import { TransactionFilters } from './components/TransactionFilters'
 import { TransactionSummary } from './components/TransactionSummary'
 import { CreateTransactionModal } from './components/CreateTransactionModal'
+import { usePendingContribution } from '@/features/contributions/hooks/usePendingContribution'
+import { ContributionFlowModal } from '@/features/contributions/components/ContributionFlowModal'
+import { DiscardConfirmDialog } from '@/features/contributions/components/DiscardConfirmDialog'
 
 export function TransactionsPage() {
   const [filters, setFilters] = useState<TransactionListFilters>({})
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isContributionFlowOpen, setIsContributionFlowOpen] = useState(false)
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false)
 
   const { data: assetsData, isLoading: assetsLoading } = useAssets()
   const { data, isLoading, isError } = useTransactions(filters)
+  const { pending, hasPending, remainingAllocations, clear: clearPending } = usePendingContribution()
 
   const assets = assetsData || []
   const transactions = data?.transactions || []
+
+  const handleResumeContribution = () => {
+    setIsContributionFlowOpen(true)
+  }
+
+  const handleDiscardContribution = () => {
+    setIsDiscardDialogOpen(true)
+  }
+
+  const handleConfirmDiscard = () => {
+    clearPending()
+    setIsDiscardDialogOpen(false)
+  }
+
+  const handleCancelDiscard = () => {
+    setIsDiscardDialogOpen(false)
+  }
+
+  const handleContributionFlowClose = () => {
+    setIsContributionFlowOpen(false)
+  }
 
   if (isError) {
     return (
@@ -39,6 +66,36 @@ export function TransactionsPage() {
         </button>
       </div>
 
+      {/* Pending Contribution Banner */}
+      {hasPending && pending && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-blue-900">
+                Tienes un aporte pendiente de registrar
+              </p>
+              <p className="text-sm text-blue-700">
+                {remainingAllocations.length} de {pending.allocations.length} transacciones pendientes
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleResumeContribution}
+                className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+              >
+                Continuar
+              </button>
+              <button
+                onClick={handleDiscardContribution}
+                className="rounded-md border border-blue-200 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-100"
+              >
+                Descartar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <TransactionSummary transactions={transactions} />
 
       <TransactionFilters
@@ -53,6 +110,18 @@ export function TransactionsPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         assets={assets}
+      />
+
+      <ContributionFlowModal
+        isOpen={isContributionFlowOpen}
+        onClose={handleContributionFlowClose}
+      />
+
+      <DiscardConfirmDialog
+        isOpen={isDiscardDialogOpen}
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
+        pendingCount={remainingAllocations.length}
       />
     </div>
   )

@@ -4,6 +4,7 @@ import { ContributionAmountInput } from './components/ContributionAmountInput'
 import { AllocationTable } from './components/AllocationTable'
 import { SuggestionActions } from './components/SuggestionActions'
 import { EmptyState } from './components/EmptyState'
+import { ContributionFlowModal } from './components/ContributionFlowModal'
 import type { ContributionSuggestion, ContributionAllocation } from '@/types/api'
 import { ApiError } from '@/lib/api'
 
@@ -11,6 +12,7 @@ export function ContributionsPage() {
   const [amount, setAmount] = useState<number | null>(null)
   const [suggestion, setSuggestion] = useState<ContributionSuggestion | null>(null)
   const [adjustedAllocations, setAdjustedAllocations] = useState<ContributionAllocation[] | null>(null)
+  const [isFlowModalOpen, setIsFlowModalOpen] = useState(false)
 
   const { mutate, isPending, isError, error, reset } = useContributionSuggestion()
 
@@ -94,9 +96,15 @@ export function ContributionsPage() {
             allocations={adjustedAllocations}
             amount={amount!}
             displayCurrency={suggestion.displayCurrency}
+            onUseSuggestion={() => setIsFlowModalOpen(true)}
           />
         </>
       )}
+
+      <ContributionFlowModal
+        isOpen={isFlowModalOpen}
+        onClose={() => setIsFlowModalOpen(false)}
+      />
     </div>
   )
 }
