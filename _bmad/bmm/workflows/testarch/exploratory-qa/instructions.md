@@ -8,6 +8,8 @@
 Realizar QA exploratorio automatizado para detectar problemas que los tests automatizados no cubren:
 - Errores de consola JavaScript
 - Elementos huérfanos (botones sin funcionalidad, links rotos)
+- **Páginas 404 y navegaciones rotas**
+- **Click-through testing de elementos interactivos**
 - Problemas de accesibilidad
 - Recursos de red fallidos
 
@@ -328,6 +330,65 @@ Parámetros:
 
 Esperar a que la página cargue completamente.
 
+### 3.1.1 Verificar que no es Página 404
+
+<critical>Este paso detecta páginas 404 que el servidor devuelve con status 200 (SPAs)</critical>
+
+```
+Llamar: mcp__chrome-devtools__evaluate_script
+Parámetros:
+  function: |
+    () => {
+      // Detectar páginas 404 por múltiples indicadores
+      const bodyText = document.body?.innerText?.toLowerCase() || '';
+      const title = document.title?.toLowerCase() || '';
+
+      const indicators = {
+        // Heading con 404
+        hasH1_404: Array.from(document.querySelectorAll('h1')).some(h =>
+          h.textContent?.includes('404')),
+        // Texto "not found" en el body
+        hasNotFoundText: bodyText.includes('not found') ||
+                         bodyText.includes('page not found') ||
+                         bodyText.includes('página no encontrada'),
+        // URL contiene 404
+        urlHas404: window.location.pathname.includes('404'),
+        // Título indica 404
+        title404: title.includes('404') || title.includes('not found'),
+        // Elemento específico de error (común en muchos frameworks)
+        hasErrorElement: !!document.querySelector('[data-testid="not-found"]') ||
+                         !!document.querySelector('.not-found') ||
+                         !!document.querySelector('.error-404') ||
+                         !!document.querySelector('#error-page')
+      };
+
+      const is404 = Object.values(indicators).some(v => v);
+
+      return {
+        is404,
+        indicators,
+        url: window.location.href,
+        pathname: window.location.pathname
+      };
+    }
+```
+
+<check if="is404 es true">
+  <action>Registrar como link roto CRÍTICO:</action>
+  ```javascript
+  findings.brokenLinks.push({
+    type: 'internal-404',
+    url: resultado.url,
+    pathname: resultado.pathname,
+    sourceRoute: ruta_anterior || 'direct',
+    indicators: resultado.indicators,
+    severity: 'critical'
+  });
+  ```
+  <action>Tomar screenshot del 404 para evidencia</action>
+  <action>Continuar con siguiente ruta (no explorar página 404)</action>
+</check>
+
 ### 3.2 Capturar Errores de Consola
 
 ```
@@ -564,6 +625,123 @@ Registrar path del screenshot.
 
 Agregar página explorada a pagesExplored con sus estadísticas.
 
+### 3.10 Click-Through Testing de Elementos Interactivos
+
+<critical>Este paso detecta navegaciones rotas que solo se activan al hacer click</critical>
+
+<optional>Este paso puede omitirse si se quiere una exploración más rápida</optional>
+
+<action>Identificar elementos clickeables que podrían navegar:</action>
+
+```
+Llamar: mcp__chrome-devtools__evaluate_script
+Parámetros:
+  function: |
+    () => {
+      const clickables = [];
+
+      // Links internos (no externos, no anchors)
+      document.querySelectorAll('a[href^="/"]').forEach((link, idx) => {
+        const href = link.getAttribute('href');
+        // Excluir logout y rutas peligrosas
+        if (!href.includes('logout') && !href.includes('delete')) {
+          clickables.push({
+            type: 'link',
+            selector: `a[href="${href}"]`,
+            href: href,
+            text: link.textContent.trim().slice(0, 30),
+            index: idx
+          });
+        }
+      });
+
+      // Botones que podrían navegar (fuera de forms, con texto sugestivo)
+      const navKeywords = ['ver', 'view', 'go', 'ir', 'open', 'abrir', 'set', 'edit', 'editar'];
+      document.querySelectorAll('button').forEach((btn, idx) => {
+        const inForm = btn.form || btn.closest('form');
+        const text = btn.textContent.toLowerCase().trim();
+        const mightNavigate = navKeywords.some(kw => text.includes(kw)) ||
+                              btn.querySelector('svg[class*="arrow"]') ||
+                              text.includes('→');
+
+        if (!inForm && mightNavigate) {
+          clickables.push({
+            type: 'button',
+            selector: null, // Se usará snapshot uid
+            text: btn.textContent.trim().slice(0, 30),
+            index: idx
+          });
+        }
+      });
+
+      // Limitar a 10 elementos por página para no hacer el test muy largo
+      return clickables.slice(0, 10);
+    }
+```
+
+<iterate>Para cada elemento clickeable encontrado:</iterate>
+
+1. <action>Guardar URL actual:</action>
+   ```javascript
+   const currentUrl = window.location.href;
+   ```
+
+2. <action>Tomar snapshot para obtener UIDs:</action>
+   ```
+   Llamar: mcp__chrome-devtools__take_snapshot
+   ```
+
+3. <action>Hacer click en el elemento:</action>
+   ```
+   Llamar: mcp__chrome-devtools__click
+   Parámetros:
+     uid: {uid del elemento del snapshot}
+   ```
+
+4. <action>Esperar posible navegación (500-1000ms)</action>
+
+5. <action>Verificar si navegó a 404 (usar lógica del paso 3.1.1):</action>
+   ```
+   Llamar: mcp__chrome-devtools__evaluate_script
+   Parámetros:
+     function: |
+       () => {
+         const bodyText = document.body?.innerText?.toLowerCase() || '';
+         const is404 = bodyText.includes('not found') ||
+                       bodyText.includes('page not found') ||
+                       Array.from(document.querySelectorAll('h1')).some(h =>
+                         h.textContent?.includes('404'));
+         return {
+           is404,
+           url: window.location.href,
+           pathname: window.location.pathname
+         };
+       }
+   ```
+
+6. <check if="is404 es true">
+     <action>Registrar como navegación rota CRÍTICA:</action>
+     ```javascript
+     findings.brokenLinks.push({
+       type: 'click-navigation-404',
+       sourceRoute: currentRoute,
+       elementType: elemento.type,
+       elementText: elemento.text,
+       targetUrl: resultado.pathname,
+       severity: 'critical'
+     });
+     ```
+     <action>Tomar screenshot del 404</action>
+   </check>
+
+7. <action>Volver a la página original:</action>
+   ```
+   Llamar: mcp__chrome-devtools__navigate_page
+   Parámetros:
+     type: "back"
+   ```
+   O navegar directamente a currentUrl si back no funciona.
+
 ---
 
 ## Paso 4: Verificar Links Internos
@@ -580,7 +758,7 @@ Parámetros:
   timeout: 5000
 ```
 
-<action>Verificar status de la navegación</action>
+<action>Verificar status HTTP de la navegación</action>
 
 ```
 Llamar: mcp__chrome-devtools__list_network_requests
@@ -592,6 +770,7 @@ Parámetros:
 Si status >= 400:
 ```javascript
 findings.brokenLinks.push({
+  type: 'http-error',
   sourceRoute: currentRoute,
   href: link_href,
   text: link_text,
@@ -599,6 +778,41 @@ findings.brokenLinks.push({
   severity: 'critical'
 });
 ```
+
+<action>Verificar 404 por contenido (SPAs devuelven 200 pero muestran 404)</action>
+
+```
+Llamar: mcp__chrome-devtools__evaluate_script
+Parámetros:
+  function: |
+    () => {
+      const bodyText = document.body?.innerText?.toLowerCase() || '';
+      const is404 = bodyText.includes('not found') ||
+                    bodyText.includes('page not found') ||
+                    bodyText.includes('página no encontrada') ||
+                    Array.from(document.querySelectorAll('h1')).some(h =>
+                      h.textContent?.includes('404'));
+      return {
+        is404,
+        url: window.location.href,
+        pathname: window.location.pathname
+      };
+    }
+```
+
+<check if="is404 es true (aunque status sea 200)">
+```javascript
+findings.brokenLinks.push({
+  type: 'spa-soft-404',
+  sourceRoute: currentRoute,
+  href: link_href,
+  text: link_text,
+  targetUrl: resultado.pathname,
+  note: 'SPA devolvió 200 pero muestra página 404',
+  severity: 'critical'
+});
+```
+</check>
 
 ---
 
