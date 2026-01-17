@@ -117,6 +117,6 @@ development_status:
   # Epic 10: Contribution Allocation Suggestions
   epic-10: in-progress
   10-1-contribution-suggestion-api: done
-  10-2-contribution-suggestion-ui: backlog
+  10-2-contribution-suggestion-ui: done
   10-3-contribution-to-transaction-integration: backlog
   epic-10-retrospective: optional
