@@ -27,6 +27,7 @@ import type {
   ChangePasswordInput,
   ExportData,
   ExchangeRateResponse,
+  ContributionSuggestion,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10002/api'
@@ -500,6 +501,21 @@ export const api = {
         credentials: 'include',
       })
       return handleResponse<ExchangeRateResponse>(res)
+    },
+  },
+
+  contributions: {
+    suggest: async (amount: number): Promise<ContributionSuggestion> => {
+      const res = await fetch(`${API_URL}/contributions/suggest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ amount }),
+      })
+      return handleResponse<ContributionSuggestion>(res)
     },
   },
 }

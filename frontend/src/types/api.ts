@@ -304,3 +304,32 @@ export interface ExchangeRateResponse {
   isStale: boolean
   source: string
 }
+
+// Contribution Types
+export interface ContributionAllocation {
+  assetId: string
+  ticker: string
+  name: string
+  targetPercentage: string
+  actualPercentage: string | null
+  deviation: string | null
+  baseAllocation: string
+  adjustedAllocation: string
+  adjustmentReason: 'underweight' | 'overweight' | null
+}
+
+export interface ContributionSuggestion {
+  amount: string
+  displayCurrency: string
+  allocations: ContributionAllocation[]
+  summary: {
+    totalAdjusted: string
+    underweightCount: number
+    overweightCount: number
+    balancedCount: number
+  }
+}
+
+export interface ContributionSuggestInput {
+  amount: number
+}

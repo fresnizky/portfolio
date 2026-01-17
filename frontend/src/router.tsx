@@ -7,6 +7,7 @@ import { TransactionsPage } from '@/features/transactions'
 import EvolutionPage from '@/features/evolution'
 import { OnboardingPage } from '@/features/onboarding'
 import { SettingsPage } from '@/features/settings'
+import { ContributionsPage } from '@/features/contributions'
 import { ProtectedRoute } from '@/components/common/ProtectedRoute'
 import { NotFound } from '@/components/common/NotFound'
 import { Layout } from '@/components/layout/Layout'
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
           {
             path: '/transactions',
             element: <TransactionsPage />,
+          },
+          {
+            path: '/contributions',
+            element: <ContributionsPage />,
           },
           {
             path: '/evolution',

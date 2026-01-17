@@ -50,4 +50,9 @@ export const queryKeys = {
     all: ['exchangeRates'] as const,
     current: () => [...queryKeys.exchangeRates.all, 'current'] as const,
   },
+  contributions: {
+    all: ['contributions'] as const,
+    suggestion: (amount: number) =>
+      [...queryKeys.contributions.all, 'suggestion', amount] as const,
+  },
 }
