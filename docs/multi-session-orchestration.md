@@ -48,7 +48,8 @@ Este sistema permite ejecutar múltiples sesiones de Claude Code simultáneament
 │   │   └── worktree-claude-md/
 │   │       ├── sm.claude.md            # Template Scrum Master
 │   │       ├── dev.claude.md           # Template Developer
-│   │       └── review.claude.md        # Template Reviewer
+│   │       ├── review.claude.md        # Template Reviewer
+│   │       └── qa.claude.md            # Template QA Exploratorio
 │   └── scripts/
 │       └── setup-worktrees.sh          # Script de setup
 │
@@ -56,7 +57,8 @@ Este sistema permite ejecutar múltiples sesiones de Claude Code simultáneament
     ├── wt-sm/                          # Scrum Master
     ├── wt-dev-1/                       # Developer 1
     ├── wt-dev-2/                       # Developer 2
-    └── wt-review/                      # Code Reviewer
+    ├── wt-review/                      # Code Reviewer
+    └── wt-qa/                          # QA Exploratorio
 ```
 
 ### Flujo de Datos
@@ -66,16 +68,16 @@ Este sistema permite ejecutar múltiples sesiones de Claude Code simultáneament
 │              sprint-board.yaml (Tablero Compartido)             │
 │                    _bmad-output/orchestration/                  │
 └─────────────────────────────────────────────────────────────────┘
-         ▲                    ▲                    ▲
-         │ lee/escribe        │ lee/escribe        │ lee/escribe
-         │                    │                    │
-    ┌────┴────┐          ┌────┴────┐          ┌────┴────┐
-    │   SM    │          │  Dev-1  │          │ Review  │
-    │ worktree│          │ worktree│          │ worktree│
-    └────┬────┘          └────┬────┘          └────┬────┘
-         │                    │                    │
-         │ push               │ push               │ lee
-         ▼                    ▼                    ▼
+       ▲            ▲            ▲            ▲
+       │            │            │            │ lee/escribe
+       │            │            │            │
+  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
+  │   SM    │  │  Dev-1  │  │ Review  │  │   QA    │
+  │ worktree│  │ worktree│  │ worktree│  │ worktree│
+  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘
+       │            │            │            │
+       │ push       │ push       │ lee        │ reporta
+       ▼            ▼            ▼            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                       Git Repository                             │
 └─────────────────────────────────────────────────────────────────┘
@@ -102,6 +104,7 @@ Esto crea:
 - `wt-dev-1` - Developer 1
 - `wt-dev-2` - Developer 2
 - `wt-review` - Code Reviewer
+- `wt-qa` - QA Exploratorio
 
 ### Paso 2: Inicializar Tablero de Orquestación
 
@@ -182,6 +185,21 @@ claude
 > git checkout feature/<branch-a-revisar>
 > /bmad:bmm:workflows:code-review                 # Ejecutar review
 ```
+
+#### QA Exploratorio
+
+```
+> /bmad:bmm:workflows:orchestrate status              # Ver stories listas
+> /bmad:bmm:workflows:orchestrate take <story>        # Reservar story para QA
+> /bmad:bmm:workflows:testarch-exploratory-qa         # Ejecutar QA con browser
+> # Revisar reporte en _bmad-output/exploratory-qa-report.md
+> /bmad:bmm:workflows:orchestrate complete <story>    # Marcar QA completado
+```
+
+**Nota:** QA Exploratorio requiere:
+- Chrome abierto con la aplicación corriendo
+- chrome-devtools MCP conectado
+- Configuración en `_bmad-output/qa-config.yaml`
 
 ### Sincronizar Tablero con Nuevas Stories
 

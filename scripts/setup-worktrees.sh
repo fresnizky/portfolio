@@ -141,6 +141,9 @@ done
 # Crear worktree de review
 create_worktree "wt-review" "review"
 
+# Crear worktree de QA exploratorio
+create_worktree "wt-qa" "qa"
+
 # Crear directorio de orquestacion si no existe
 ORCH_DIR="${PROJECT_ROOT}/_bmad-output/orchestration"
 if [ ! -d "${ORCH_DIR}" ]; then
@@ -184,6 +187,7 @@ for i in $(seq 1 $NUM_DEV_WORKTREES); do
     echo "  wt-dev-${i}    - Developer ${i}"
 done
 echo "  wt-review   - Code Review"
+echo "  wt-qa       - QA Exploratorio"
 echo ""
 echo "Proximos pasos:"
 echo ""
@@ -203,6 +207,9 @@ echo "     cd ${WORKTREES_DIR}/wt-dev-1 && claude"
 echo ""
 echo "     # Terminal Review"
 echo "     cd ${WORKTREES_DIR}/wt-review && claude"
+echo ""
+echo "     # Terminal QA"
+echo "     cd ${WORKTREES_DIR}/wt-qa && claude"
 echo ""
 echo "  4. En cada sesion, usa /orchestrate para coordinar:"
 echo "     > /orchestrate status   # Ver estado"
