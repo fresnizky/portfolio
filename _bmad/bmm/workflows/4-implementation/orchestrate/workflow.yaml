@@ -1,0 +1,34 @@
+# Orchestration Workflow - Multi-Session Coordination
+# Coordinates multiple Claude Code sessions working in parallel using git worktrees
+
+name: orchestrate
+description: "Coordinate multiple Claude Code sessions working in parallel on the same project using git worktrees and a shared sprint board"
+
+# Configuration sources
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+project_name: "{config_source}:project_name"
+implementation_artifacts: "{config_source}:implementation_artifacts"
+
+# Workflow paths
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/orchestrate"
+instructions: "{installed_path}/instructions.md"
+template: "{installed_path}/sprint-board-template.yaml"
+
+# Key file locations
+variables:
+  sprint_status_file: "{implementation_artifacts}/sprint-status.yaml"
+  orchestration_dir: "{output_folder}/orchestration"
+  sprint_board_file: "{output_folder}/orchestration/sprint-board.yaml"
+
+# Input patterns for discovery
+input_file_patterns:
+  sprint_status:
+    description: "Sprint status file containing story states"
+    whole: "{implementation_artifacts}/sprint-status.yaml"
+    load_strategy: "FULL_LOAD"
+
+# Standalone workflow - generates IDE command
+standalone: true

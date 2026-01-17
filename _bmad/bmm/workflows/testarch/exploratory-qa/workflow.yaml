@@ -1,0 +1,77 @@
+# Exploratory QA Workflow - Automated Browser Testing
+# Uses chrome-devtools MCP to detect issues that automated tests miss
+
+name: testarch-exploratory-qa
+description: "Automated exploratory QA using chrome-devtools MCP to detect console errors, orphan elements, broken links, accessibility issues, and network problems"
+
+# Configuration sources
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+project_name: "{config_source}:project_name"
+
+# Workflow paths
+installed_path: "{project-root}/_bmad/bmm/workflows/testarch/exploratory-qa"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+template: "{installed_path}/qa-report-template.md"
+
+# Variables
+variables:
+  # Target configuration (user provides or from config file)
+  base_url: ""
+  routes: []
+  auto_discover_routes: true
+
+  # Config file for persistent settings
+  config_file: "{output_folder}/qa-config.yaml"
+
+  # Exploration limits
+  max_depth: 3
+  max_pages: 20
+  wait_time: 2000
+
+  # Output paths
+  screenshot_dir: "{output_folder}/qa-screenshots"
+  report_file: "{output_folder}/exploratory-qa-report.md"
+
+  # Auth configuration (loaded from config_file if exists)
+  auth:
+    enabled: false
+    login_url: "/login"
+    selectors:
+      username: ""
+      password: ""
+      submit: ""
+
+  # Detection toggles
+  check_console_errors: true
+  check_orphan_elements: true
+  check_broken_links: true
+  check_accessibility: true
+  check_network_issues: true
+
+# Default output
+default_output_file: "{output_folder}/exploratory-qa-report.md"
+
+# Required MCP tools
+required_mcp_tools:
+  - mcp__chrome-devtools__take_snapshot
+  - mcp__chrome-devtools__take_screenshot
+  - mcp__chrome-devtools__navigate_page
+  - mcp__chrome-devtools__list_console_messages
+  - mcp__chrome-devtools__list_network_requests
+  - mcp__chrome-devtools__evaluate_script
+  - mcp__chrome-devtools__list_pages
+  - mcp__chrome-devtools__new_page
+
+tags:
+  - qa
+  - exploratory
+  - test-architect
+  - accessibility
+  - browser-testing
+  - mcp
+
+standalone: true

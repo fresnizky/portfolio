@@ -1,0 +1,80 @@
+# QA Exploratorio - Configuración Persistente
+# ============================================
+#
+# Copia este archivo a: _bmad-output/qa-config.yaml
+# y personalízalo para tu proyecto.
+#
+# El PASSWORD nunca se guarda - se pide en cada ejecución.
+
+# URL base de la aplicación
+base_url: "http://localhost:3000"
+
+# Configuración de autenticación
+auth:
+  # true si la app requiere login
+  enabled: false
+
+  # Ruta de la página de login (relativa a base_url)
+  login_url: "/login"
+
+  # Selectores CSS para los campos del formulario
+  selectors:
+    # Selector del campo de usuario/email
+    # Ejemplos: "#email", "input[name='email']", "[data-testid='email-input']"
+    username: "#email"
+
+    # Selector del campo de password
+    # Ejemplos: "#password", "input[name='password']", "[type='password']"
+    password: "#password"
+
+    # Selector del botón de submit
+    # Ejemplos: "button[type='submit']", "#login-btn", "[data-testid='login-button']"
+    submit: "button[type='submit']"
+
+  # (Opcional) Username por defecto - para no tener que escribirlo cada vez
+  # default_username: "admin@example.com"
+
+# Configuración de exploración
+exploration:
+  # Rutas específicas a explorar (vacío = auto-descubrir)
+  # Ejemplo: ["/", "/dashboard", "/settings", "/profile"]
+  routes: []
+
+  # Profundidad máxima de navegación para auto-descubrimiento
+  max_depth: 3
+
+  # Número máximo de páginas a explorar
+  max_pages: 20
+
+  # Tiempo de espera después de cada navegación (ms)
+  wait_time: 2000
+
+# Qué verificaciones ejecutar
+checks:
+  # Errores de consola JavaScript
+  console_errors: true
+
+  # Elementos huérfanos (botones sin acción, links vacíos)
+  orphan_elements: true
+
+  # Links internos rotos (404)
+  broken_links: true
+
+  # Problemas de accesibilidad (a11y)
+  accessibility: true
+
+  # Problemas de red (requests fallidos)
+  network_issues: true
+
+# Rutas a excluir de la exploración
+# (útil para evitar logout, páginas de admin peligrosas, etc.)
+exclude_routes:
+  - "/logout"
+  - "/api/*"
+  - "/*.json"
+
+# Selectores de elementos a ignorar en detección de huérfanos
+# (útil para componentes de terceros que no controlamos)
+ignore_selectors:
+  - ".third-party-widget button"
+  - "[data-external]"

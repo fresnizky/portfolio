@@ -1,0 +1,48 @@
+# Sprint Orchestration Board
+# Generated: {date}
+# Project: {project_name}
+#
+# IMPORTANTE: Este archivo NO debe commitearse a git
+# Agregar a .gitignore: _bmad-output/orchestration/
+#
+# Este tablero coordina multiples sesiones de Claude Code
+# trabajando en paralelo sobre el mismo proyecto.
+
+metadata:
+  generated: "{date}"
+  project: "{project_name}"
+  source: "{sprint_status_file}"
+  version: "1.0.0"
+
+# Estados posibles de stories en el tablero:
+#
+# - available: Disponible para que cualquier sesion la tome
+# - in-progress: Asignada a una sesion, en desarrollo
+# - completed: Finalizada por la sesion asignada
+# - archived: Story eliminada de sprint-status.yaml
+# - blocked: Bloqueada, requiere accion manual
+
+stories:
+  # Estructura de cada story:
+  #
+  # story-key:
+  #   original_status: ready-for-dev    # Estado en sprint-status.yaml
+  #   status: available                  # Estado en el tablero
+  #   assigned_to: null                  # ID de sesion (dev-1, sm, etc)
+  #   worktree: null                     # Nombre del worktree
+  #   assigned_at: null                  # Timestamp de asignacion
+  #   completed_at: null                 # Timestamp de completado
+  #   notes: null                        # Notas opcionales
+
+history:
+  # Registro de acciones para auditoria
+  #
+  # - timestamp: "2026-01-17T10:00:00Z"
+  #   action: "init"
+  #   details: "Board initialized with 5 stories"
+  #
+  # - timestamp: "2026-01-17T10:15:00Z"
+  #   action: "take"
+  #   story: "10-3-contribution-integration"
+  #   session: "dev-1"
+  #   worktree: "wt-dev-1"
